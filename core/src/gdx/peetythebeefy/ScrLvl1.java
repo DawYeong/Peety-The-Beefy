@@ -22,6 +22,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch;
     Texture img;
+    float fX, fY;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -43,9 +44,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
             game.updateScreen(0);
         }
         batch.begin();
-        batch.draw(img,0,0);
+        batch.draw(img,fX,fY);
         batch.end();
 
+    }
+    public void move() {
+        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+            fX -= 5;
+        }
     }
 
     @Override
