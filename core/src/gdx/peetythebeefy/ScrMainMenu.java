@@ -46,6 +46,13 @@ public class ScrMainMenu implements Screen, InputProcessor {
         batch.end();
 
     }
+    
+    public void nBanter(int nBanter) {
+        if(nBanter == 5) {
+            System.out.println("BANTER");
+        }
+        
+    }
 
     @Override
     public void resize(int i, int i1) {
