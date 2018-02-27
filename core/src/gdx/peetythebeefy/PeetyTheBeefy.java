@@ -2,15 +2,17 @@ package gdx.peetythebeefy;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 
-public class PeetyTheBeefy extends Game {
+public class PeetyTheBeefy extends Game implements InputProcessor{
 
     SpriteBatch batch;
     ScrMainMenu scrMainMenu;
     ScrLvl1 scrLvl1;
+    float fMouseX, fMouseY;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     @Override
@@ -18,6 +20,7 @@ public class PeetyTheBeefy extends Game {
         batch = new SpriteBatch();
         scrMainMenu = new ScrMainMenu(this);
         scrLvl1 = new ScrLvl1(this);
+        Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
     }
 
@@ -38,8 +41,6 @@ public class PeetyTheBeefy extends Game {
     }
 
     public void Buttons() {
-        alButtons.add(new Buttons("badlogic.jpg", batch, 250, 450, 100, 100));
-        alButtons.add(new Buttons("badlogic.jpg", batch, 250, 325, 100, 100));
         alButtons.add(new Buttons("badlogic.jpg", batch, 250, 200, 100, 100));
         alButtons.add(new Buttons("badlogic.jpg", batch, 250, 75, 100, 100));
 
@@ -48,11 +49,58 @@ public class PeetyTheBeefy extends Game {
     public void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
+            if(fMouseX > alButtons.get(i).fX && fMouseX < alButtons.get(i). fX + alButtons.get(i).fW &&
+                    fMouseY > alButtons.get(i).fY && fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
+                alButtons.remove(i);
+            }
         }
     }
 
     @Override
     public void dispose() {
         batch.dispose();
+    }
+
+    @Override
+    public boolean keyDown(int i) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int i) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char c) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int i, int i1, int i2, int i3) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int i, int i1, int i2, int i3) {
+        fMouseX = Gdx.input.getX();
+        fMouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        //System.out.println(fMouseX + " " + fMouseY);
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int i, int i1, int i2) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int i, int i1) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int i) {
+        return false;
     }
 }

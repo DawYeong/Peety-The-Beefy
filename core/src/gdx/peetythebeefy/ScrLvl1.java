@@ -43,16 +43,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
             game.updateScreen(0);
         }
-        batch.begin();
-        batch.draw(img,fX,fY);
-        batch.end();
 
     }
-    public void move() {
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            fX -= 5;
-        }
-    }
+
 
     @Override
     public void resize(int i, int i1) {

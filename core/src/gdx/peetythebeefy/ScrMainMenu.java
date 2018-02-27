@@ -41,9 +41,9 @@ public class ScrMainMenu implements Screen, InputProcessor {
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
             game.updateScreen(1);
         }
-        batch.begin();
-        batch.draw(img,100,100);
-        batch.end();
+//        batch.begin();
+//        batch.draw(img,100,100);
+//        batch.end();
 
     }
     
