@@ -5,14 +5,18 @@
  */
 package gdx.peetythebeefy.cookiecutters;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 /**
  *
  * @author benny
  */
 public class buttons {
     
+    Texture img;
     
-    buttons() {
+    buttons(String Image, SpriteBatch batch, float X, float Y, float Width, float Height) {
         
     }
 }
