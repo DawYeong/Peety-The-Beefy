@@ -8,5 +8,7 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		new LwjglApplication(new PeetyTheBeefy(), config);
+                config.width = 960;
+                config.height = 960;
 	}
 }
