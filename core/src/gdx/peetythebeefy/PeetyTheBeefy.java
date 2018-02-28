@@ -22,12 +22,12 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
         scrLvl1 = new ScrLvl1(this);
         Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
+        Buttons();       
     }
 
     @Override
     public void render() {
         super.render();
-        Buttons();
         drawButtons();
     }
 
@@ -41,9 +41,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
     }
 
     public void Buttons() {
-        alButtons.add(new Buttons("badlogic.jpg", batch, 250, 200, 100, 100));
-        alButtons.add(new Buttons("badlogic.jpg", batch, 250, 75, 100, 100));
-
+        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 100));
     }
 
     public void drawButtons() {
@@ -51,7 +49,13 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
             alButtons.get(i).Update();
             if(fMouseX > alButtons.get(i).fX && fMouseX < alButtons.get(i). fX + alButtons.get(i).fW &&
                     fMouseY > alButtons.get(i).fY && fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
-                alButtons.remove(i);
+                if(getScreen() == scrMainMenu) {
+                    setScreen(scrLvl1);
+                } else if(getScreen() == scrLvl1) {
+                    setScreen(scrMainMenu);
+                }
+                fMouseX = Gdx.graphics.getWidth();
+                fMouseY = Gdx.graphics.getHeight();
             }
         }
     }
