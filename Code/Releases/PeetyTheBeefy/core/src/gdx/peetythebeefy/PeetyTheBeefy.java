@@ -11,15 +11,19 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
 
     SpriteBatch batch;
     ScrMainMenu scrMainMenu;
+    ScrStageSelect scrStageSelect;
+    ScrControls scrControls;
     ScrLvl1 scrLvl1;
-    float fMouseX, fMouseY;
+    static float fMouseX, fMouseY;
     public ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         scrMainMenu = new ScrMainMenu(this);
+        scrStageSelect = new ScrStageSelect(this);
         scrLvl1 = new ScrLvl1(this);
+        scrControls = new ScrControls(this);
         Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
 //        Buttons();       
@@ -35,11 +39,16 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
         if (nScreen == 0) {
             setScreen(scrMainMenu);
         } else if (nScreen == 1) {
+            setScreen(scrStageSelect);
+        } else if(nScreen == 2) {
             setScreen(scrLvl1);
-            //lol
+        } else if(nScreen == 3) {
+            setScreen(scrControls);
         }
 
     }
+    
+    
 
 //    public void Buttons() {
 //        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 100));

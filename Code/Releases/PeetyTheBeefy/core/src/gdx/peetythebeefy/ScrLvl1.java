@@ -12,6 +12,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import gdx.peetythebeefy.cookiecutters.Buttons;
+import java.util.ArrayList;
 
 /**
  *
@@ -22,7 +24,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch;
     Texture img;
-    float fX, fY;
+    ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -34,16 +36,35 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public void show() {
+        createButtons();
     }
 
     @Override
     public void render(float f) {
         Gdx.gl.glClearColor(0, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-            game.updateScreen(0);
-        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+//            game.updateScreen(0);
+//        }
+        drawButtons();
 
+    }
+    
+        public void createButtons() {
+        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
+    }
+
+    public void drawButtons() {
+        for (int i = 0; i < alButtons.size(); i++) {
+            alButtons.get(i).Update();
+            if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
+                    && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
+                System.out.println("moves to the stageselectscreen");
+                game.updateScreen(1);
+                PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
+                PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+            }
+        }
     }
 
 
