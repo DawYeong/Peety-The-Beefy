@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 
-public class PeetyTheBeefy extends Game implements InputProcessor{
+public class PeetyTheBeefy extends Game implements InputProcessor {
 
     SpriteBatch batch;
     ScrMainMenu scrMainMenu;
@@ -33,6 +33,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
     public void render() {
         super.render();
 //        drawButtons();
+//        System.out.println(fMouseX + " " + fMouseY);
     }
 
     public void updateScreen(int nScreen) {
@@ -40,20 +41,17 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
             setScreen(scrMainMenu);
         } else if (nScreen == 1) {
             setScreen(scrStageSelect);
-        } else if(nScreen == 2) {
+        } else if (nScreen == 2) {
             setScreen(scrLvl1);
-        } else if(nScreen == 3) {
+        } else if (nScreen == 3) {
             setScreen(scrControls);
         }
 
     }
-    
-    
 
 //    public void Buttons() {
 //        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 100));
 //    }
-
 //    public void drawButtons() {
 //        for (int i = 0; i < alButtons.size(); i++) {
 //            alButtons.get(i).Update();
@@ -69,7 +67,6 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
 //            }
 //        }
 //    }
-
     @Override
     public void dispose() {
         batch.dispose();
@@ -99,7 +96,6 @@ public class PeetyTheBeefy extends Game implements InputProcessor{
     public boolean touchUp(int i, int i1, int i2, int i3) {
         fMouseX = Gdx.input.getX();
         fMouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        //System.out.println(fMouseX + " " + fMouseY);
         return false;
     }
 

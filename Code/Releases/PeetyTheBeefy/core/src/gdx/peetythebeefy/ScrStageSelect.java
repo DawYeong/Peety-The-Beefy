@@ -54,6 +54,7 @@ public class ScrStageSelect implements Screen {
                     && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 if (i == 0) {
                     System.out.println("moves to lvl1");
+                    ScrLvl1.isShowing = false;
                     game.updateScreen(2);
                 } else if (i == 1) {
                     System.out.println("moves to main menu");

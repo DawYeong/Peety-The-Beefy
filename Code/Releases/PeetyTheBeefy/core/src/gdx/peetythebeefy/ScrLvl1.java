@@ -25,6 +25,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     SpriteBatch batch;
     Texture img;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -32,7 +33,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         img = new Texture("badlogic.jpg");
         Gdx.input.setInputProcessor(this);
     }
-
 
     @Override
     public void show() {
@@ -46,11 +46,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
 //        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
 //            game.updateScreen(0);
 //        }
-        drawButtons();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
+            PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+            if (isShowing == false) {
+                isShowing = true;
+            } else {
+                isShowing = false;
+            }
+        }
+        if (isShowing == true) {
+            drawButtons();
+        }
 
     }
-    
-        public void createButtons() {
+
+    public void createButtons() {
         alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
     }
 
@@ -66,7 +77,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
         }
     }
-
 
     @Override
     public void resize(int i, int i1) {
