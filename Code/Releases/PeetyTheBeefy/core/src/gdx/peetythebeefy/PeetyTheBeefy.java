@@ -49,24 +49,6 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
 
     }
 
-//    public void Buttons() {
-//        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 100));
-//    }
-//    public void drawButtons() {
-//        for (int i = 0; i < alButtons.size(); i++) {
-//            alButtons.get(i).Update();
-//            if(fMouseX > alButtons.get(i).fX && fMouseX < alButtons.get(i). fX + alButtons.get(i).fW &&
-//                    fMouseY > alButtons.get(i).fY && fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
-//                if(getScreen() == scrMainMenu) {
-//                    setScreen(scrLvl1);
-//                } else if(getScreen() == scrLvl1) {
-//                    setScreen(scrMainMenu);
-//                }
-//                fMouseX = Gdx.graphics.getWidth();
-//                fMouseY = Gdx.graphics.getHeight();
-//            }
-//        }
-//    }
     @Override
     public void dispose() {
         batch.dispose();

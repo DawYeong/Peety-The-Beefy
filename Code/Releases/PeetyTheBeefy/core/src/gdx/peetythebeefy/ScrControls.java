@@ -77,5 +77,7 @@ public class ScrControls implements Screen {
 
     @Override
     public void dispose() {
+        batch.dispose();
+        img.dispose();
     }
 }
