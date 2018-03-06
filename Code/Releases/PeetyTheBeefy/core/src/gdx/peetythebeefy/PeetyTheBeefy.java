@@ -37,6 +37,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     }
 
     public void updateScreen(int nScreen) {
+        //lol
         if (nScreen == 0) {
             setScreen(scrMainMenu);
         } else if (nScreen == 1) {
