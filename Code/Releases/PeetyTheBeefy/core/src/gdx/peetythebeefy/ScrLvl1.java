@@ -47,22 +47,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
         this.game = game;
         this.batch = game.batch;
         img = new Texture("badlogic.jpg");
-//        world = new World(new Vector2(0f, 0f), false);
+        world = new World(new Vector2(0f, 0f), false);
         playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-        fW = 32;
-        fH = 32;
-//        camera = new OrthographicCamera();
-//        camera.setToOrtho(false, 0, 0);
-//        b2dr = new Box2DDebugRenderer();
+        fW = 16;
+        fH = 16;
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, playerPosition.x, playerPosition.y);
+        b2dr = new Box2DDebugRenderer();
         Gdx.input.setInputProcessor(this);
     }
 
     @Override
     public void show() {
         createButtons();
-//        player = createBody(100, 100, fW, fH, false);
-        //createPlayer();
-        //drawPlayer();
+        //player = createBody(100, 100, fW, fH, false);
+        createPlayer();
+        drawPlayer();
     }
 
     @Override
@@ -85,31 +85,30 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (isShowing == true) {
             drawButtons();
         }
-//        update();
-//        b2dr.render(world, camera.combined.scl(32));
-        //drawPlayer();
+        update();
+        b2dr.render(world, camera.combined.scl(32));
         // System.out.println(playerPosition.x + " " + playerPosition.y);
     }
 //
-//    public void update() {
-//        world.step(1 / 60f, 6, 2);
-//        cameraUpdate();
-//        //batch.setProjectionMatrix(camera.combined);
-//    }
+    public void update() {
+        world.step(1 / 60f, 6, 2);
+        cameraUpdate();
+//        batch.setProjectionMatrix(camera.combined);
+    }
 //
-//    public void cameraUpdate() {
-//        camera.position.set(0, 0, 0);
-//        camera.update();
-//    }
-//
-//    public void createPlayer() {
-//        alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
-//    }
-//
-//    public void drawPlayer() {
-//        alPlayer.get(0).Update();
-//    }
-//
+    public void cameraUpdate() {
+        camera.position.set(0, 0, 0);
+        camera.update();
+    }
+
+    public void createPlayer() {
+        alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
+    }
+
+    public void drawPlayer() {
+        alPlayer.get(0).Update();
+    }
+
 //    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
 //        Body pBody;
 //        BodyDef def = new BodyDef();

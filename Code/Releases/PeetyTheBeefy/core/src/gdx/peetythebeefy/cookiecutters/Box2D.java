@@ -42,10 +42,10 @@ public class Box2D {
     }
 
     public void Update() {
-       // player = createBody(fX, fY, fW, fH, isStatic);
-        batch.begin();
-        batch.draw(sprPlayer, fX, fY, 32, 32);
-        batch.end();
+          player = createBody(fX, fY, fW, fH, isStatic);
+//        batch.begin();
+//        batch.draw(sprPlayer, fX, fY, 32, 32);
+//        batch.end();
     }
 
     public Body createBody(float x, float y, float width, float height, boolean isStatic) {

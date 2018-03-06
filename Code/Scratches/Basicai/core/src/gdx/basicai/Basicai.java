@@ -109,7 +109,6 @@ public class Basicai extends ApplicationAdapter{
         b2dr.dispose();
         world.dispose();
         
-
     }
 
     @Override
