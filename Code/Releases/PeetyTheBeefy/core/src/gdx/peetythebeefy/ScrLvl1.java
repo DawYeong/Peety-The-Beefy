@@ -60,9 +60,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void show() {
         createButtons();
-        //player = createBody(100, 100, fW, fH, false);
-        createPlayer();
-        drawPlayer();
+        player = createBody(100, 100, fW, fH, false);
+//        createPlayer();
+//        drawPlayer();
     }
 
     @Override
@@ -109,25 +109,25 @@ public class ScrLvl1 implements Screen, InputProcessor {
         alPlayer.get(0).Update();
     }
 
-//    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
-//        Body pBody;
-//        BodyDef def = new BodyDef();
-//        if (isStatic) {
-//            def.type = BodyDef.BodyType.StaticBody;
-//        } else {
-//            def.type = BodyDef.BodyType.DynamicBody;
-//        }
-//        def.position.set(x / 32, y / 32);
-//        def.fixedRotation = false;
-//        pBody = world.createBody(def);
-//
-//        PolygonShape shape = new PolygonShape();
-//        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
-//
-//        pBody.createFixture(shape, 1.0f);
-//        shape.dispose();
-//        return pBody;
-//    }
+    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
+        Body pBody;
+        BodyDef def = new BodyDef();
+        if (isStatic) {
+            def.type = BodyDef.BodyType.StaticBody;
+        } else {
+            def.type = BodyDef.BodyType.DynamicBody;
+        }
+        def.position.set(x / 32, y / 32);
+        def.fixedRotation = false;
+        pBody = world.createBody(def);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
+
+        pBody.createFixture(shape, 1.0f);
+        shape.dispose();
+        return pBody;
+    }
 
     public void createButtons() {
         alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
@@ -148,7 +148,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public void resize(int i, int i1) {
-
+         camera.setToOrtho(false, i, i1);
     }
 
     @Override
