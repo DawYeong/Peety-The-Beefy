@@ -43,7 +43,7 @@ public class ScrControls implements Screen {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
+        alButtons.add(new Buttons("backButton.png", batch, -8, 0, 96, 32));
     }
 
     public void drawButtons() {

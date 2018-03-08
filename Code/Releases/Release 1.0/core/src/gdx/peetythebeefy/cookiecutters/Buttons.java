@@ -16,13 +16,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Buttons {
     
     SpriteBatch batch;
-    Texture img;
+    Texture texButtonImage;
     Sprite sprButton;
     public float fX, fY, fW, fH;
     public Buttons(String Image, SpriteBatch batch, float X, float Y, float Width, float Height) {
         this.batch = batch;
-        img = new Texture(Image);
-        sprButton = new Sprite(img);
+        texButtonImage = new Texture(Image);
+        sprButton = new Sprite(texButtonImage);
         this.fX = X;
         this.fY = Y;
         this.fW = Width;
@@ -34,8 +34,10 @@ public class Buttons {
     }
     
     public void createButtons() {
+        sprButton.setPosition(fX, fY);
+        sprButton.setSize(fW, fH);
         batch.begin();
-        batch.draw(sprButton, fX, fY, fW, fH);
+        sprButton.draw(batch);
         batch.end();
     }
 }

@@ -6,7 +6,6 @@
 package gdx.peetythebeefy;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
+import static gdx.peetythebeefy.PeetyTheBeefy.nSCREENHEIGHT;
 
 /**
  *
@@ -25,6 +25,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
     SpriteBatch batch;
     Texture img;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    
+    
 
     public ScrMainMenu(PeetyTheBeefy game) {
         this.game = game;
@@ -50,8 +52,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("badlogic.jpg", batch, 350, 550, 100, 50));
-        alButtons.add(new Buttons("badlogic.jpg", batch, 350, 450, 100, 50));
+        alButtons.add(new Buttons("playButton.png", batch, -8,nSCREENHEIGHT/2, 192, 64));
+        alButtons.add(new Buttons("controlsButton.png", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
     }
 
     public void drawButtons() {

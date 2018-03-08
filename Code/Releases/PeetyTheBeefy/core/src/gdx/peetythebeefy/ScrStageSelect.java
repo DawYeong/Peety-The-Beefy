@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
+import static gdx.peetythebeefy.PeetyTheBeefy.nSCREENHEIGHT;
+import static gdx.peetythebeefy.PeetyTheBeefy.nSCREENWIDTH;
 
 /**
  *
@@ -43,8 +45,8 @@ public class ScrStageSelect implements Screen {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("badlogic.jpg", batch, 350, 450, 200, 100));
-        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
+        alButtons.add(new Buttons("b1.png", batch, 64, nSCREENHEIGHT -128, 64, 64));
+        alButtons.add(new Buttons("backButton.png", batch, -8, 0, 96, 32));
     }
 
     public void drawButtons() {
@@ -60,8 +62,8 @@ public class ScrStageSelect implements Screen {
                     System.out.println("moves to main menu");
                     game.updateScreen(0);
                 }
-                PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+                PeetyTheBeefy.fMouseX = nSCREENWIDTH; // just moves mouse away from button
+                PeetyTheBeefy.fMouseY = nSCREENHEIGHT;
             }
         }
     }

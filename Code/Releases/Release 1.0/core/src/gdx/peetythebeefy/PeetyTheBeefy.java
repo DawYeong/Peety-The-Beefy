@@ -15,6 +15,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrControls scrControls;
     ScrLvl1 scrLvl1;
     static float fMouseX, fMouseY;
+    public static int nSCREENWIDTH, nSCREENHEIGHT;
     public ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     @Override
@@ -24,9 +25,11 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         scrStageSelect = new ScrStageSelect(this);
         scrLvl1 = new ScrLvl1(this);
         scrControls = new ScrControls(this);
+        nSCREENWIDTH = Gdx.graphics.getWidth();
+        nSCREENHEIGHT = Gdx.graphics.getHeight();
         Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
-//        Buttons();       
+//      Buttons();       
     }
 
     @Override
@@ -37,6 +40,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     }
 
     public void updateScreen(int nScreen) {
+        //lol
         if (nScreen == 0) {
             setScreen(scrMainMenu);
         } else if (nScreen == 1) {
