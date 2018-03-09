@@ -21,13 +21,11 @@ public class ScrControls implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture img;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrControls(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        img = new Texture("badlogic.jpg");
     }
 
     @Override
@@ -43,7 +41,7 @@ public class ScrControls implements Screen {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("backButton.png", batch, -8, 0, 96, 32));
+        alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
 
     public void drawButtons() {
@@ -78,6 +76,5 @@ public class ScrControls implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
     }
 }

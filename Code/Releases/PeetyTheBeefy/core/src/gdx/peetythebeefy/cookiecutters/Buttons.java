@@ -8,6 +8,7 @@ package gdx.peetythebeefy.cookiecutters;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 
 /**
  *
@@ -16,13 +17,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Buttons {
     
     SpriteBatch batch;
-    Texture texButtonImage;
+    TextureAtlas buttonAtlas;
     Sprite sprButton;
     public float fX, fY, fW, fH;
     public Buttons(String Image, SpriteBatch batch, float X, float Y, float Width, float Height) {
         this.batch = batch;
-        texButtonImage = new Texture(Image);
-        sprButton = new Sprite(texButtonImage);
+        buttonAtlas = new TextureAtlas("buttons.txt");
+        sprButton = buttonAtlas.createSprite(Image);
         this.fX = X;
         this.fY = Y;
         this.fW = Width;

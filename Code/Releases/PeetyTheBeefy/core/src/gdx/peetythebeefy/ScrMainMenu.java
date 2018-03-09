@@ -52,9 +52,9 @@ public class ScrMainMenu implements Screen, InputProcessor {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("playButton.png", batch, -8,nSCREENHEIGHT/2, 192, 64));
-        alButtons.add(new Buttons("controlsButton.png", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
-        alButtons.add(new Buttons("stagesButton.png", batch, -8, nSCREENHEIGHT/2 - 256, 192, 64));
+        alButtons.add(new Buttons("playButton", batch, -8,nSCREENHEIGHT/2, 192, 64));
+        alButtons.add(new Buttons("controlsButton", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
+        alButtons.add(new Buttons("stagesButton", batch, -8, nSCREENHEIGHT/2 - 256, 192, 64));
     }
 
     public void drawButtons() {
