@@ -145,6 +145,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
         }
     }
+    
 
     @Override
     public void resize(int i, int i1) {
