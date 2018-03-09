@@ -54,6 +54,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     public void createButtons() {
         alButtons.add(new Buttons("playButton.png", batch, -8,nSCREENHEIGHT/2, 192, 64));
         alButtons.add(new Buttons("controlsButton.png", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
+        alButtons.add(new Buttons("stagesButton.png", batch, -8, nSCREENHEIGHT/2 - 256, 192, 64));
     }
 
     public void drawButtons() {
@@ -62,11 +63,14 @@ public class ScrMainMenu implements Screen, InputProcessor {
             if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 if (i == 0) {
-                    System.out.println("moves to Stage Select screen");
-                    game.updateScreen(1);
+                    System.out.println("moves to Lvl 1 screen");
+                    game.updateScreen(2);
                 } else if (i == 1) {
                     System.out.println("moves to the controls");
                     game.updateScreen(3);
+                } else if (i == 2) {
+                    System.out.println("moves to the stage select");
+                    game.updateScreen(1);
                 }
                 PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
                 PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
