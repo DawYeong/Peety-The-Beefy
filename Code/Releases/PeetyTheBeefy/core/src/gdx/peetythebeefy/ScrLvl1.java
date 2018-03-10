@@ -61,8 +61,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void show() {
         createButtons();
         //player = createBody(100, 100, fW, fH, false);
-        //tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
-        //otmr = new OrthogonalTiledMapRenderer(tMap);      
+        tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
+        otmr = new OrthogonalTiledMapRenderer(tMap);      
         createPlayer();
         drawPlayer();
     }
@@ -89,7 +89,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
         update();
         alPlayer.get(0).move();
-        //otmr.render();
+        otmr.render();
         b2dr.render(world, camera.combined.scl(32));
     }
 //
