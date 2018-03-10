@@ -45,8 +45,8 @@ public class ScrStageSelect implements Screen {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("b1.png", batch, 64, nSCREENHEIGHT -128, 64, 64));
-        alButtons.add(new Buttons("backButton.png", batch, -8, 0, 96, 32));
+        alButtons.add(new Buttons("b1", batch, 64, nSCREENHEIGHT -128, 64, 64));
+        alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
 
     public void drawButtons() {

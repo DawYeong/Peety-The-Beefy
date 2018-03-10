@@ -23,7 +23,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture img;
+    Texture texMenu;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
     
     
@@ -31,7 +31,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     public ScrMainMenu(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        img = new Texture("badlogic.jpg");
+        texMenu = new Texture("mainMenu.png");
         Gdx.input.setInputProcessor(this);
     }
 
@@ -42,19 +42,27 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     @Override
     public void render(float f) {
+        
         Gdx.gl.glClearColor(1, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 //        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
 //            game.updateScreen(1);
 //        }
+        batch.begin();
+
+        batch.draw(texMenu, 250, 200);
+        batch.draw(texMenu, 0, 0);
+
+        batch.end();
         drawButtons();
+
 
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("playButton.png", batch, -8,nSCREENHEIGHT/2, 192, 64));
-        alButtons.add(new Buttons("controlsButton.png", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
-        alButtons.add(new Buttons("stagesButton.png", batch, -8, nSCREENHEIGHT/2 - 256, 192, 64));
+        alButtons.add(new Buttons("playButton", batch, -8,nSCREENHEIGHT/2, 192, 64));
+        alButtons.add(new Buttons("controlsButton", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
+        alButtons.add(new Buttons("stagesButton", batch, -8, nSCREENHEIGHT/2 - 256, 192, 64));
     }
 
     public void drawButtons() {
