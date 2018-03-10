@@ -11,14 +11,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import gdx.peetythebeefy.cookiecutters.Box2D;
@@ -32,27 +31,28 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture img;
     World world;
     Vector2 playerPosition;
     float fW, fH;
     Body player;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
+    OrthogonalTiledMapRenderer otmr;
     ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlayer = new ArrayList<Box2D>();
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    TiledMap tMap;
+    int count = 0;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        img = new Texture("badlogic.jpg");
         world = new World(new Vector2(0f, 0f), false);
         playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-        fW = 16;
-        fH = 16;
+        fW = 32;
+        fH = 32;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, playerPosition.x, playerPosition.y);
+        camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
         Gdx.input.setInputProcessor(this);
     }
@@ -60,9 +60,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void show() {
         createButtons();
-        player = createBody(100, 100, fW, fH, false);
-//        createPlayer();
-//        drawPlayer();
+        //player = createBody(100, 100, fW, fH, false);
+        //tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
+        //otmr = new OrthogonalTiledMapRenderer(tMap);      
+        createPlayer();
+        drawPlayer();
     }
 
     @Override
@@ -86,51 +88,55 @@ public class ScrLvl1 implements Screen, InputProcessor {
             drawButtons();
         }
         update();
+        alPlayer.get(0).move();
+        //otmr.render();
         b2dr.render(world, camera.combined.scl(32));
-        // System.out.println(playerPosition.x + " " + playerPosition.y);
     }
 //
+
     public void update() {
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
-//        batch.setProjectionMatrix(camera.combined);
     }
 //
+
     public void cameraUpdate() {
-        camera.position.set(0, 0, 0);
         camera.update();
     }
 
     public void createPlayer() {
-        alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
+        if (count == 0) {
+            alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
+        }
+        System.out.println(count);
+        count++;
     }
 
     public void drawPlayer() {
         alPlayer.get(0).Update();
     }
 
-    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
-        Body pBody;
-        BodyDef def = new BodyDef();
-        if (isStatic) {
-            def.type = BodyDef.BodyType.StaticBody;
-        } else {
-            def.type = BodyDef.BodyType.DynamicBody;
-        }
-        def.position.set(x / 32, y / 32);
-        def.fixedRotation = false;
-        pBody = world.createBody(def);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
-
-        pBody.createFixture(shape, 1.0f);
-        shape.dispose();
-        return pBody;
-    }
-
+//    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
+//        Body pBody;
+//        BodyDef def = new BodyDef();
+//        if (isStatic) {
+//            def.type = BodyDef.BodyType.StaticBody;
+//        } else {
+//            def.type = BodyDef.BodyType.DynamicBody;
+//        }
+//        def.position.set(x / 32, y / 32);
+//        def.fixedRotation = false;
+//        pBody = world.createBody(def);
+//
+//        PolygonShape shape = new PolygonShape();
+//        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
+//
+//        pBody.createFixture(shape, 1.0f);
+//        shape.dispose();
+//        return pBody;
+//    }
     public void createButtons() {
-        alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
+        alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
 
     public void drawButtons() {
@@ -138,18 +144,17 @@ public class ScrLvl1 implements Screen, InputProcessor {
             alButtons.get(i).Update();
             if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
-                System.out.println("moves to the stageselectscreen");
-                game.updateScreen(1);
+                System.out.println("move to main menu " + i);
+                game.updateScreen(0);
                 PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
                 PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
             }
         }
     }
-    
 
     @Override
     public void resize(int i, int i1) {
-         camera.setToOrtho(false, i, i1);
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
@@ -167,7 +172,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
         b2dr.dispose();
         world.dispose();
     }
