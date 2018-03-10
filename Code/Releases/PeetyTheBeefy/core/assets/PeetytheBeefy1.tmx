@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="32" tileheight="32" infinite="0" nextobjectid="51">
- <tileset firstgid="1" source="C:/Users/tn200/Desktop/The GOD SQUAD/brickFloorGrass.tsx"/>
- <tileset firstgid="2" source="C:/Users/tn200/Desktop/The GOD SQUAD/dirt.tsx"/>
- <tileset firstgid="3" source="C:/Users/tn200/Desktop/The GOD SQUAD/grass.tsx"/>
- <tileset firstgid="4" source="C:/Users/tn200/Desktop/The GOD SQUAD/brick.tsx"/>
- <tileset firstgid="5" source="C:/Users/tn200/Desktop/The GOD SQUAD/brickDirty.tsx"/>
- <tileset firstgid="6" source="C:/Users/tn200/Desktop/The GOD SQUAD/brickFloor.tsx"/>
+ <tileset firstgid="1" source="brickFloorGrass.tsx"/>
+ <tileset firstgid="2" source="dirt.tsx"/>
+ <tileset firstgid="3" source="grass.tsx"/>
+ <tileset firstgid="4" source="brick.tsx"/>
+ <tileset firstgid="5" source="brickDirty.tsx"/>
+ <tileset firstgid="6" source="brickFloor.tsx"/>
  <layer name="MAP" width="24" height="24">
   <data encoding="csv">
 4,4,4,0,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,4,4,4,
