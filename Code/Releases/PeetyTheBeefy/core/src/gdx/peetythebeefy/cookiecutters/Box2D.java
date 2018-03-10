@@ -7,13 +7,11 @@ package gdx.peetythebeefy.cookiecutters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
@@ -59,7 +57,7 @@ public class Box2D {
             def.type = BodyDef.BodyType.DynamicBody;
         }
         def.position.set(x / PPM, y / PPM);
-        def.fixedRotation = false;
+        def.fixedRotation = true;
         pBody = world.createBody(def);
 
         PolygonShape shape = new PolygonShape();
@@ -68,5 +66,19 @@ public class Box2D {
         pBody.createFixture(shape, 1.0f);
         shape.dispose();
         return pBody;
+    }
+
+    public void move() {
+        float fhForce = 0, fvForce = 0;
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            fhForce -= 1;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            fhForce += 1;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            fvForce += 1;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            fvForce -= 1;
+        }
+        player.setLinearVelocity(fhForce * 5, fvForce * 5);
     }
 }

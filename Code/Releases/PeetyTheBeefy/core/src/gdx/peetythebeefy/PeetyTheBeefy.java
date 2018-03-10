@@ -59,6 +59,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
 
     @Override
     public void dispose() {
+        super.dispose();
         batch.dispose();
     }
 
