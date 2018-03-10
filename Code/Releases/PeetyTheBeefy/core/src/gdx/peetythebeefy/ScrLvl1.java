@@ -49,10 +49,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         img = new Texture("badlogic.jpg");
         world = new World(new Vector2(0f, 0f), false);
         playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-        fW = 16;
-        fH = 16;
+        fW = 32;
+        fH = 32;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, playerPosition.x, playerPosition.y);
+        camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
         Gdx.input.setInputProcessor(this);
     }
@@ -60,9 +60,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void show() {
         createButtons();
-        player = createBody(100, 100, fW, fH, false);
-//        createPlayer();
-//        drawPlayer();
+        //player = createBody(100, 100, fW, fH, false);
+        createPlayer();
+        drawPlayer();
     }
 
     @Override
@@ -87,15 +87,17 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
         update();
         b2dr.render(world, camera.combined.scl(32));
-        // System.out.println(playerPosition.x + " " + playerPosition.y);
+        System.out.println(playerPosition.x + " " + playerPosition.y);
     }
 //
+
     public void update() {
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
-//        batch.setProjectionMatrix(camera.combined);
+        batch.setProjectionMatrix(camera.combined);
     }
 //
+
     public void cameraUpdate() {
         camera.position.set(0, 0, 0);
         camera.update();
@@ -108,27 +110,38 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void drawPlayer() {
         alPlayer.get(0).Update();
     }
-
-    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
-        Body pBody;
-        BodyDef def = new BodyDef();
-        if (isStatic) {
-            def.type = BodyDef.BodyType.StaticBody;
-        } else {
-            def.type = BodyDef.BodyType.DynamicBody;
+    
+    public void move() {
+        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+            playerPosition.x -= 5;
+        } else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+            playerPosition.x += 5;
+        } else if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+            playerPosition.y += 5;
+        } else if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+            playerPosition.y -= 5;
         }
-        def.position.set(x / 32, y / 32);
-        def.fixedRotation = false;
-        pBody = world.createBody(def);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
-
-        pBody.createFixture(shape, 1.0f);
-        shape.dispose();
-        return pBody;
     }
 
+//    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
+//        Body pBody;
+//        BodyDef def = new BodyDef();
+//        if (isStatic) {
+//            def.type = BodyDef.BodyType.StaticBody;
+//        } else {
+//            def.type = BodyDef.BodyType.DynamicBody;
+//        }
+//        def.position.set(x / 32, y / 32);
+//        def.fixedRotation = false;
+//        pBody = world.createBody(def);
+//
+//        PolygonShape shape = new PolygonShape();
+//        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
+//
+//        pBody.createFixture(shape, 1.0f);
+//        shape.dispose();
+//        return pBody;
+//    }
     public void createButtons() {
         alButtons.add(new Buttons("badlogic.jpg", batch, 0, 0, 100, 50));
     }
@@ -145,11 +158,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
         }
     }
-    
 
     @Override
     public void resize(int i, int i1) {
-         camera.setToOrtho(false, i, i1);
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override

@@ -5,6 +5,8 @@
  */
 package gdx.peetythebeefy.cookiecutters;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -42,7 +44,7 @@ public class Box2D {
     }
 
     public void Update() {
-          player = createBody(fX, fY, fW, fH, isStatic);
+        player = createBody(fX, fY, fW, fH, isStatic);
 //        batch.begin();
 //        batch.draw(sprPlayer, fX, fY, 32, 32);
 //        batch.end();
@@ -61,7 +63,7 @@ public class Box2D {
         pBody = world.createBody(def);
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox((float) x / 2 / PPM, (float) y / 2 / PPM);
+        shape.setAsBox((float) width / 2 / PPM, (float) height / 2 / PPM);
 
         pBody.createFixture(shape, 1.0f);
         shape.dispose();
