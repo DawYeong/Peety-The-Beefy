@@ -40,6 +40,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlayer = new ArrayList<Box2D>();
+//    ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlatform = new ArrayList<Box2D>();
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
     int count = 0;
@@ -56,6 +57,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
         createPlayer();
+//        createPlatform();
         Gdx.input.setInputProcessor(this);
     }
 
@@ -66,8 +68,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
-        TiledPolyLines.parseTiledPolyLines(world, tMap.getLayers().get("COLLISION").getObjects());
+        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("COLLISION").getObjects());
         drawPlayer();
+//        drawPlatform();
     }
 
     @Override
@@ -116,6 +119,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
 //        System.out.println(count);
 //        count++;
     }
+//    public void createPlatform() {
+//        alPlatform.add(new Box2D(0, 10, 30, 200, true, world, batch));
+//    }
+//    public void drawPlatform() {
+//        for(int i = 0; i < alPlatform.size();i++) {
+//            alPlatform.get(i).Update();
+//        }
+//    }
 
     public void drawPlayer() {
         alPlayer.get(0).Update();
