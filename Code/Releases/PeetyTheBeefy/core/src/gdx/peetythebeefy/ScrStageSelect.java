@@ -39,7 +39,7 @@ public class ScrStageSelect implements Screen {
 
     @Override
     public void render(float f) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(20/255f, 10/255f, 50/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         drawButtons();
     }
