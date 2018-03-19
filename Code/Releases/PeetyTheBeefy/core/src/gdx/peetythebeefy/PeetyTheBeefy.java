@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import gdx.peetythebeefy.cookiecutters.Box2D;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 
@@ -18,19 +19,20 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     static float fMouseX, fMouseY;
     public static int nSCREENWIDTH, nSCREENHEIGHT;
     public ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlayer = new ArrayList<Box2D>();
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        
+
         scrMainMenu = new ScrMainMenu(this);
         scrStageSelect = new ScrStageSelect(this);
         scrLvl1 = new ScrLvl1(this);
         scrControls = new ScrControls(this);
-        
+
         nSCREENWIDTH = Gdx.graphics.getWidth();
         nSCREENHEIGHT = Gdx.graphics.getHeight();
-        
+
         Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
 //      Buttons();       

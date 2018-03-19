@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="32" tileheight="32" infinite="0" nextobjectid="51">
+<map version="1.0" tiledversion="1.1.3" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="32" tileheight="32" infinite="0" nextobjectid="51">
  <tileset firstgid="1" source="brickFloorGrass.tsx"/>
  <tileset firstgid="2" source="dirt.tsx"/>
  <tileset firstgid="3" source="grass.tsx"/>

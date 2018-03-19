@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import gdx.peetythebeefy.cookiecutters.Box2D;
 import java.util.ArrayList;
+import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
 
 /**
  *
@@ -54,6 +55,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
+        createPlayer();
         Gdx.input.setInputProcessor(this);
     }
 
@@ -61,9 +63,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void show() {
         createButtons();
         //player = createBody(100, 100, fW, fH, false);
-        //tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
-        //otmr = new OrthogonalTiledMapRenderer(tMap);      
-        createPlayer();
+        tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
+        otmr = new OrthogonalTiledMapRenderer(tMap);
+
+        TiledPolyLines.parseTiledPolyLines(world, tMap.getLayers().get("COLLISION").getObjects());
         drawPlayer();
     }
 
@@ -89,7 +92,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
         update();
         alPlayer.get(0).move();
-        //otmr.render();
+        otmr.setView(camera);
+        otmr.render();
         b2dr.render(world, camera.combined.scl(32));
     }
 //
@@ -97,6 +101,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void update() {
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
+        batch.setProjectionMatrix(camera.combined);
     }
 //
 
@@ -105,36 +110,17 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createPlayer() {
-        if (count == 0) {
-            alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
-        }
-        System.out.println(count);
-        count++;
+//        if (count == 0) {
+        alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
+//        }
+//        System.out.println(count);
+//        count++;
     }
 
     public void drawPlayer() {
         alPlayer.get(0).Update();
     }
 
-//    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
-//        Body pBody;
-//        BodyDef def = new BodyDef();
-//        if (isStatic) {
-//            def.type = BodyDef.BodyType.StaticBody;
-//        } else {
-//            def.type = BodyDef.BodyType.DynamicBody;
-//        }
-//        def.position.set(x / 32, y / 32);
-//        def.fixedRotation = false;
-//        pBody = world.createBody(def);
-//
-//        PolygonShape shape = new PolygonShape();
-//        shape.setAsBox((float) x / 2 / 32, (float) y / 2 / 32);
-//
-//        pBody.createFixture(shape, 1.0f);
-//        shape.dispose();
-//        return pBody;
-//    }
     public void createButtons() {
         alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
