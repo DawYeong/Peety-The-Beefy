@@ -40,7 +40,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlayer = new ArrayList<Box2D>();
-//    ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlatform = new ArrayList<Box2D>();
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
     int count = 0;
@@ -49,7 +48,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        world = new World(new Vector2(0f, 0f), false);
+        world = new World(new Vector2(0f, -18f), false);
         playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         fW = 32;
         fH = 32;
@@ -68,7 +67,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
-        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("COLLISION").getObjects());
+        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         drawPlayer();
 //        drawPlatform();
     }
@@ -141,7 +140,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             alButtons.get(i).Update();
             if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
-                System.out.println("move to main menu " + i);
+                System.out.println("move to main menu ");
                 game.updateScreen(0);
                 PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
                 PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();

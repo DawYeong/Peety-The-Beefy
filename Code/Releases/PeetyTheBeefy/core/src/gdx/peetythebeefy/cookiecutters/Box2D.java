@@ -10,6 +10,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -65,6 +66,7 @@ public class Box2D {
 
         pBody.createFixture(shape, 1.0f);
         shape.dispose();
+
         return pBody;
     }
 
@@ -74,11 +76,17 @@ public class Box2D {
             fhForce -= 1;
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             fhForce += 1;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            fvForce += 1;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            fvForce -= 1;
         }
-        player.setLinearVelocity(fhForce * 5, fvForce * 5);
+        if(player.getLinearVelocity().y == 0) {
+            if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                player.applyForceToCenter(0, 500, false);
+            }
+        }
+        if (player.getPosition().y < 0) {
+//            player.getPosition().set(player.getPosition().x, 100);
+            player.setTransform(player.getPosition().x, Gdx.graphics.getHeight() / PPM, 0);
+            System.out.println(player.getPosition());
+        }
+        player.setLinearVelocity(fhForce * 5, player.getLinearVelocity().y);
     }
 }
