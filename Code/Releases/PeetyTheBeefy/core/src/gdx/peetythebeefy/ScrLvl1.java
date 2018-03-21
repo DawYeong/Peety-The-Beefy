@@ -11,7 +11,11 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -23,6 +27,7 @@ import gdx.peetythebeefy.cookiecutters.Buttons;
 import gdx.peetythebeefy.cookiecutters.Box2D;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
+import gdx.peetythebeefy.cookiecutters.Box2D;
 
 /**
  *
@@ -34,7 +39,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     SpriteBatch batch;
     World world;
     Vector2 playerPosition;
-    float fW, fH;
+    float fW, fH, PPM;
     Body player;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
@@ -42,7 +47,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlayer = new ArrayList<Box2D>();
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
-    int count = 0;
+
+    Animation araniPeety[];
+    TextureRegion trPeety;
+    Texture txSheet;
+    int nCount, nPos, nFrame;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
@@ -67,6 +76,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
+        nCount = 0;
+        nFrame = 0;
+        nPos = 0;
+        txSheet = new Texture("PTBsprite.png");
+        araniPeety = new Animation[8];
+        playerSprite(9.2f);
+
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         drawPlayer();
 //        drawPlatform();
@@ -80,6 +96,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
 //            game.updateScreen(0);
 //        }
         //cameraUpdate();
+
+        frameAnimation();
+        trPeety = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
+        
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
             PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
@@ -97,6 +117,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         otmr.setView(camera);
         otmr.render();
         b2dr.render(world, camera.combined.scl(32));
+
+        batch.begin();
+        batch.draw(trPeety, playerPosition.x,playerPosition.y,64,64);
+        batch.end();
     }
 //
 
@@ -112,11 +136,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createPlayer() {
-//        if (count == 0) {
+//        if (nCount == 0) {
         alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
 //        }
-//        System.out.println(count);
-//        count++;
+//        System.out.println(nCount);
+//        nCount++;
     }
 //    public void createPlatform() {
 //        alPlatform.add(new Box2D(0, 10, 30, 200, true, world, batch));
@@ -170,6 +194,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.dispose();
         b2dr.dispose();
         world.dispose();
+        txSheet.dispose();
     }
 
     @Override
@@ -210,6 +235,44 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public boolean scrolled(int i) {
         return false;
+    }
+
+    public void playerSprite(float nAniSpeed) {
+        Sprite sprPeety;
+        int fW, fH, fSx, fSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
+        fW = txSheet.getWidth() / 4;
+        fH = txSheet.getHeight() / 2;
+        for (int i = 0; i < 4; i++) {
+            Sprite[] arSprPeety = new Sprite[4];
+            for (int j = 0; j < 4; j++) {
+                fSx = j * fW;
+                fSy = i * fH;
+                sprPeety = new Sprite(txSheet, fSx, fSy, fW, fH);
+                arSprPeety[j] = new Sprite(sprPeety);
+            }
+            araniPeety[i] = new Animation(nAniSpeed, arSprPeety);
+
+        }
+    }
+
+    public void frameAnimation() {
+
+        if (!Gdx.input.isKeyPressed(Input.Keys.D)
+                && !Gdx.input.isKeyPressed(Input.Keys.A)) {
+            if (nPos == 0) {
+                nFrame = 10;
+            } else if (nPos == 1) {
+                nFrame = 0;
+                // Resets 1st frame when player stopped
+            }
+        } else {
+            nFrame++;
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+            nPos = 1;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            nPos = 0;
+        }
     }
 
 }
