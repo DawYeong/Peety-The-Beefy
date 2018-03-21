@@ -23,11 +23,13 @@ public class ScrStageSelect implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
+    Texture img;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrStageSelect(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        img = new Texture("badlogic.jpg");
     }
 
     @Override
@@ -84,6 +86,7 @@ public class ScrStageSelect implements Screen {
 
     @Override
     public void dispose() {
+        img.dispose();
         batch.dispose();
     }
 }
