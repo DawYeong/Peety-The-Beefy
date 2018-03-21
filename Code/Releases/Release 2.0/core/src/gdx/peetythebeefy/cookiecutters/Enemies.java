@@ -16,6 +16,8 @@ import com.badlogic.gdx.physics.box2d.World;
  *
  * @author benny
  */
+
+// haven't implemented but will use in the future
 public class Enemies {
 
     SpriteBatch batch;
@@ -35,6 +37,7 @@ public class Enemies {
     public void Update() {
         eBody = createBox(fX, fY, fW, fH, false);
     }
+    
     public Body createBox(float x, float y, float width, float height, boolean isStatic) {
         Body pBody;
         BodyDef def = new BodyDef();
