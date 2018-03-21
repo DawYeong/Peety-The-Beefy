@@ -19,7 +19,6 @@ import com.badlogic.gdx.physics.box2d.World;
  *
  * @author benny
  */
-// will change this class soon
 public class Box2D {
 
     float fX, fY, fW, fH, PPM = 32;
