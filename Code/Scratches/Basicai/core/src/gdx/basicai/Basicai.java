@@ -13,30 +13,28 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class Basicai extends ApplicationAdapter{
 
     SpriteBatch batch;
-    Texture img;
-    Sprite Player;
+    Texture txPlayer;
     OrthographicCamera camera;
     World world;
-    Body player, platform;
+    Body playerBody, platformBody;
     Box2DDebugRenderer b2dr;
     float PPM = 32;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        img = new Texture("badlogic.jpg");
-        Player = new Sprite(img);
+        txPlayer = new Texture("badlogic.jpg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         world = new World(new Vector2(0, -9.8f), false);
-        player = createBox(Gdx.graphics.getWidth() / 2, 100, 32, 32, false);
-        platform = createBox(Gdx.graphics.getWidth() / 2, 0, 600, 32, true);
+        playerBody = createBox(Gdx.graphics.getWidth() / 2, 100, 32, 32, false);
+        platformBody = createBox(Gdx.graphics.getWidth() / 2, 0, 600, 32, true);
         b2dr = new Box2DDebugRenderer();
     }
 
@@ -46,7 +44,7 @@ public class Basicai extends ApplicationAdapter{
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
-        batch.draw(Player, player.getPosition().x*PPM - 16, player.getPosition().y*PPM -16, 32, 32);
+        batch.draw(txPlayer, playerBody.getPosition().x*PPM - 16, playerBody.getPosition().y*PPM -16, 32, 32);
         batch.end();
         b2dr.render(world, camera.combined.scl(PPM));
     }
@@ -59,10 +57,10 @@ public class Basicai extends ApplicationAdapter{
     }
 
     public void cameraUpdate() {
-        Vector3 position = camera.position;
-        position.x = player.getPosition().x * PPM;
-        position.y = player.getPosition().y * PPM;
-        camera.position.set(0,0,0);
+        Vector3 v3Position = camera.position;
+        v3Position.x = playerBody.getPosition().x * PPM;
+        v3Position.y = playerBody.getPosition().y * PPM;
+        camera.position.set(v3Position);
         camera.update();
     }
 
@@ -75,9 +73,9 @@ public class Basicai extends ApplicationAdapter{
             fHForce += 1;
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            player.applyForceToCenter(0, 300, false);
+            playerBody.applyForceToCenter(0, 300, false);
         }
-        player.setLinearVelocity(fHForce * 5, player.getLinearVelocity().y);
+        playerBody.setLinearVelocity(fHForce * 5, playerBody.getLinearVelocity().y);
 
     }
 
@@ -93,9 +91,8 @@ public class Basicai extends ApplicationAdapter{
         def.fixedRotation = false;
         pBody = world.createBody(def);
 
-        CircleShape shape = new CircleShape();
-       //shape.setAsBox(width / 2 / PPM, height / 2 / PPM);
-        shape.setRadius(width/2/PPM);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(width / 2 / PPM, height / 2 / PPM);
 
         pBody.createFixture(shape, 1.0f);
         shape.dispose();
@@ -105,7 +102,7 @@ public class Basicai extends ApplicationAdapter{
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
+        txPlayer.dispose();
         b2dr.dispose();
         world.dispose();
         
