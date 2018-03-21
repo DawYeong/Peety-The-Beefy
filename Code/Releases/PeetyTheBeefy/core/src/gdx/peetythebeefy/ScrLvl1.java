@@ -21,7 +21,9 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import gdx.peetythebeefy.cookiecutters.Box2D;
@@ -39,8 +41,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     SpriteBatch batch;
     World world;
     Vector2 playerPosition;
-    float fW, fH, PPM;
-    Body player;
+    float fW, fH;
+    Body playerBody;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
@@ -58,14 +60,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
         this.game = game;
         this.batch = game.batch;
         world = new World(new Vector2(0f, -18f), false);
-        playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2); // just sets the intial position of player
         fW = 32;
         fH = 32;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
-        createPlayer();
-//        createPlatform();
         Gdx.input.setInputProcessor(this);
     }
 
@@ -84,7 +84,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         playerSprite(9.2f);
 
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
-        drawPlayer();
+        playerBody = createBody(playerPosition.x, playerPosition.y, 32, 32, false);
 //        drawPlatform();
     }
 
@@ -99,7 +99,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         frameAnimation();
         trPeety = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
-        
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
             PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
@@ -113,14 +113,15 @@ public class ScrLvl1 implements Screen, InputProcessor {
             drawButtons();
         }
         update();
-        alPlayer.get(0).move();
         otmr.setView(camera);
         otmr.render();
         b2dr.render(world, camera.combined.scl(32));
 
         batch.begin();
-        batch.draw(trPeety, playerPosition.x,playerPosition.y,64,64);
+        batch.draw(trPeety, playerBody.getPosition().x * 32 - 16, playerBody.getPosition().y * 32 -16, 32, 32);
         batch.end();
+        
+        move();
     }
 //
 
@@ -133,26 +134,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void cameraUpdate() {
         camera.update();
-    }
-
-    public void createPlayer() {
-//        if (nCount == 0) {
-        alPlayer.add(new Box2D(playerPosition.x, playerPosition.y, fW, fH, false, world, batch));
-//        }
-//        System.out.println(nCount);
-//        nCount++;
-    }
-//    public void createPlatform() {
-//        alPlatform.add(new Box2D(0, 10, 30, 200, true, world, batch));
-//    }
-//    public void drawPlatform() {
-//        for(int i = 0; i < alPlatform.size();i++) {
-//            alPlatform.get(i).Update();
-//        }
-//    }
-
-    public void drawPlayer() {
-        alPlayer.get(0).Update();
     }
 
     public void createButtons() {
@@ -170,6 +151,47 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
             }
         }
+    }
+
+    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
+        Body pBody;
+        BodyDef def = new BodyDef();
+        if (isStatic) {
+            def.type = BodyDef.BodyType.StaticBody;
+        } else {
+            def.type = BodyDef.BodyType.DynamicBody;
+        }
+        def.position.set(x / 32, y / 32);
+        def.fixedRotation = true;
+        pBody = world.createBody(def);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox((float) width / 2 / 32, (float) height / 2 / 32);
+
+        pBody.createFixture(shape, 1.0f);
+        shape.dispose();
+
+        return pBody;
+    }
+
+    public void move() {
+        float fhForce = 0, fvForce = 0;
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            fhForce -= 1;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            fhForce += 1;
+        }
+        if (playerBody.getLinearVelocity().y == 0) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                playerBody.applyForceToCenter(0, 500, false);
+            }
+        }
+        if (playerBody.getPosition().y < 0) {
+//            player.getPosition().set(player.getPosition().x, 100);
+            playerBody.setTransform(playerBody.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
+            System.out.println(playerBody.getPosition());
+        }
+        playerBody.setLinearVelocity(fhForce * 5, playerBody.getLinearVelocity().y);
     }
 
     @Override
@@ -268,7 +290,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         } else {
             nFrame++;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             nPos = 1;
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             nPos = 0;
