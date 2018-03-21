@@ -26,10 +26,8 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
-import gdx.peetythebeefy.cookiecutters.Box2D;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
-import gdx.peetythebeefy.cookiecutters.Box2D;
 
 /**
  *
@@ -40,27 +38,26 @@ public class ScrLvl1 implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch;
     World world;
-    Vector2 playerPosition;
-    float fW, fH;
+    float fX, fY, fW, fH;
     Body playerBody;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
-    ArrayList<gdx.peetythebeefy.cookiecutters.Box2D> alPlayer = new ArrayList<Box2D>();
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
 
     Animation araniPeety[];
     TextureRegion trPeety;
     Texture txSheet;
-    int nCount, nPos, nFrame;
+    int nPos, nFrame;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
         world = new World(new Vector2(0f, -18f), false);
-        playerPosition = new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2); // just sets the intial position of player
+        fX = Gdx.graphics.getWidth() / 2;
+        fY = Gdx.graphics.getHeight() / 2;
         fW = 32;
         fH = 32;
         camera = new OrthographicCamera();
@@ -72,11 +69,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void show() {
         createButtons();
-        //player = createBody(100, 100, fW, fH, false);
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
-        nCount = 0;
         nFrame = 0;
         nPos = 0;
         txSheet = new Texture("PTBsprite.png");
@@ -84,23 +79,18 @@ public class ScrLvl1 implements Screen, InputProcessor {
         playerSprite(9.2f);
 
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
-        playerBody = createBody(playerPosition.x, playerPosition.y, 32, 32, false);
-//        drawPlatform();
+        playerBody = createBody(fX, fY, fW, fH, false);
     }
 
     @Override
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-//            game.updateScreen(0);
-//        }
-        //cameraUpdate();
 
         frameAnimation();
         trPeety = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
             PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
             if (isShowing == false) { //its like a pop up menu, if you want to go back press p to bring up back button
@@ -112,25 +102,21 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (isShowing == true) {
             drawButtons();
         }
-        update();
+        
+        world.step(1 / 60f, 6, 2);
+        cameraUpdate();
+        batch.setProjectionMatrix(camera.combined);
+        
         otmr.setView(camera);
         otmr.render();
         b2dr.render(world, camera.combined.scl(32));
 
         batch.begin();
-        batch.draw(trPeety, playerBody.getPosition().x * 32 - 16, playerBody.getPosition().y * 32 -16, 32, 32);
+        batch.draw(trPeety, playerBody.getPosition().x * 32 - fW / 2, playerBody.getPosition().y * 32 - fH / 2, fW, fH);
         batch.end();
-        
+
         move();
     }
-//
-
-    public void update() {
-        world.step(1 / 60f, 6, 2);
-        cameraUpdate();
-        batch.setProjectionMatrix(camera.combined);
-    }
-//
 
     public void cameraUpdate() {
         camera.update();
@@ -175,7 +161,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void move() {
-        float fhForce = 0, fvForce = 0;
+        float fhForce = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             fhForce -= 1;
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
@@ -192,6 +178,44 @@ public class ScrLvl1 implements Screen, InputProcessor {
             System.out.println(playerBody.getPosition());
         }
         playerBody.setLinearVelocity(fhForce * 5, playerBody.getLinearVelocity().y);
+    }
+
+    public void playerSprite(float nAniSpeed) {
+        Sprite sprPeety;
+        int nW, nH, nSx, nSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
+        nW = txSheet.getWidth() / 4;
+        nH = txSheet.getHeight() / 2;
+        for (int i = 0; i < 4; i++) {
+            Sprite[] arSprPeety = new Sprite[4];
+            for (int j = 0; j < 4; j++) {
+                nSx = j * nW;
+                nSy = i * nH;
+                sprPeety = new Sprite(txSheet, nSx, nSy, nW, nH);
+                arSprPeety[j] = new Sprite(sprPeety);
+            }
+            araniPeety[i] = new Animation(nAniSpeed, arSprPeety);
+
+        }
+    }
+
+    public void frameAnimation() {
+
+        if (!Gdx.input.isKeyPressed(Input.Keys.D)
+                && !Gdx.input.isKeyPressed(Input.Keys.A)) {
+            if (nPos == 0) {
+                nFrame = 10;
+            } else if (nPos == 1) {
+                nFrame = 0;
+                // Resets 1st frame when player stopped
+            }
+        } else {
+            nFrame++;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            nPos = 1;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            nPos = 0;
+        }
     }
 
     @Override
@@ -258,43 +282,4 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public boolean scrolled(int i) {
         return false;
     }
-
-    public void playerSprite(float nAniSpeed) {
-        Sprite sprPeety;
-        int fW, fH, fSx, fSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
-        fW = txSheet.getWidth() / 4;
-        fH = txSheet.getHeight() / 2;
-        for (int i = 0; i < 4; i++) {
-            Sprite[] arSprPeety = new Sprite[4];
-            for (int j = 0; j < 4; j++) {
-                fSx = j * fW;
-                fSy = i * fH;
-                sprPeety = new Sprite(txSheet, fSx, fSy, fW, fH);
-                arSprPeety[j] = new Sprite(sprPeety);
-            }
-            araniPeety[i] = new Animation(nAniSpeed, arSprPeety);
-
-        }
-    }
-
-    public void frameAnimation() {
-
-        if (!Gdx.input.isKeyPressed(Input.Keys.D)
-                && !Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if (nPos == 0) {
-                nFrame = 10;
-            } else if (nPos == 1) {
-                nFrame = 0;
-                // Resets 1st frame when player stopped
-            }
-        } else {
-            nFrame++;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            nPos = 1;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            nPos = 0;
-        }
-    }
-
 }

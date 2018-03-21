@@ -45,9 +45,6 @@ public class ScrMainMenu implements Screen, InputProcessor {
         
         Gdx.gl.glClearColor(1, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-//            game.updateScreen(1);
-//        }
         batch.begin();
 
         batch.draw(texMenu, 250, 200);
