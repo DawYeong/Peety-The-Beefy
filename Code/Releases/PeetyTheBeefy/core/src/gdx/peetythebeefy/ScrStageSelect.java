@@ -23,13 +23,13 @@ public class ScrStageSelect implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture img;
+    Texture texMenu;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrStageSelect(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        img = new Texture("badlogic.jpg");
+        texMenu = new Texture("mainMenu2.png");
     }
 
     @Override
@@ -39,13 +39,21 @@ public class ScrStageSelect implements Screen {
 
     @Override
     public void render(float f) {
-        Gdx.gl.glClearColor(20/255f, 10/255f, 50/255f, 1);
+        Gdx.gl.glClearColor(20 / 255f, 10 / 255f, 50 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.begin();
+
+        batch.draw(texMenu, 250, 200);
+        batch.draw(texMenu, 0, 0);
+
+        batch.end();
+
         drawButtons();
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("b1", batch, 64, nSCREENHEIGHT -128, 64, 64));
+        alButtons.add(new Buttons("b1", batch, 64, nSCREENHEIGHT - 128, 64, 64));
         alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
 
@@ -86,7 +94,7 @@ public class ScrStageSelect implements Screen {
 
     @Override
     public void dispose() {
-        img.dispose();
+        texMenu.dispose();
         batch.dispose();
     }
 }

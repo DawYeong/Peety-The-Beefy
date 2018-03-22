@@ -21,11 +21,14 @@ public class ScrControls implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
+    Texture texMenu;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrControls(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        texMenu = new Texture("mainMenu2.png");
+
     }
 
     @Override
@@ -37,6 +40,14 @@ public class ScrControls implements Screen {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
+        batch.begin();
+
+        batch.draw(texMenu, 250, 200);
+        batch.draw(texMenu, 0, 0);
+
+        batch.end();
+        
         drawButtons();
     }
 
@@ -75,6 +86,7 @@ public class ScrControls implements Screen {
 
     @Override
     public void dispose() {
+        texMenu.dispose();
         batch.dispose();
     }
 }

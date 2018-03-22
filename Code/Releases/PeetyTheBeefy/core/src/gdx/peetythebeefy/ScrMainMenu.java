@@ -105,6 +105,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
+        texMenu.dispose();
     }
 
     @Override
