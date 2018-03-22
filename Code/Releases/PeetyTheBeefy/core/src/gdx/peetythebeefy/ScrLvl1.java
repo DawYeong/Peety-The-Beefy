@@ -26,6 +26,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
+import gdx.peetythebeefy.cookiecutters.Enemies;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
 
@@ -44,6 +45,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<gdx.peetythebeefy.cookiecutters.Enemies> alEnemies = new ArrayList<Enemies>();
     TiledMap tMap;
 
     Animation araniPeety[];
@@ -63,6 +65,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
+        createEnemies();
         Gdx.input.setInputProcessor(this);
     }
 
@@ -77,6 +80,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         txSheet = new Texture("PTBsprite.png");
         araniPeety = new Animation[8];
         playerSprite(9.2f);
+        drawEnemies();
 
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         playerBody = createBody(fX, fY, fW, fH, false);
@@ -116,6 +120,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.end();
 
         move();
+        moveEnemies();
     }
 
     public void cameraUpdate() {
@@ -136,6 +141,23 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
                 PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
             }
+        }
+    }
+    
+    public void createEnemies() {
+        alEnemies.add(new Enemies(fX + 100, fY + 50, fW, fH, world, batch));
+        alEnemies.add(new Enemies(fX - 100, fY + 50, fW, fH, world, batch));
+    }
+    
+    public void drawEnemies() {
+        for(int i = 0; i < alEnemies.size(); i++) {
+            alEnemies.get(i).Update();
+        }
+    }
+    
+    public void moveEnemies() {
+        for(int i = 0; i < alEnemies.size(); i++) {
+            alEnemies.get(i).move();
         }
     }
 
