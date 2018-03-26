@@ -23,17 +23,21 @@ public class ScrStageSelect implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture texMenu;
+    Texture texMenuMain, texMenuNew;
+    float fMainX, fNewX;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrStageSelect(PeetyTheBeefy game) {
         this.game = game;
-        this.batch = game.batch;
-        texMenu = new Texture("mainMenu2.png");
+        this.batch = game.batch;        
+        texMenuMain = new Texture("mainMenu.png");
+        texMenuNew = new Texture("mainMenu2.png");
     }
 
     @Override
     public void show() {
+        fMainX = 0;
+        fNewX = 768;
         createButtons();
     }
 
@@ -42,12 +46,7 @@ public class ScrStageSelect implements Screen {
         Gdx.gl.glClearColor(20 / 255f, 10 / 255f, 50 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.begin();
-
-        batch.draw(texMenu, 250, 200);
-        batch.draw(texMenu, 0, 0);
-
-        batch.end();
+        screenTransition();
 
         drawButtons();
     }
@@ -94,7 +93,26 @@ public class ScrStageSelect implements Screen {
 
     @Override
     public void dispose() {
-        texMenu.dispose();
+        texMenuNew.dispose();
+        texMenuMain.dispose();
         batch.dispose();
+    }
+
+    public void screenTransition() {
+
+        if (fMainX >= -768) {
+            fMainX -= 16;
+        }
+        if (fNewX >= 16) {
+            fNewX -= 16;
+        }
+
+        batch.begin();
+
+        batch.draw(texMenuMain, fMainX, 0);
+        batch.draw(texMenuNew, fNewX, 0);
+
+        batch.end();
+
     }
 }

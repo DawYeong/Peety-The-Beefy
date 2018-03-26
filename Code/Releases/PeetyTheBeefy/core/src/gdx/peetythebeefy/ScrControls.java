@@ -8,6 +8,7 @@ package gdx.peetythebeefy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
@@ -20,18 +21,22 @@ public class ScrControls implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture texMenu;
+    Texture texMenuNew, texMenuMain;
+    float fMainX, fNewX;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrControls(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        texMenu = new Texture("mainMenu2.png");
+        texMenuMain = new Texture("mainMenu.png");
+        texMenuNew = new Texture("mainMenu2.png");
 
     }
 
     @Override
     public void show() {
+        fNewX = 768;
+        fMainX = 0;
         createButtons();
     }
 
@@ -39,14 +44,9 @@ public class ScrControls implements Screen {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
-        batch.begin();
 
-        batch.draw(texMenu, 250, 200);
-        batch.draw(texMenu, 0, 0);
+        screenTransition();
 
-        batch.end();
-        
         drawButtons();
     }
 
@@ -85,7 +85,26 @@ public class ScrControls implements Screen {
 
     @Override
     public void dispose() {
-        texMenu.dispose();
+        texMenuMain.dispose();
+        texMenuNew.dispose();
         batch.dispose();
+    }
+
+    public void screenTransition() {
+
+        if (fMainX >= -768) {
+            fMainX -= 16;
+        }
+        if (fNewX >= 16) {
+            fNewX -= 16;
+        }
+
+        batch.begin();
+
+        batch.draw(texMenuMain, fMainX, 0);
+        batch.draw(texMenuNew, fNewX, 0);
+
+        batch.end();
+
     }
 }
