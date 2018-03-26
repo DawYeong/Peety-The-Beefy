@@ -51,13 +51,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Animation araniPeety[];
     TextureRegion trPeety;
     Texture txSheet;
-    int nPos, nFrame;
+    int nPos, nFrame, nCount = 0;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
         world = new World(new Vector2(0f, -18f), false);
+        world.setVelocityThreshold(0f);
         fX = Gdx.graphics.getWidth() / 2;
         fY = Gdx.graphics.getHeight() / 2;
         fW = 32;
@@ -80,10 +81,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         txSheet = new Texture("PTBsprite.png");
         araniPeety = new Animation[8];
         playerSprite(9.2f);
-        drawEnemies();
 
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
-        playerBody = createBody(fX, fY, fW, fH, false);
+        if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
+            playerBody = createBody(fX, fY, fW, fH, false);
+            drawEnemies();
+            nCount++;
+        }
     }
 
     @Override
@@ -103,14 +107,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 isShowing = false;
             }
         }
-        if (isShowing == true) {
-            drawButtons();
-        }
-        
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
-        
+
         otmr.setView(camera);
         otmr.render();
         b2dr.render(world, camera.combined.scl(32));
@@ -118,6 +118,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.begin();
         batch.draw(trPeety, playerBody.getPosition().x * 32 - fW / 2, playerBody.getPosition().y * 32 - fH / 2, fW, fH);
         batch.end();
+
+        if (isShowing == true) {
+            drawButtons();
+        }
 
         move();
         moveEnemies();
@@ -137,26 +141,32 @@ public class ScrLvl1 implements Screen, InputProcessor {
             if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 System.out.println("move to main menu ");
+//                world.destroyBody(playerBody);
+//                for (int x = alEnemies.size() - 1; x >= 0; x--) {
+//                    Body b = alEnemies.get(x).eBody;
+//                    world.destroyBody(b);
+//                    alEnemies.remove(x);
+//                }
                 game.updateScreen(0);
                 PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
                 PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
             }
         }
     }
-    
+
     public void createEnemies() {
         alEnemies.add(new Enemies(fX + 100, fY + 50, fW, fH, world, batch));
         alEnemies.add(new Enemies(fX - 100, fY + 50, fW, fH, world, batch));
     }
-    
+
     public void drawEnemies() {
-        for(int i = 0; i < alEnemies.size(); i++) {
+        for (int i = 0; i < alEnemies.size(); i++) {
             alEnemies.get(i).Update();
         }
     }
-    
+
     public void moveEnemies() {
-        for(int i = 0; i < alEnemies.size(); i++) {
+        for (int i = 0; i < alEnemies.size(); i++) {
             alEnemies.get(i).move();
         }
     }

@@ -22,7 +22,7 @@ public class Enemies {
     SpriteBatch batch;
     World world;
     float fX, fY, fW, fH;
-    Body eBody;
+    public Body eBody;
     int nDir = (int) (Math.random() + 1), nJump;
 
     public Enemies(float _fX, float _fY, float _fW, float _fH, World _world, SpriteBatch _batch) {
