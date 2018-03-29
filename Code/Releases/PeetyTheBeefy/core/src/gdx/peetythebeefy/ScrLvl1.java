@@ -38,6 +38,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
+    Sprite sprPeety;
     World world;
     float fX, fY, fW, fH;
     Body playerBody;
@@ -49,9 +50,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledMap tMap;
 
     Animation araniPeety[];
-    TextureRegion trPeety;
+    TextureRegion trTemp;
     Texture txSheet;
-    int nPos, nFrame, nCount = 0;
+    int nPos, nLastPos, nFrame, nCount, nDirection;
+    float fSpriteSpeed;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
@@ -63,6 +65,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fY = Gdx.graphics.getHeight() / 2;
         fW = 32;
         fH = 32;
+
+        nFrame = 0;
+        nPos = 0;
+        nCount = 0;
+        fSpriteSpeed = 9.2f;
+        txSheet = new Texture("PTBsprite.png");
+        sprPeety = new Sprite(txSheet, 0, 0, 32, 32);
+        araniPeety = new Animation[24];
+        playerSprite(fSpriteSpeed);
+
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
@@ -76,12 +88,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
-        nFrame = 0;
-        nPos = 0;
-        txSheet = new Texture("PTBsprite.png");
-        araniPeety = new Animation[8];
-        playerSprite(9.2f);
-
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
             playerBody = createBody(fX, fY, fW, fH, false);
@@ -94,9 +100,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         frameAnimation();
-        trPeety = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
+        trTemp = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
@@ -116,7 +121,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         b2dr.render(world, camera.combined.scl(32));
 
         batch.begin();
-        batch.draw(trPeety, playerBody.getPosition().x * 32 - fW / 2, playerBody.getPosition().y * 32 - fH / 2, fW, fH);
+        batch.draw(trTemp, playerBody.getPosition().x * 32 - fW / 2, playerBody.getPosition().y * 32 - fH / 2, fW, fH);
         batch.end();
 
         if (isShowing == true) {
@@ -213,11 +218,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void playerSprite(float nAniSpeed) {
-        Sprite sprPeety;
         int nW, nH, nSx, nSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
         nW = txSheet.getWidth() / 4;
-        nH = txSheet.getHeight() / 2;
-        for (int i = 0; i < 4; i++) {
+        nH = txSheet.getHeight() / 6;
+        for (int i = 0; i < 6; i++) {
             Sprite[] arSprPeety = new Sprite[4];
             for (int j = 0; j < 4; j++) {
                 nSx = j * nW;
@@ -231,22 +235,37 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void frameAnimation() {
-
-        if (!Gdx.input.isKeyPressed(Input.Keys.D)
-                && !Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if (nPos == 0) {
-                nFrame = 10;
-            } else if (nPos == 1) {
-                nFrame = 0;
-                // Resets 1st frame when player stopped
-            }
-        } else {
+        if (playerBody.getLinearVelocity().x != 0 || playerBody.getLinearVelocity().y != 0) {
             nFrame++;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (nFrame > 32) {
+            nFrame = 0;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A) && playerBody.getLinearVelocity().y >= 0) { //going left
+            nDirection = 1;
             nPos = 1;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            fSpriteSpeed = 9.2f;
+            playerSprite(fSpriteSpeed);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && playerBody.getLinearVelocity().y >= 0) { //going right
+            nDirection = 0;
             nPos = 0;
+            fSpriteSpeed = 9.2f;
+            playerSprite(fSpriteSpeed);
+        }
+        if (playerBody.getLinearVelocity().y < 0) { //falling animation + speed up
+            nPos = 5;
+            if (fSpriteSpeed >= 2.3f) {
+                playerSprite(fSpriteSpeed -= 0.1);
+            }
+        }
+        if (playerBody.getLinearVelocity().x == 0 && playerBody.getLinearVelocity().y == 0) { //reset to last direction when stationary
+            if (nDirection == 1) {
+                nPos = 1;
+            } else if (nDirection == 0) {
+                nPos = 0;
+            }
+            fSpriteSpeed = 9.2f;
+            playerSprite(fSpriteSpeed);
         }
     }
 
