@@ -85,7 +85,7 @@ public class Box2D {
         }
         if (player.getPosition().y < 0) {
 //            player.getPosition().set(player.getPosition().x, 100);
-            player.setTransform(player.getPosition().x, Gdx.graphics.getHeight() / PPM, 0);
+            player.setTransform(player.getPosition().x, Constants.SCREENHEIGHT / PPM, 0);
             System.out.println(player.getPosition());
         }
         player.setLinearVelocity(fhForce * 5, player.getLinearVelocity().y);

@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
-import static gdx.peetythebeefy.PeetyTheBeefy.nSCREENHEIGHT;
+import gdx.peetythebeefy.cookiecutters.Constants;
 
 /**
  *
@@ -57,9 +57,9 @@ public class ScrMainMenu implements Screen, InputProcessor {
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("playButton", batch, -8,nSCREENHEIGHT/2, 192, 64));
-        alButtons.add(new Buttons("controlsButton", batch, -8,nSCREENHEIGHT/2 - 128, 192, 64));
-        alButtons.add(new Buttons("stagesButton", batch, -8, nSCREENHEIGHT/2 - 256, 192, 64));
+        alButtons.add(new Buttons("playButton", batch, -8,Constants.SCREENHEIGHT/2, 192, 64));
+        alButtons.add(new Buttons("controlsButton", batch, -8,Constants.SCREENHEIGHT/2 - 128, 192, 64));
+        alButtons.add(new Buttons("stagesButton", batch, -8, Constants.SCREENHEIGHT/2 - 256, 192, 64));
     }
 
     public void drawButtons() {
@@ -77,8 +77,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
                     System.out.println("moves to the stage select");
                     game.updateScreen(1);
                 }
-                PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+                PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
             }
         }
     }

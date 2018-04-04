@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import gdx.peetythebeefy.cookiecutters.Constants;
 
 public class PeetyTheBeefy extends Game implements InputProcessor {
 
@@ -13,7 +14,6 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrControls scrControls;
     ScrLvl1 scrLvl1;
     static float fMouseX, fMouseY;
-    public static int nSCREENWIDTH, nSCREENHEIGHT;
 
     @Override
     public void create() {
@@ -23,9 +23,6 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         scrStageSelect = new ScrStageSelect(this);
         scrLvl1 = new ScrLvl1(this);
         scrControls = new ScrControls(this);
-
-        nSCREENWIDTH = Gdx.graphics.getWidth();
-        nSCREENHEIGHT = Gdx.graphics.getHeight();
 
         Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
@@ -82,7 +79,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
         fMouseX = Gdx.input.getX();
-        fMouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
         return false;
     }
 

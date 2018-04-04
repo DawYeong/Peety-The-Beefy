@@ -26,6 +26,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
+import gdx.peetythebeefy.cookiecutters.Constants;
 import gdx.peetythebeefy.cookiecutters.Enemies;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
@@ -52,17 +53,18 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Animation araniPeety[];
     TextureRegion trTemp;
     Texture txSheet;
-    int nPos, nLastPos, nFrame, nCount, nDirection;
+    int nPos, nLastPos, nFrame, nCount, nDirection, nJumpCount, nJumpInterval;
     float fSpriteSpeed;
     static boolean isShowing = false;
+    boolean isCounterStart = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
         world = new World(new Vector2(0f, -18f), false);
         world.setVelocityThreshold(0f);
-        fX = Gdx.graphics.getWidth() / 2;
-        fY = Gdx.graphics.getHeight() / 2;
+        fX = Constants.SCREENWIDTH / 2;
+        fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
         fH = 32;
 
@@ -104,8 +106,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         trTemp = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
-            PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
-            PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+            PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+            PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
             if (isShowing == false) { //its like a pop up menu, if you want to go back press p to bring up back button
                 isShowing = true;
             } else {
@@ -153,8 +155,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 //                    alEnemies.remove(x);
 //                }
                 game.updateScreen(0);
-                PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+                PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
             }
         }
     }
@@ -205,13 +207,35 @@ public class ScrLvl1 implements Screen, InputProcessor {
             fhForce += 1;
         }
         if (playerBody.getLinearVelocity().y == 0) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            nJumpCount = 2;
+            nJumpInterval = 0;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (nJumpCount == 2) {
                 playerBody.applyForceToCenter(0, 500, false);
+                isCounterStart = true;
+            }
+            if (nJumpCount == 1) {
+                if (nJumpInterval >= 20) {
+                    playerBody.setLinearVelocity(0,0); //sets it to 0 to make it like a stationary jump
+                    playerBody.applyForceToCenter(0, 400, false);
+                    nJumpInterval = 0;
+                }
+            }
+            if (nJumpCount > 0) {
+                nJumpCount--;
             }
         }
+        if (isCounterStart) {
+            nJumpInterval++;
+            if (nJumpInterval >= 20) {
+                isCounterStart = false;
+            }
+        }
+        System.out.println(nJumpCount);
         if (playerBody.getPosition().y < 0) {
 //            player.getPosition().set(player.getPosition().x, 100);
-            playerBody.setTransform(playerBody.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
+            playerBody.setTransform(playerBody.getPosition().x, Constants.SCREENHEIGHT / 32, 0);
             System.out.println(playerBody.getPosition());
         }
         playerBody.setLinearVelocity(fhForce * 5, playerBody.getLinearVelocity().y);
@@ -271,7 +295,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public void resize(int i, int i1) {
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.setToOrtho(false, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
     }
 
     @Override

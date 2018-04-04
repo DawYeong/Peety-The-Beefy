@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
+import gdx.peetythebeefy.cookiecutters.Constants;
 
 /**
  *
@@ -61,8 +62,8 @@ public class ScrControls implements Screen {
                     && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 System.out.println("moves to main menu");
                 game.updateScreen(0);
-                PeetyTheBeefy.fMouseX = Gdx.graphics.getWidth(); // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = Gdx.graphics.getHeight();
+                PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
             }
         }
     }

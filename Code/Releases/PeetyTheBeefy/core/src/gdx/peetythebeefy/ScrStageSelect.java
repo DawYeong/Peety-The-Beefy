@@ -12,8 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
-import static gdx.peetythebeefy.PeetyTheBeefy.nSCREENHEIGHT;
-import static gdx.peetythebeefy.PeetyTheBeefy.nSCREENWIDTH;
+import gdx.peetythebeefy.cookiecutters.Constants;
 
 /**
  *
@@ -77,40 +76,40 @@ public class ScrStageSelect implements Screen {
                     System.out.println("moves to lvl1");
                     ScrLvl1.isShowing = false;
                     //resets the y position of each level button
-                    alButtons.get(0).fY = Gdx.graphics.getHeight();
-                    alButtons.get(1).fY = Gdx.graphics.getHeight();
-                    alButtons.get(2).fY = Gdx.graphics.getHeight();
-                    alButtons.get(3).fY = Gdx.graphics.getHeight();
-                    alButtons.get(4).fY = Gdx.graphics.getHeight();
-                    alButtons.get(5).fY = Gdx.graphics.getHeight();
-                    alButtons.get(6).fY = Gdx.graphics.getHeight();
-                    alButtons.get(7).fY = Gdx.graphics.getHeight();
-                    alButtons.get(8).fY = Gdx.graphics.getHeight();
-                    alButtons.get(9).fY = Gdx.graphics.getHeight();
-                    alButtons.get(10).fY = Gdx.graphics.getHeight();
-                    alButtons.get(11).fY = Gdx.graphics.getHeight();
+                    alButtons.get(0).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(1).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(2).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(3).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(4).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(5).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(6).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(7).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(8).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(9).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(10).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(11).fY = Constants.SCREENHEIGHT;
 
                     game.updateScreen(2);
                 } else if (i == 12) {
                     System.out.println("moves to main menu");
                     //resets the y position of each level button
-                    alButtons.get(0).fY = Gdx.graphics.getHeight();
-                    alButtons.get(1).fY = Gdx.graphics.getHeight();
-                    alButtons.get(2).fY = Gdx.graphics.getHeight();
-                    alButtons.get(3).fY = Gdx.graphics.getHeight();
-                    alButtons.get(4).fY = Gdx.graphics.getHeight();
-                    alButtons.get(5).fY = Gdx.graphics.getHeight();
-                    alButtons.get(6).fY = Gdx.graphics.getHeight();
-                    alButtons.get(7).fY = Gdx.graphics.getHeight();
-                    alButtons.get(8).fY = Gdx.graphics.getHeight();
-                    alButtons.get(9).fY = Gdx.graphics.getHeight();
-                    alButtons.get(10).fY = Gdx.graphics.getHeight();
-                    alButtons.get(11).fY = Gdx.graphics.getHeight();
+                    alButtons.get(0).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(1).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(2).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(3).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(4).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(5).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(6).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(7).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(8).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(9).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(10).fY = Constants.SCREENHEIGHT;
+                    alButtons.get(11).fY = Constants.SCREENHEIGHT;
 
                     game.updateScreen(0);
                 }
-                PeetyTheBeefy.fMouseX = nSCREENWIDTH; // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = nSCREENHEIGHT;
+                PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
             }
         }
     }
