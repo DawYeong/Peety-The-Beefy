@@ -162,8 +162,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createEnemies() {
-        alEnemies.add(new Enemies(fX + 100, fY + 50, fW, fH, world, batch));
-        alEnemies.add(new Enemies(fX - 100, fY + 50, fW, fH, world, batch));
+        alEnemies.add(new Enemies(fX + 100, fY + 50, fW, fH, world, batch, "ENEMY1"));
+        alEnemies.add(new Enemies(fX - 100, fY + 50, fW, fH, world, batch, "ENEMY2"));
     }
 
     public void drawEnemies() {
@@ -232,11 +232,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 isCounterStart = false;
             }
         }
-        System.out.println(nJumpCount);
+        //System.out.println(nJumpCount);
         if (playerBody.getPosition().y < 0) {
 //            player.getPosition().set(player.getPosition().x, 100);
             playerBody.setTransform(playerBody.getPosition().x, Constants.SCREENHEIGHT / 32, 0);
-            System.out.println(playerBody.getPosition());
+            //System.out.println(playerBody.getPosition());
         }
         playerBody.setLinearVelocity(fhForce * 5, playerBody.getLinearVelocity().y);
     }
