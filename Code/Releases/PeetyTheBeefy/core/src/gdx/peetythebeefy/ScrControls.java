@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
+import gdx.peetythebeefy.cookiecutters.Buttons;
 
 /**
  *
@@ -24,7 +25,7 @@ public class ScrControls implements Screen {
     SpriteBatch batch;
     Texture texMenuNew, texMenuMain;
     float fMainX, fNewX;
-    ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrControls(PeetyTheBeefy game) {
         this.game = game;
