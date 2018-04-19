@@ -106,8 +106,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         trTemp = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
-            PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-            PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
+            game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+            game.fMouseY = Constants.SCREENHEIGHT;
             if (isShowing == false) { //its like a pop up menu, if you want to go back press p to bring up back button
                 isShowing = true;
             } else {
@@ -145,8 +145,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
-            if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
-                    && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
+            if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
+                    && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 System.out.println("move to main menu ");
 //                world.destroyBody(playerBody);
 //                for (int x = alEnemies.size() - 1; x >= 0; x--) {
@@ -155,8 +155,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 //                    alEnemies.remove(x);
 //                }
                 game.updateScreen(0);
-                PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
+                game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                game.fMouseY = Constants.SCREENHEIGHT;
             }
         }
     }

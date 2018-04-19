@@ -13,7 +13,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrStageSelect scrStageSelect;
     ScrControls scrControls;
     ScrLvl1 scrLvl1;
-    static float fMouseX, fMouseY;
+    float fMouseX, fMouseY;
 
     @Override
     public void create() {
