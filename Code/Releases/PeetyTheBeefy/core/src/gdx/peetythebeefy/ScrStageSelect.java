@@ -70,8 +70,8 @@ public class ScrStageSelect implements Screen {
     public void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
-            if (PeetyTheBeefy.fMouseX > alButtons.get(i).fX && PeetyTheBeefy.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
-                    && PeetyTheBeefy.fMouseY > alButtons.get(i).fY && PeetyTheBeefy.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
+            if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
+                    && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 if (i == 0) {
                     System.out.println("moves to lvl1");
                     ScrLvl1.isShowing = false;
@@ -108,8 +108,8 @@ public class ScrStageSelect implements Screen {
 
                     game.updateScreen(0);
                 }
-                PeetyTheBeefy.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-                PeetyTheBeefy.fMouseY = Constants.SCREENHEIGHT;
+                game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                game.fMouseY = Constants.SCREENHEIGHT;
             }
         }
     }
