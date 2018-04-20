@@ -15,6 +15,8 @@ public class Box2D {
     public Box2D(World world, String sId, float fX, float fY, float fWidth, float fHeight) {
         this.sId = sId;
         createBody(world, fX, fY, fWidth, fHeight);
+        body.setLinearDamping(20f);
+
     }
 
     private void createBody(World world, float fX, float fY, float fWidth, float fHeight) {

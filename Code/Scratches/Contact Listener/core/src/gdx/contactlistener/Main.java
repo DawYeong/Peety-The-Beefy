@@ -26,7 +26,7 @@ public class Main extends ApplicationAdapter {
     OrthographicCamera camera;
     private World world;
     private Box2DDebugRenderer b2dr;
-    private Box2D playerBody, obj1;
+    private Box2D playerBody, obj1, obj2;
     public static float PPM = 32;
 
     @Override
@@ -35,10 +35,11 @@ public class Main extends ApplicationAdapter {
         txPlayer = new Texture("badlogic.jpg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-        world = new World(new Vector2(0, -9.8f), false);
+        world = new World(new Vector2(0, 0), false);
         world.setContactListener(new ContactListener1());
         playerBody = new Box2D(world, "PLAYER", 0, 0, 32, 32);
-        obj1 = new Box2D(world, "OBJ1", 75, 75, 600, 32);
+        obj1 = new Box2D(world, "OBJ1", -50, 50, 32, 32);
+        obj2 = new Box2D(world, "OBJ2", 50, 50,32, 32);
         
         b2dr = new Box2DDebugRenderer();
     }
@@ -70,17 +71,20 @@ public class Main extends ApplicationAdapter {
     }
 
     public void move() {
-        float fHForce = 0;
+        float fHForce = 0, fVForce = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             fHForce -= 1;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             fHForce += 1;
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            playerBody.body.applyForceToCenter(0, 300, false);
+        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+            fVForce += 1;
         }
-        playerBody.body.setLinearVelocity(fHForce * 5, playerBody.body.getLinearVelocity().y);
+        if(Gdx.input.isKeyPressed(Input.Keys.S)){
+            fVForce -= 1;
+        }
+        playerBody.body.setLinearVelocity(fHForce * 5,fVForce * 5);
 
     }
 
