@@ -30,6 +30,9 @@ import gdx.peetythebeefy.cookiecutters.Constants;
 import gdx.peetythebeefy.cookiecutters.Enemies;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
+import gdx.peetythebeefy.cookiecutters.Box2D;
+
+import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 
 /**
  *
@@ -42,21 +45,20 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Sprite sprPeety;
     World world;
     float fX, fY, fW, fH;
-    Body playerBody;
+    Box2D b2Player;
+    Box2D[] arb2Enemies = new Box2D[2];
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
-    ArrayList<gdx.peetythebeefy.cookiecutters.Enemies> alEnemies = new ArrayList<Enemies>();
     TiledMap tMap;
 
     Animation araniPeety[];
     TextureRegion trTemp;
     Texture txSheet;
-    int nPos, nLastPos, nFrame, nCount, nDirection, nJumpCount, nJumpInterval;
+    int nPos, nFrame, nCount, nDirection;
     float fSpriteSpeed;
     static boolean isShowing = false;
-    boolean isCounterStart = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -80,7 +82,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
-        createEnemies();
         Gdx.input.setInputProcessor(this);
     }
 
@@ -92,8 +93,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
-            playerBody = createBody(fX, fY, fW, fH, false);
-            drawEnemies();
+            b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32);
+            arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
+            arb2Enemies[1] = new Box2D(world, "ENEMIES2", fX - 100, fY + 50, fW, fH);
             nCount++;
         }
     }
@@ -120,18 +122,37 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         otmr.setView(camera);
         otmr.render();
-        b2dr.render(world, camera.combined.scl(32));
+        b2dr.render(world, camera.combined.scl(PPM));
 
         batch.begin();
-        batch.draw(trTemp, playerBody.getPosition().x * 32 - fW / 2, playerBody.getPosition().y * 32 - fH / 2, fW, fH);
+        batch.draw(trTemp, b2Player.body.getPosition().x * PPM - fW / 2, b2Player.body.getPosition().y * PPM - fH / 2, fW, fH);
         batch.end();
 
         if (isShowing == true) {
             drawButtons();
         }
 
-        move();
-        moveEnemies();
+        b2Player.playerMove();
+        for(int i = 0; i < 1 ; i++) {
+            if(b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y + 100/PPM &&
+                    b2Player.body.getPosition().y >= arb2Enemies[i].body.getPosition().y ||
+                    b2Player.body.getPosition().y > arb2Enemies[i].body.getPosition().y - 100/PPM &&
+                    b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y) {
+                if (b2Player.body.getPosition().x < arb2Enemies[i].body.getPosition().x + 100 / PPM &&
+                        b2Player.body.getPosition().x >= arb2Enemies[i].body.getPosition().x) {
+                    arb2Enemies[i].isInRange = true;
+                    arb2Enemies[i].nDir = 1;
+                } else if (b2Player.body.getPosition().x > arb2Enemies[i].body.getPosition().x - 100 / PPM &&
+                        b2Player.body.getPosition().x < arb2Enemies[i].body.getPosition().x) {
+                    arb2Enemies[i].nDir = 2;
+                    arb2Enemies[i].isInRange = true;
+                }
+            } else {
+                    arb2Enemies[i].isInRange = false;
+                }
+            arb2Enemies[i].enemyMove();
+        }
+        System.out.println(arb2Enemies[0].body.getLinearVelocity().x);
     }
 
     public void cameraUpdate() {
@@ -148,12 +169,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 System.out.println("move to main menu ");
-//                world.destroyBody(playerBody);
-//                for (int x = alEnemies.size() - 1; x >= 0; x--) {
-//                    Body b = alEnemies.get(x).eBody;
-//                    world.destroyBody(b);
-//                    alEnemies.remove(x);
-//                }
                 game.updateScreen(0);
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
@@ -161,85 +176,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void createEnemies() {
-        alEnemies.add(new Enemies(fX + 100, fY + 50, fW, fH, world, batch, "ENEMY1"));
-        alEnemies.add(new Enemies(fX - 100, fY + 50, fW, fH, world, batch, "ENEMY2"));
-    }
-
-    public void drawEnemies() {
-        for (int i = 0; i < alEnemies.size(); i++) {
-            alEnemies.get(i).Update();
-        }
-    }
-
-    public void moveEnemies() {
-        for (int i = 0; i < alEnemies.size(); i++) {
-            alEnemies.get(i).move();
-        }
-    }
-
-    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
-        Body pBody;
-        BodyDef def = new BodyDef();
-        if (isStatic) {
-            def.type = BodyDef.BodyType.StaticBody;
-        } else {
-            def.type = BodyDef.BodyType.DynamicBody;
-        }
-        def.position.set(x / 32, y / 32);
-        def.fixedRotation = true;
-        pBody = world.createBody(def);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox((float) width / 2 / 32, (float) height / 2 / 32);
-
-        pBody.createFixture(shape, 1.0f);
-        shape.dispose();
-
-        return pBody;
-    }
-
-    public void move() {
-        float fhForce = 0;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            fhForce -= 1;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            fhForce += 1;
-        }
-        if (playerBody.getLinearVelocity().y == 0) {
-            nJumpCount = 2;
-            nJumpInterval = 0;
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (nJumpCount == 2) {
-                playerBody.applyForceToCenter(0, 500, false);
-                isCounterStart = true;
-            }
-            if (nJumpCount == 1) {
-                if (nJumpInterval >= 20) {
-                    playerBody.setLinearVelocity(0,0); //sets it to 0 to make it like a stationary jump
-                    playerBody.applyForceToCenter(0, 400, false);
-                    nJumpInterval = 0;
-                }
-            }
-            if (nJumpCount > 0) {
-                nJumpCount--;
-            }
-        }
-        if (isCounterStart) {
-            nJumpInterval++;
-            if (nJumpInterval >= 20) {
-                isCounterStart = false;
-            }
-        }
-        //System.out.println(nJumpCount);
-        if (playerBody.getPosition().y < 0) {
-//            player.getPosition().set(player.getPosition().x, 100);
-            playerBody.setTransform(playerBody.getPosition().x, Constants.SCREENHEIGHT / 32, 0);
-            //System.out.println(playerBody.getPosition());
-        }
-        playerBody.setLinearVelocity(fhForce * 5, playerBody.getLinearVelocity().y);
-    }
 
     public void playerSprite(float nAniSpeed) {
         int nW, nH, nSx, nSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
@@ -259,30 +195,30 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void frameAnimation() {
-        if (playerBody.getLinearVelocity().x != 0 || playerBody.getLinearVelocity().y != 0) {
+        if (b2Player.body.getLinearVelocity().x != 0 ||b2Player.body.getLinearVelocity().y != 0) {
             nFrame++;
         }
         if (nFrame > 32) {
             nFrame = 0;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A) && playerBody.getLinearVelocity().y >= 0) { //going left
+        if (Gdx.input.isKeyPressed(Input.Keys.A) && b2Player.body.getLinearVelocity().y >= 0) { //going left
             nDirection = 1;
             nPos = 1;
             fSpriteSpeed = 9.2f;
             playerSprite(fSpriteSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && playerBody.getLinearVelocity().y >= 0) { //going right
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && b2Player.body.getLinearVelocity().y >= 0) { //going right
             nDirection = 0;
             nPos = 0;
             fSpriteSpeed = 9.2f;
             playerSprite(fSpriteSpeed);
         }
-        if (playerBody.getLinearVelocity().y < 0) { //falling animation + speed up
+        if (b2Player.body.getLinearVelocity().y < 0) { //falling animation + speed up
             nPos = 5;
             if (fSpriteSpeed >= 2.3f) {
                 playerSprite(fSpriteSpeed -= 0.1);
             }
         }
-        if (playerBody.getLinearVelocity().x == 0 && playerBody.getLinearVelocity().y == 0) { //reset to last direction when stationary
+        if (b2Player.body.getLinearVelocity().x == 0 && b2Player.body.getLinearVelocity().y == 0) { //reset to last direction when stationary
             if (nDirection == 1) {
                 nPos = 1;
             } else if (nDirection == 0) {
