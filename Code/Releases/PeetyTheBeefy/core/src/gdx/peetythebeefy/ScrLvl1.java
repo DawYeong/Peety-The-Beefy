@@ -27,12 +27,11 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import gdx.peetythebeefy.cookiecutters.Constants;
-import gdx.peetythebeefy.cookiecutters.Enemies;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
 import gdx.peetythebeefy.cookiecutters.Box2D;
-
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
+
 
 /**
  *
@@ -50,7 +49,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
-    ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
 
     Animation araniPeety[];
@@ -133,7 +132,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
 
         b2Player.playerMove();
-        for(int i = 0; i < 1 ; i++) {
+        for(int i = 0; i < 2 ; i++) {
             if(b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y + 100/PPM &&
                     b2Player.body.getPosition().y >= arb2Enemies[i].body.getPosition().y ||
                     b2Player.body.getPosition().y > arb2Enemies[i].body.getPosition().y - 100/PPM &&
