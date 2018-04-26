@@ -1,26 +1,30 @@
 package gdx.contactlistener;
 
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.Manifold;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 
 public class ContactListener1 implements ContactListener {
+    private Array<Body> arBodiesToRemove;
+
+    public ContactListener1() {
+        super();
+        arBodiesToRemove = new Array<Body>();
+    }
 
     @Override
     public void beginContact(Contact contact) {
-        Fixture fa = contact.getFixtureA();
-        Fixture fb = contact.getFixtureB();
+        Fixture fixA = contact.getFixtureA();
+        Fixture fixB = contact.getFixtureB();
         
-        if(fa == null || fb == null) return;
-        if(fa.getUserData() == null || fb.getUserData() == null) return;
+        if(fixA == null || fixB == null) return;
+        if(fixA.getUserData() == null || fixB.getUserData() == null) return;
 
-        if(isTutorialContact(fa, fb)) {
-            Box2D Body1 = (Box2D) fa.getUserData();
-            Box2D Body2 = (Box2D) fb.getUserData();
+        if(isBoxContact(fixA, fixB)) {
+            b2dBox playerBody = (b2dBox) fixA.getUserData();
+            b2dBox enemyBody = (b2dBox) fixB.getUserData();
 
-            Body1.hit();
+            enemyBody.isHit();
+            arBodiesToRemove.add(fixA.getBody());
         }
         
         System.out.println("A collision happened!");
@@ -47,9 +51,11 @@ public class ContactListener1 implements ContactListener {
     public void postSolve(Contact cntct, ContactImpulse ci) {
         
     }
-    private boolean isTutorialContact(Fixture a, Fixture b) {
-
-        return (a.getUserData() instanceof Box2D && b.getUserData() instanceof Box2D);
+    private boolean isBoxContact(Fixture fixA, Fixture fixB) {
+        return (fixB.getUserData() instanceof b2dBox && fixB.getUserData() instanceof b2dBox);
+    }
+    public Array<Body> getArBodiesToRemove() {
+        return arBodiesToRemove;
     }
     
 }

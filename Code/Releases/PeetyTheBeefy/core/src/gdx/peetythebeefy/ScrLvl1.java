@@ -254,7 +254,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 arSprPeety[j] = new Sprite(sprPeety);
             }
             araniPeety[i] = new Animation(nAniSpeed, arSprPeety);
-
         }
     }
 
@@ -269,17 +268,20 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nDirection = 1;
             nPos = 1;
             fSpriteSpeed = 9.2f;
-            playerSprite(fSpriteSpeed);
+            araniPeety[nPos].setFrameDuration(fSpriteSpeed);
+//            playerSprite(fSpriteSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && playerBody.getLinearVelocity().y >= 0) { //going right
             nDirection = 0;
             nPos = 0;
             fSpriteSpeed = 9.2f;
-            playerSprite(fSpriteSpeed);
+            araniPeety[nPos].setFrameDuration(fSpriteSpeed);
+//            playerSprite(fSpriteSpeed);
         }
         if (playerBody.getLinearVelocity().y < 0) { //falling animation + speed up
             nPos = 5;
             if (fSpriteSpeed >= 2.3f) {
-                playerSprite(fSpriteSpeed -= 0.1);
+                araniPeety[nPos].setFrameDuration(fSpriteSpeed -= 0.1f);
+//                playerSprite(fSpriteSpeed -= 0.1);
             }
         }
         if (playerBody.getLinearVelocity().x == 0 && playerBody.getLinearVelocity().y == 0) { //reset to last direction when stationary
@@ -289,7 +291,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 nPos = 0;
             }
             fSpriteSpeed = 9.2f;
-            playerSprite(fSpriteSpeed);
+            araniPeety[nPos].setFrameDuration(fSpriteSpeed);
+//            playerSprite(fSpriteSpeed);
         }
     }
 

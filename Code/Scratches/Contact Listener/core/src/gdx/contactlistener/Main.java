@@ -6,27 +6,25 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.contactlistener.Box2D;
-import gdx.contactlistener.ContactListener1;
+import com.badlogic.gdx.utils.Array;
 
 public class Main extends ApplicationAdapter {
 
     SpriteBatch batch;
     Texture txPlayer;
     OrthographicCamera camera;
-    private World world;
-    private Box2DDebugRenderer b2dr;
-    private Box2D playerBody, obj1, obj2;
+    World world;
+    Box2DDebugRenderer b2dr;
+    b2dBox playerBody, obj1, obj2;
+    b2dBox[] arbEnemies = new b2dBox[2];
+    String sEnemyName = "ENEMY0";
+    StringBuilder sbEnemyName = new StringBuilder(sEnemyName);
     public static float PPM = 32;
 
     @Override
@@ -37,9 +35,15 @@ public class Main extends ApplicationAdapter {
         camera.setToOrtho(false, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         world = new World(new Vector2(0, 0), false);
         world.setContactListener(new ContactListener1());
-        playerBody = new Box2D(world, "PLAYER", 0, 0, 32, 32);
-        obj1 = new Box2D(world, "OBJ1", -50, 50, 32, 32);
-        obj2 = new Box2D(world, "OBJ2", 50, 50,32, 32);
+        playerBody = new b2dBox(world, "PLAYER", 0, 0, 32, 32);
+        for(int i = 0; i < arbEnemies.length; i++ ) {
+            sbEnemyName.deleteCharAt(sbEnemyName.length() - 1);
+            sbEnemyName.append(i);
+            sEnemyName = sbEnemyName.toString();
+            arbEnemies[i] = new b2dBox(world, sEnemyName, -50, 50, 32, 32);
+            System.out.println(sEnemyName);
+        }
+
         
         b2dr = new Box2DDebugRenderer();
     }
@@ -57,6 +61,13 @@ public class Main extends ApplicationAdapter {
 
     public void update(float delta) {
         world.step(1 / 60f, 6, 2);
+
+//        Array<Body> bodies = ContacListener1.getBodiesToRemove();
+//        for(int i = 0; i > bodies.size(); i++) {
+//            Body b = bodies.get(i);
+//            arbEnemies[i].removeValue((b2dBox) b.getUserData(), true);
+//            world.destroyBody(b);
+//        }
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
         move();

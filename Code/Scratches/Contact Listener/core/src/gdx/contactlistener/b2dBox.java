@@ -1,18 +1,14 @@
 package gdx.contactlistener;
 
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 import gdx.contactlistener.Constants;
 
-public class Box2D {
+public class b2dBox {
 
     public Body body;
     public String sId;
 
-    public Box2D(World world, String sId, float fX, float fY, float fWidth, float fHeight) {
+    public b2dBox(World world, String sId, float fX, float fY, float fWidth, float fHeight) {
         this.sId = sId;
         createBody(world, fX, fY, fWidth, fHeight);
         body.setLinearDamping(20f);
@@ -36,7 +32,8 @@ public class Box2D {
         
         
     }
-    public void hit() {
+    public void isHit() {
         System.out.println(sId + ": I've been hit!");
     }
+
 }
