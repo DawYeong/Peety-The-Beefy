@@ -24,7 +24,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch;
     Texture texMenu;
-    ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     
     
 
@@ -69,10 +69,12 @@ public class ScrMainMenu implements Screen, InputProcessor {
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 if (i == 0) {
                     System.out.println("moves to Lvl 1 screen");
-                    game.updateScreen(2);
+                    ScrLvl1.isShowing = false;
+
+                    game.updateScreen(3);
                 } else if (i == 1) {
                     System.out.println("moves to the controls");
-                    game.updateScreen(3);
+                    game.updateScreen(2);
                 } else if (i == 2) {
                     System.out.println("moves to the stage select");
                     game.updateScreen(1);

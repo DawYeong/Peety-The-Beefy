@@ -17,83 +17,103 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 /**
- *
  * @author benny
  */
 // this class will be changed in the future
 public class Box2D {
 
-    float fX, fY, fW, fH, PPM = 32;
-    boolean isStatic;
-    World world;
-    Body player;
-    Texture img;
-    Sprite sprPlayer;
-    SpriteBatch batch;
 
-    public Box2D(float X, float Y, float Width, float Height, boolean Static, World tempWorld, SpriteBatch _batch) {
-        this.fX = X;
-        this.fY = Y;
-        this.fW = Width;
-        this.fH = Height;
-        this.isStatic = Static;
-        this.batch = _batch;
-        this.world = tempWorld;
-        img = new Texture("badlogic.jpg");
-        sprPlayer = new Sprite(img);
+    public Body body;
+    public String sId;
+    public int nJumpInterval, nJumpCount, nJump, nDir = 1;
+    boolean isCounterStart;
+    public boolean isInRange;
+
+    public Box2D(World world, String sId, float fX, float fY, float fWidth, float fHeight) {
+
+        this.sId = sId;
+        this.createBody(world, fX, fY, fWidth, fHeight);
     }
 
-    public void Update() {
-        player = createBody(fX, fY, fW, fH, isStatic);
-//        batch.begin();
-//        batch.draw(sprPlayer, fX, fY, 32, 32);
-//        batch.end();
-    }
-
-    public Body createBody(float x, float y, float width, float height, boolean isStatic) {
-        Body pBody;
-        BodyDef def = new BodyDef();
-        if (isStatic) {
-            def.type = BodyDef.BodyType.StaticBody;
-        } else {
-            def.type = BodyDef.BodyType.DynamicBody;
-        }
-        def.position.set(x / PPM, y / PPM);
-        def.fixedRotation = true;
-        pBody = world.createBody(def);
-
+    private void createBody(World world, float fX, float fY, float fWidth, float fHeight) {
+        BodyDef bdef = new BodyDef();
+        bdef.fixedRotation = true;
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        bdef.position.set(fX / 32.0F, fY / 32.0F);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox((float) width / 2 / PPM, (float) height / 2 / PPM);
-
+        shape.setAsBox(fWidth / 32.0F / 2.0F, fHeight / 32.0F / 2.0F);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 1.0f;
-
-        pBody.createFixture(fixtureDef);
-        shape.dispose();
-
-        pBody.createFixture(fixtureDef).setUserData(this);
-
-        return pBody;
+        fixtureDef.density = 1.0F;
+        this.body = world.createBody(bdef);
+        this.body.createFixture(fixtureDef).setUserData(this);
     }
 
-    public void move() {
-        float fhForce = 0, fvForce = 0;
+    public void playerMove() {
+        float fHForce = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            fhForce -= 1;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            fhForce += 1;
+            fHForce -= 1;
         }
-        if (player.getLinearVelocity().y == 0) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                player.applyForceToCenter(0, 500, false);
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            fHForce += 1;
+        }
+        if (body.getLinearVelocity().y == 0) {
+            nJumpCount = 2;
+            nJumpInterval = 0;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (nJumpCount == 2) {
+                body.applyForceToCenter(0, 500, false);
+                isCounterStart = true;
+            }
+            if (nJumpCount == 1) {
+                if (nJumpInterval >= 20) {
+                    body.setLinearVelocity(0, 0);
+                    body.applyForceToCenter(0, 400, false);
+                    nJumpInterval = 0;
+                }
+            }
+            if (nJumpCount > 0) {
+                nJumpCount--;
             }
         }
-        if (player.getPosition().y < 0) {
-//            player.getPosition().set(player.getPosition().x, 100);
-            player.setTransform(player.getPosition().x, Constants.SCREENHEIGHT / PPM, 0);
-            System.out.println(player.getPosition());
+        if (isCounterStart) {
+            nJumpInterval++;
+            if (nJumpInterval >= 20) {
+                isCounterStart = false;
+            }
         }
-        player.setLinearVelocity(fhForce * 5, player.getLinearVelocity().y);
+        if (body.getPosition().y < 0) {
+            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
+        }
+        body.setLinearVelocity(fHForce * 5, body.getLinearVelocity().y);
+
     }
+
+    public void enemyMove() {
+        float fhForce = 0;
+        if (!isInRange) {
+            if (body.getLinearVelocity().x == 0) {
+                if (nDir == 1) {
+                    nDir = 2;
+                } else if (nDir == 2) {
+                    nDir = 1;
+                }
+            }
+        }
+        nJump = (int) (Math.random() * 99 + 1);
+        if (nDir == 1) {
+            fhForce = (isInRange) ? (float)1.5 : 1;
+        } else if (nDir == 2) {
+            fhForce = (isInRange) ? (float) -1.5: -1;
+        }
+        if (nJump == 5 && body.getLinearVelocity().y == 0) {
+            body.applyForceToCenter(0, 500, false);
+        }
+        if (body.getPosition().y < 0) {
+            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
+        }
+        body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
+    }
+
 }

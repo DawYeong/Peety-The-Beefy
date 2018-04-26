@@ -24,7 +24,7 @@ public class ScrStageSelect implements Screen {
     SpriteBatch batch;
     Texture texMenuMain, texMenuNew;
     float fMainX, fNewX, fY;
-    ArrayList<gdx.peetythebeefy.cookiecutters.Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrStageSelect(PeetyTheBeefy game) {
         this.game = game;
@@ -73,41 +73,33 @@ public class ScrStageSelect implements Screen {
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 if (i == 0) {
-                    System.out.println("moves to lvl1");
+                    System.out.println("moves to lvl 1");
                     ScrLvl1.isShowing = false;
-                    //resets the y position of each level button
-                    alButtons.get(0).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(1).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(2).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(3).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(4).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(5).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(6).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(7).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(8).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(9).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(10).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(11).fY = Constants.SCREENHEIGHT;
 
-                    game.updateScreen(2);
-                } else if (i == 12) {
+                    game.updateScreen(3);
+                } else if(i == 1) {
+                    System.out.println("moves to lvl 2");
+
+                    game.updateScreen(4);
+                }
+                else if (i == 12) {
                     System.out.println("moves to main menu");
-                    //resets the y position of each level button
-                    alButtons.get(0).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(1).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(2).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(3).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(4).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(5).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(6).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(7).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(8).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(9).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(10).fY = Constants.SCREENHEIGHT;
-                    alButtons.get(11).fY = Constants.SCREENHEIGHT;
 
                     game.updateScreen(0);
                 }
+                //resets the y position of each level button
+                alButtons.get(0).fY = Constants.SCREENHEIGHT;
+                alButtons.get(1).fY = Constants.SCREENHEIGHT;
+                alButtons.get(2).fY = Constants.SCREENHEIGHT;
+                alButtons.get(3).fY = Constants.SCREENHEIGHT;
+                alButtons.get(4).fY = Constants.SCREENHEIGHT;
+                alButtons.get(5).fY = Constants.SCREENHEIGHT;
+                alButtons.get(6).fY = Constants.SCREENHEIGHT;
+                alButtons.get(7).fY = Constants.SCREENHEIGHT;
+                alButtons.get(8).fY = Constants.SCREENHEIGHT;
+                alButtons.get(9).fY = Constants.SCREENHEIGHT;
+                alButtons.get(10).fY = Constants.SCREENHEIGHT;
+                alButtons.get(11).fY = Constants.SCREENHEIGHT;
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
             }
