@@ -20,28 +20,23 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.peetythebeefy.cookiecutters.Buttons;
-import gdx.peetythebeefy.cookiecutters.Constants;
+import gdx.peetythebeefy.cookiecutters.*;
+
 import java.util.ArrayList;
-import gdx.peetythebeefy.cookiecutters.TiledPolyLines;
-import gdx.peetythebeefy.cookiecutters.Box2D;
+
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 
 
 /**
- *
  * @author tn200
  */
 public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Sprite sprPeety;
+    SpriteAnimation aniPeety;
     World world;
     float fX, fY, fW, fH;
     Box2D b2Player;
@@ -52,11 +47,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
 
-    Animation araniPeety[];
     TextureRegion trTemp;
-    Texture txSheet;
-    int nPos, nFrame, nCount, nDirection;
-    float fSpriteSpeed;
+    Texture txPeety;
+    int nCount;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
@@ -69,14 +62,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fW = 32;
         fH = 32;
 
-        nFrame = 0;
-        nPos = 0;
-        nCount = 0;
-        fSpriteSpeed = 9.2f;
-        txSheet = new Texture("PTBsprite.png");
-        sprPeety = new Sprite(txSheet, 0, 0, 32, 32);
-        araniPeety = new Animation[24];
-        playerSprite(fSpriteSpeed);
+        aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png");
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
@@ -90,9 +76,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
+
         TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
-            b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32);
+            b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
             arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
             arb2Enemies[1] = new Box2D(world, "ENEMIES2", fX - 100, fY + 50, fW, fH);
             nCount++;
@@ -104,7 +91,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         frameAnimation();
-        trTemp = (TextureRegion) araniPeety[nPos].getKeyFrame(nFrame, true);
+        trTemp = (TextureRegion) aniPeety.araniPeety[aniPeety.nPos].getKeyFrame(aniPeety.nFrame, true);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
@@ -132,11 +119,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
 
         b2Player.playerMove();
-        for(int i = 0; i < 2 ; i++) {
-            if(b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y + 100/PPM &&
+        for (int i = 0; i < 2; i++) {
+            if (b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y + 100 / PPM &&
                     b2Player.body.getPosition().y >= arb2Enemies[i].body.getPosition().y ||
-                    b2Player.body.getPosition().y > arb2Enemies[i].body.getPosition().y - 100/PPM &&
-                    b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y) {
+                    b2Player.body.getPosition().y > arb2Enemies[i].body.getPosition().y - 100 / PPM &&
+                            b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y) {
                 if (b2Player.body.getPosition().x < arb2Enemies[i].body.getPosition().x + 100 / PPM &&
                         b2Player.body.getPosition().x >= arb2Enemies[i].body.getPosition().x) {
                     arb2Enemies[i].isInRange = true;
@@ -147,8 +134,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     arb2Enemies[i].isInRange = true;
                 }
             } else {
-                    arb2Enemies[i].isInRange = false;
-                }
+                arb2Enemies[i].isInRange = false;
+            }
             arb2Enemies[i].enemyMove();
         }
         System.out.println(arb2Enemies[0].body.getLinearVelocity().x);
@@ -175,58 +162,39 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-
-    public void playerSprite(float nAniSpeed) {
-        int nW, nH, nSx, nSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
-        nW = txSheet.getWidth() / 4;
-        nH = txSheet.getHeight() / 6;
-        for (int i = 0; i < 6; i++) {
-            Sprite[] arSprPeety = new Sprite[4];
-            for (int j = 0; j < 4; j++) {
-                nSx = j * nW;
-                nSy = i * nH;
-                sprPeety = new Sprite(txSheet, nSx, nSy, nW, nH);
-                arSprPeety[j] = new Sprite(sprPeety);
-            }
-            araniPeety[i] = new Animation(nAniSpeed, arSprPeety);
-        }
-    }
-
     public void frameAnimation() {
-        if (b2Player.body.getLinearVelocity().x != 0 ||b2Player.body.getLinearVelocity().y != 0) {
-            nFrame++;
+        if (b2Player.body.getLinearVelocity().x != 0 || b2Player.body.getLinearVelocity().y != 0) {
+            aniPeety.nFrame++;
         }
-        if (nFrame > 32) {
-            nFrame = 0;
+        if (aniPeety.nFrame > 32) {
+            aniPeety.nFrame = 0;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A) && b2Player.body.getLinearVelocity().y >= 0) { //going left
-            nDirection = 1;
-            nPos = 1;
-            fSpriteSpeed = 9.2f;
-            playerSprite(fSpriteSpeed);
+            aniPeety.nDirection = 1;
+            aniPeety.nPos = 1;
+            aniPeety.fAniSpeed = 9.2f;
+            aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed);
+            //playerSprite(aniPeety.fAniSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && b2Player.body.getLinearVelocity().y >= 0) { //going right
-            nDirection = 0;
-            nPos = 0;
-            fSpriteSpeed = 9.2f;
-            araniPeety[nPos].setFrameDuration(fSpriteSpeed);
-//            playerSprite(fSpriteSpeed);
+            aniPeety.nDirection = 0;
+            aniPeety.nPos = 0;
+            aniPeety.fAniSpeed = 9.2f;
+            aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed);
         }
         if (b2Player.body.getLinearVelocity().y < 0) { //falling animation + speed up
-            nPos = 5;
-            if (fSpriteSpeed >= 2.3f) {
-                araniPeety[nPos].setFrameDuration(fSpriteSpeed -= 0.1f);
-//                playerSprite(fSpriteSpeed -= 0.1);
+            aniPeety.nPos = 5;
+            if (aniPeety.fAniSpeed >= 2.3f) {
+                aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed -= 0.1f);
             }
         }
         if (b2Player.body.getLinearVelocity().x == 0 && b2Player.body.getLinearVelocity().y == 0) { //reset to last direction when stationary
-            if (nDirection == 1) {
-                nPos = 1;
-            } else if (nDirection == 0) {
-                nPos = 0;
+            if (aniPeety.nDirection == 1) {
+                aniPeety.nPos = 1;
+            } else if (aniPeety.nDirection == 0) {
+                aniPeety.nPos = 0;
             }
-            fSpriteSpeed = 9.2f;
-            araniPeety[nPos].setFrameDuration(fSpriteSpeed);
-//            playerSprite(fSpriteSpeed);
+            aniPeety.fAniSpeed = 9.2f;
+            aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed);
         }
     }
 
@@ -252,7 +220,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.dispose();
         b2dr.dispose();
         world.dispose();
-        txSheet.dispose();
+        txPeety.dispose();
     }
 
     @Override
