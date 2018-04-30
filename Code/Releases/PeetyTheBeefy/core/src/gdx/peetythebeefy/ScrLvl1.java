@@ -36,7 +36,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    SpriteAnimation aniPeety;
+    SpriteAnimation aniPeety, aniMeaty, aniMeaty2;
     World world;
     float fX, fY, fW, fH;
     Box2D b2Player;
@@ -47,8 +47,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMap;
 
-    TextureRegion trTemp;
-    Texture txPeety;
+    TextureRegion trTemp, trTempMeat, trTempMeat2;
     int nCount;
     static boolean isShowing = false;
 
@@ -63,6 +62,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fH = 32;
 
         aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png");
+        aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png");
+        aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png");
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
@@ -92,6 +93,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         frameAnimation();
         trTemp = (TextureRegion) aniPeety.araniPeety[aniPeety.nPos].getKeyFrame(aniPeety.nFrame, true);
+        trTempMeat = (TextureRegion) aniMeaty.araniPeety[aniMeaty.nPos].getKeyFrame(aniMeaty.nFrame,true);
+        trTempMeat2 = (TextureRegion) aniMeaty2.araniPeety[aniMeaty2.nPos].getKeyFrame(aniMeaty2.nFrame,true);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
@@ -112,6 +115,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         batch.begin();
         batch.draw(trTemp, b2Player.body.getPosition().x * PPM - fW / 2, b2Player.body.getPosition().y * PPM - fH / 2, fW, fH);
+        batch.draw(trTempMeat,arb2Enemies[0].body.getPosition().x * PPM - fW / 2,arb2Enemies[0].body.getPosition().y * PPM - fH/ 2, fW, fH);
+        batch.draw(trTempMeat2,arb2Enemies[1].body.getPosition().x * PPM - fW / 2,arb2Enemies[1].body.getPosition().y * PPM - fH / 2, fW, fH);
         batch.end();
 
         if (isShowing == true) {
@@ -169,6 +174,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (aniPeety.nFrame > 32) {
             aniPeety.nFrame = 0;
         }
+        if(aniMeaty2.nFrame > 32) {
+            aniMeaty2.nFrame = 0;
+        }
+        aniMeaty.nFrame++;
+        aniMeaty2.nFrame++;
+
         if (Gdx.input.isKeyPressed(Input.Keys.A) && b2Player.body.getLinearVelocity().y >= 0) { //going left
             aniPeety.nDirection = 1;
             aniPeety.nPos = 1;
@@ -220,7 +231,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.dispose();
         b2dr.dispose();
         world.dispose();
-        txPeety.dispose();
+        aniPeety.cleanup();
+        aniMeaty.cleanup();
     }
 
     @Override

@@ -45,4 +45,8 @@ public class SpriteAnimation {
         return araniPeety;
     }
 
+    public void cleanup() {
+        txSheet.dispose();
+    }
+
 }
