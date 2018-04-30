@@ -44,6 +44,7 @@ public class Box2D {
         shape.setAsBox(fWidth / 32.0F / 2.0F, fHeight / 32.0F / 2.0F);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
+        fixtureDef.friction = 0.01f;
         fixtureDef.density = 1.0F;
         this.body = world.createBody(bdef);
         this.body.createFixture(fixtureDef).setUserData(this);
