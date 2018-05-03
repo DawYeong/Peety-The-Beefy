@@ -20,6 +20,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.*;
@@ -45,7 +46,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
-    TiledMap tMap;
+    TiledMap tMapLvl1;
+    TiledPolyLines tplLvl1;
 
     TextureRegion trTemp, trTempMeat, trTempMeat2;
     int nCount;
@@ -74,11 +76,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void show() {
         createButtons();
-        tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
-        otmr = new OrthogonalTiledMapRenderer(tMap);
+        tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
+        otmr = new OrthogonalTiledMapRenderer(tMapLvl1);
 
+        tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects());
 
-        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
         if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
             b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
             arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
@@ -143,7 +145,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             arb2Enemies[i].enemyMove();
         }
-        System.out.println(arb2Enemies[0].body.getLinearVelocity().x);
     }
 
     public void cameraUpdate() {
