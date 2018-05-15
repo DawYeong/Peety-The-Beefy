@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -35,6 +36,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor 
     OrthogonalTiledMapRenderer otmr;
     TiledMap tMap;
     Vector2 mousePosition, projectilePosition, vDir;
+    ShapeRenderer SR;
 
     int nJumpInterval, nJumpCount, nMax = 0;
     boolean isCounterStart;
@@ -51,8 +53,9 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor 
         b2dr = new Box2DDebugRenderer();
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
+        SR = new ShapeRenderer();
 
-        playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
+        //playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
         //enemyBody = new Box2D(world, "ENEMY1", Gdx.graphics.getWidth()/2 - 10, Gdx.graphics.getHeight() / 2, 32, 32);
 
         tMapLvl1 = new TiledPolyLines(world, tMap.getLayers().get("collision-layer").getObjects());
@@ -67,14 +70,15 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        move();
-        for(int i = 0; i < alProjectile.size(); i++) {
-            alProjectile.get(i).move();
-        }
+        //move();
 
         otmr.setView(camera);
         otmr.render();
         b2dr.render(world, camera.combined.scl(32));
+
+        for(int i = 0; i < alProjectile.size(); i++) {
+            alProjectile.get(i).Update();
+        }
 
     }
 
@@ -155,10 +159,10 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (nMax < 4) {
-            mousePosition = new Vector2(Gdx.input.getX() / 32, (Gdx.graphics.getHeight() - Gdx.input.getY()) / 32);
-            projectilePosition = new Vector2(playerBody.body.getPosition().x*32 + 2, playerBody.body.getPosition().y * 32+ 2);
-            vDir = mousePosition.sub(playerBody.body.getPosition());
-            alProjectile.add(new Projectile(world,projectilePosition, vDir));
+            mousePosition = new Vector2(Gdx.input.getX(), (Gdx.graphics.getHeight() - Gdx.input.getY()));
+            projectilePosition = new Vector2(playerBody.body.getPosition().x*32, playerBody.body.getPosition().y*32);
+            vDir = mousePosition.sub(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+            alProjectile.add(new Projectile(world, projectilePosition, vDir, SR, batch));
             System.out.println(projectilePosition);
             nMax++;
         }
