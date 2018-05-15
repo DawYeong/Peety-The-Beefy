@@ -24,10 +24,6 @@ public class SpriteAnimation {
 
         txSheet = new Texture(sTexture);
         sprPeety = new Sprite(txSheet, 0, 0, 32, 32);
-        playerSprite(araniPeety);
-    }
-
-    public Animation[] playerSprite(Animation araniPeety[]) {
 
         int nW, nH, nSx, nSy; // height and width of SpriteSheet image - and the starting upper coordinates on the Sprite Sheet
         nW = txSheet.getWidth() / nRows;
@@ -42,7 +38,6 @@ public class SpriteAnimation {
             }
             araniPeety[i] = new Animation(fAniSpeed, arSprPeety);
         }
-        return araniPeety;
     }
 
     public void cleanup() {

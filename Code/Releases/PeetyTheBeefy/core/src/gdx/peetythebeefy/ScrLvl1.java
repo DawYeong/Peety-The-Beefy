@@ -16,9 +16,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -48,6 +50,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
+    Vector2 v2Target;
+    int nLevelHeight, nLevelWidth;
 
     TextureRegion trTemp, trTempMeat, trTempMeat2;
     int nCount;
@@ -67,6 +71,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png");
         aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png");
 
+        v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
@@ -77,9 +82,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void show() {
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
+        tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects());
         otmr = new OrthogonalTiledMapRenderer(tMapLvl1);
 
-        tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects());
+        MapProperties props = tMapLvl1.getProperties();
+        nLevelWidth = props.get("width", Integer.class) ;
+        nLevelHeight = props.get("height", Integer.class);
 
         if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
             b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
@@ -113,7 +121,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         otmr.setView(camera);
         otmr.render();
-        b2dr.render(world, camera.combined.scl(PPM));
+        //b2dr.render(world, camera.combined.scl(PPM));
 
         batch.begin();
         batch.draw(trTemp, b2Player.body.getPosition().x * PPM - fW / 2, b2Player.body.getPosition().y * PPM - fH / 2, fW, fH);
@@ -148,7 +156,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void cameraUpdate() {
-        camera.update();
+        CameraStyles.lerpAverageBetweenTargets(camera, v2Target,b2Player.body.getPosition().scl(PPM));
+        float fStartX = camera.viewportWidth / 2;
+        float fStartY = camera.viewportHeight / 2;
+
+        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
+        camera.zoom = 0.8f;
+
     }
 
     public void createButtons() {
@@ -212,7 +226,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public void resize(int i, int i1) {
-        camera.setToOrtho(false, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
+        camera.setToOrtho(false, Constants.SCREENWIDTH , Constants.SCREENHEIGHT);
+        System.out.println("HERE");
     }
 
     @Override
