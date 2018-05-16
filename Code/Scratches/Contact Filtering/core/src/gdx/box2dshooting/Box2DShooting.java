@@ -3,6 +3,7 @@ package gdx.box2dshooting;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,13 +12,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.box2dshooting.Box2D;
+import gdx.box2dshooting.Constants;
+import java.util.ArrayList;
 
 
-public class Box2DShooting extends ApplicationAdapter {
+public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
 
     SpriteBatch batch;
     Texture img;
@@ -30,6 +31,10 @@ public class Box2DShooting extends ApplicationAdapter {
 
     int nJumpInterval, nJumpCount;
     boolean isCounterStart;
+    Vector2 vDir, vMousePosition, bulletPosition;
+
+    ArrayList<Box2D> alBullet = new ArrayList<Box2D>();
+    int nMax = 0;
 
     @Override
     public void create() {
@@ -42,9 +47,11 @@ public class Box2DShooting extends ApplicationAdapter {
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
-        playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32, false);
+        playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32, false, new Vector2(0,0),
+                Constants.BIT_PLAYER, Constants.BIT_WALL, (short)0);
 
-        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects());
+        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL, (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0);
+        Gdx.input.setInputProcessor(this);
     }
 
     @Override
@@ -56,6 +63,9 @@ public class Box2DShooting extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         move();
+        for(int i = 0; i< alBullet.size(); i++) {
+            alBullet.get(i).bulletMove();
+        }
 
         otmr.setView(camera);
         otmr.render();
@@ -113,5 +123,53 @@ public class Box2DShooting extends ApplicationAdapter {
     @Override
     public void resize(int i, int i1) {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if(nMax < 4) {
+            vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            bulletPosition = new Vector2(playerBody.body.getPosition().x *32, playerBody.body.getPosition().y *32);
+            vDir = vMousePosition.sub(bulletPosition);
+            alBullet.add(new Box2D(world, "Bullet", bulletPosition.x, bulletPosition.y, 32, 32, true, vDir,
+                    Constants.BIT_BULLET, Constants.BIT_WALL, (short)0));
+            nMax++;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
     }
 }

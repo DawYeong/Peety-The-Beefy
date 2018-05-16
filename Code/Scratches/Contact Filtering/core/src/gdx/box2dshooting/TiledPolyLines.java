@@ -9,18 +9,14 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.ChainShape;
-import com.badlogic.gdx.physics.box2d.Shape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 
 /**
  *
  * @author benny
  */
 public class TiledPolyLines {
-        public static void parseTiledObjectLayer(World world, MapObjects objects) {
+        public static void parseTiledObjectLayer(World world, MapObjects objects, short cBits, short mBits, short gIndex) {
         for (MapObject object : objects) {
             Shape shape;
             if (object instanceof PolylineMapObject) {
@@ -32,6 +28,12 @@ public class TiledPolyLines {
             Body body;
             BodyDef bdef = new BodyDef();
             bdef.type = BodyDef.BodyType.StaticBody;
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = shape;
+            fixtureDef.density = 1f;
+            fixtureDef.filter.categoryBits = cBits;
+            fixtureDef.filter.maskBits = mBits;
+            fixtureDef.filter.groupIndex = gIndex;
             body = world.createBody(bdef);
             body.createFixture(shape,1.0f);
             shape.dispose();
