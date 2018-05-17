@@ -67,9 +67,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fW = 32;
         fH = 32;
 
-        aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png");
-        aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png");
-        aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png");
 
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
         camera = new OrthographicCamera();
@@ -93,6 +90,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
             arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
             arb2Enemies[1] = new Box2D(world, "ENEMIES2", fX - 100, fY + 50, fW, fH);
+            aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png", b2Player, batch, false);
+            aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[0], batch, true);
+            aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[1], batch, true);
             nCount++;
         }
     }
@@ -101,10 +101,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        frameAnimation();
-        trTemp = (TextureRegion) aniPeety.araniPeety[aniPeety.nPos].getKeyFrame(aniPeety.nFrame, true);
-        trTempMeat = (TextureRegion) aniMeaty.araniPeety[aniMeaty.nPos].getKeyFrame(aniMeaty.nFrame,true);
-        trTempMeat2 = (TextureRegion) aniMeaty2.araniPeety[aniMeaty2.nPos].getKeyFrame(aniMeaty2.nFrame,true);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
@@ -119,21 +115,23 @@ public class ScrLvl1 implements Screen, InputProcessor {
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
 
+        aniPeety.Update();
+        aniMeaty.Update();
+        aniMeaty2.Update();
+
+        b2Player.playerMove();
+        arb2Enemies[0].enemyMove();
+        arb2Enemies[1].enemyMove();
+
         otmr.setView(camera);
         otmr.render();
-        //b2dr.render(world, camera.combined.scl(PPM));
+        b2dr.render(world, camera.combined.scl(PPM));
 
-        batch.begin();
-        batch.draw(trTemp, b2Player.body.getPosition().x * PPM - fW / 2, b2Player.body.getPosition().y * PPM - fH / 2, fW, fH);
-        batch.draw(trTempMeat,arb2Enemies[0].body.getPosition().x * PPM - fW / 2,arb2Enemies[0].body.getPosition().y * PPM - fH/ 2, fW, fH);
-        batch.draw(trTempMeat2,arb2Enemies[1].body.getPosition().x * PPM - fW / 2,arb2Enemies[1].body.getPosition().y * PPM - fH / 2, fW, fH);
-        batch.end();
 
         if (isShowing == true) {
             drawButtons();
         }
 
-        b2Player.playerMove();
         for (int i = 0; i < 2; i++) {
             if (b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y + 100 / PPM &&
                     b2Player.body.getPosition().y >= arb2Enemies[i].body.getPosition().y ||
@@ -179,48 +177,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
             }
-        }
-    }
-
-    public void frameAnimation() {
-        if (b2Player.body.getLinearVelocity().x != 0 || b2Player.body.getLinearVelocity().y != 0) {
-            aniPeety.nFrame++;
-        }
-        if (aniPeety.nFrame > 32) {
-            aniPeety.nFrame = 0;
-        }
-        if(aniMeaty2.nFrame > 32) {
-            aniMeaty2.nFrame = 0;
-        }
-        aniMeaty.nFrame++;
-        aniMeaty2.nFrame++;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.A) && b2Player.body.getLinearVelocity().y >= 0) { //going left
-            aniPeety.nDirection = 1;
-            aniPeety.nPos = 1;
-            aniPeety.fAniSpeed = 9.2f;
-            aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed);
-            //playerSprite(aniPeety.fAniSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && b2Player.body.getLinearVelocity().y >= 0) { //going right
-            aniPeety.nDirection = 0;
-            aniPeety.nPos = 0;
-            aniPeety.fAniSpeed = 9.2f;
-            aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed);
-        }
-        if (b2Player.body.getLinearVelocity().y < 0) { //falling animation + speed up
-            aniPeety.nPos = 5;
-            if (aniPeety.fAniSpeed >= 2.3f) {
-                aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed -= 0.1f);
-            }
-        }
-        if (b2Player.body.getLinearVelocity().x == 0 && b2Player.body.getLinearVelocity().y == 0) { //reset to last direction when stationary
-            if (aniPeety.nDirection == 1) {
-                aniPeety.nPos = 1;
-            } else if (aniPeety.nDirection == 0) {
-                aniPeety.nPos = 0;
-            }
-            aniPeety.fAniSpeed = 9.2f;
-            aniPeety.araniPeety[aniPeety.nPos].setFrameDuration(aniPeety.fAniSpeed);
         }
     }
 
