@@ -4,23 +4,29 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import gdx.box2dshooting.Constants;
+import com.badlogic.gdx.Gdx;
+
 
 public class Box2D {
     public Body body;
     public String sId;
-    int nCount = 0;
-    Vector2 vDir;
+    int nCount = 0, nLifeTime;
+    World world;
+    Vector2 vDir, vGravity;
+    boolean isDeath = false, canCollect =false, isStuck;
+    public FixtureDef fD = new FixtureDef();
 
     public Box2D(World world, String sId, float fX, float fY, float fWidth, float fHeight, boolean IsBullet, Vector2 vDir, short cBits, short mBits, short gIndex) {
         this.sId = sId;
         this.createBody(world, fX, fY, fWidth, fHeight, IsBullet, cBits, mBits, gIndex);
         this.vDir = vDir;
+        this.world = world;
+        vGravity = new Vector2(0,0);
         vDir.setLength(0.7f);
     }
 
     private void createBody(World world, float fX, float fY, float fWidth, float fHeight, boolean isBullet, short cBits, short mBits, short gIndex) {
         BodyDef bdef = new BodyDef();
-        bdef.fixedRotation = true;
         bdef.type = BodyDef.BodyType.DynamicBody;
         bdef.position.set(fX / 32.0F, fY / 32.0F);
         PolygonShape shape = new PolygonShape();
@@ -33,7 +39,13 @@ public class Box2D {
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0F;
         if(!isBullet) {
-        fixtureDef.friction = 0.01F;
+            fixtureDef.friction = 0.01F;
+            bdef.fixedRotation = true;
+        } else {
+            fixtureDef.friction = 10f;
+            fixtureDef.restitution = 0.1f;
+            //bdef.fixedRotation = false;
+            bdef.bullet =true;
         }
         fixtureDef.filter.categoryBits = cBits;
         fixtureDef.filter.maskBits = mBits;
@@ -45,7 +57,18 @@ public class Box2D {
     public void bulletMove() {
         if(nCount < 2) {
             body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
-            nCount++;
         }
+        if(body.getPosition().y < 0 && body.getLinearVelocity().y < 0) {
+            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight()/32, 0);
+        } else if(body.getPosition().y > Gdx.graphics.getHeight() /32 && body.getLinearVelocity().y > 0) {
+            body.setTransform(body.getPosition().x, 0, 0);
+        }
+        if(nCount >= 180) {
+            canCollect = true;
+        }
+        if(isStuck) {
+            body.setAwake(false);
+        }
+        nCount++;
     }
 }

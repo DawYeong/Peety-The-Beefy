@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.box2dshooting.Constants;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
     SpriteBatch batch;
     Texture img;
     OrthographicCamera camera;
+    TiledPolyLines tMap1;
     private World world;
     private Box2D playerBody;
     private Box2DDebugRenderer b2dr;
@@ -41,6 +43,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         batch = new SpriteBatch();
         img = new Texture("badlogic.jpg");
         world = new World(new Vector2(0f, -18f), false);
+        world.setContactListener(new ContactListener1());
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
         b2dr = new Box2DDebugRenderer();
@@ -49,8 +52,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
 
         playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32, false, new Vector2(0,0),
                 Constants.BIT_PLAYER, Constants.BIT_WALL, (short)0);
-
-        TiledPolyLines.parseTiledObjectLayer(world, tMap.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL, (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0);
+        tMap1 = new TiledPolyLines(world, tMap.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL, (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0);
         Gdx.input.setInputProcessor(this);
     }
 
@@ -65,7 +67,18 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         move();
         for(int i = 0; i< alBullet.size(); i++) {
             alBullet.get(i).bulletMove();
+            if(alBullet.get(i).canCollect) {
+                if(playerBody.body.getPosition().x - (playerBody.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
+                        playerBody.body.getPosition().x + (playerBody.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
+                        playerBody.body.getPosition().y - (playerBody.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
+                        playerBody.body.getPosition().y + (playerBody.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
+                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                    nMax--;
+                    alBullet.remove(i);
+                }
+            }
         }
+
 
         otmr.setView(camera);
         otmr.render();
@@ -120,6 +133,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
 
     }
 
+
     @Override
     public void resize(int i, int i1) {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -147,7 +161,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
             bulletPosition = new Vector2(playerBody.body.getPosition().x *32, playerBody.body.getPosition().y *32);
             vDir = vMousePosition.sub(bulletPosition);
             alBullet.add(new Box2D(world, "Bullet", bulletPosition.x, bulletPosition.y, 32, 32, true, vDir,
-                    Constants.BIT_BULLET, Constants.BIT_WALL, (short)0));
+                    Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET), (short)0));
             nMax++;
         }
         return false;
