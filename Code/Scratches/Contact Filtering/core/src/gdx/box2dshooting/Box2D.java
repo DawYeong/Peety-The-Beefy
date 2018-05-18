@@ -10,7 +10,7 @@ import com.badlogic.gdx.Gdx;
 public class Box2D {
     public Body body;
     public String sId;
-    int nCount = 0, nLifeTime;
+    int nCount = 0, nJump, nDir = 1, nHealth = 5;
     World world;
     Vector2 vDir, vGravity;
     boolean isDeath = false, canCollect =false, isStuck;
@@ -54,8 +54,36 @@ public class Box2D {
         this.body.createFixture(fixtureDef).setUserData(this);
     }
 
+    public void enemyMove() {
+        float fhForce = 0;
+        if(body.getLinearVelocity().x == 0) {
+            if(nDir == 1) {
+                nDir = 2;
+            } else if(nDir == 2) {
+                nDir = 1;
+            }
+        }
+        nJump = (int) (Math.random() * 99 + 1);
+        if(nDir == 1) {
+            fhForce = 1;
+        } else if(nDir == 2) {
+            fhForce = -1;
+        }
+        if (nJump == 5 && body.getLinearVelocity().y == 0) {
+            body.applyForceToCenter(0, 500, false);
+        }
+        if (body.getPosition().y < 0) {
+            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
+        }
+        body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
+        if(nHealth <= 0) {
+            isDeath = true;
+            world.destroyBody(body);
+        }
+    }
+
     public void bulletMove() {
-        if(nCount < 2) {
+        if(nCount < 3) {
             body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
         }
         if(body.getPosition().y < 0 && body.getLinearVelocity().y < 0) {
@@ -63,7 +91,7 @@ public class Box2D {
         } else if(body.getPosition().y > Gdx.graphics.getHeight() /32 && body.getLinearVelocity().y > 0) {
             body.setTransform(body.getPosition().x, 0, 0);
         }
-        if(nCount >= 180) {
+        if(nCount >= 120) {
             canCollect = true;
         }
         if(isStuck) {

@@ -20,7 +20,14 @@ public class ContactListener1 implements ContactListener {
         if(isBulletOnWall(fixA, fixB)) {
             Box2D bulletBody = (Box2D) fixB.getUserData();
             bulletBody.isStuck = true;
-            System.out.println("Stuck");
+            //System.out.println("Stuck");
+        }
+        if(isBulletHitEnemy(fixA, fixB)) {
+            Box2D bulletBody = (Box2D) fixB.getUserData();
+            Box2D enemyBody = (Box2D) fixA.getUserData();
+            if(!bulletBody.isStuck && bulletBody.sId == "Bullet") {
+                enemyBody.nHealth --;
+            }
         }
     }
 
@@ -40,6 +47,12 @@ public class ContactListener1 implements ContactListener {
     }
     private boolean isBulletOnWall(Fixture fixA, Fixture fixB) {
         if(fixA.getUserData() instanceof TiledPolyLines && fixB.getUserData() instanceof Box2D) {
+            return true;
+        }
+        return false;
+    }
+    private boolean isBulletHitEnemy(Fixture fixA, Fixture fixB) {
+        if(fixA.getUserData() instanceof  Box2D && fixB.getUserData() instanceof Box2D) {
             return true;
         }
         return false;

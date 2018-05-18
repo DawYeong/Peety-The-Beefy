@@ -36,6 +36,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
     Vector2 vDir, vMousePosition, bulletPosition;
 
     ArrayList<Box2D> alBullet = new ArrayList<Box2D>();
+    ArrayList<Box2D> alEnemy = new ArrayList<Box2D>();
     int nMax = 0;
 
     @Override
@@ -51,8 +52,9 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         otmr = new OrthogonalTiledMapRenderer(tMap);
 
         playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32, false, new Vector2(0,0),
-                Constants.BIT_PLAYER, Constants.BIT_WALL, (short)0);
-        tMap1 = new TiledPolyLines(world, tMap.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL, (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0);
+                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short)0);
+        createEnemy();
+        tMap1 = new TiledPolyLines(world, tMap.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL, (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
         Gdx.input.setInputProcessor(this);
     }
 
@@ -65,6 +67,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         batch.setProjectionMatrix(camera.combined);
 
         move();
+        moveEnemy();
         for(int i = 0; i< alBullet.size(); i++) {
             alBullet.get(i).bulletMove();
             if(alBullet.get(i).canCollect) {
@@ -83,6 +86,20 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         otmr.setView(camera);
         otmr.render();
         b2dr.render(world, camera.combined.scl(32));
+    }
+
+    public void createEnemy() {
+        alEnemy.add(new Box2D(world, "ENEMY", Gdx.graphics.getWidth()/2 +100, Gdx.graphics.getHeight()/2 +50, 32, 32, false,
+                new Vector2(0,0), Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0 ));
+    }
+
+    public void moveEnemy() {
+        for(int i = 0 ; i < alEnemy.size(); i++) {
+            alEnemy.get(i).enemyMove();
+            if(alEnemy.get(i).isDeath) {
+                alEnemy.remove(i);
+            }
+        }
     }
 
     @Override
@@ -161,7 +178,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
             bulletPosition = new Vector2(playerBody.body.getPosition().x *32, playerBody.body.getPosition().y *32);
             vDir = vMousePosition.sub(bulletPosition);
             alBullet.add(new Box2D(world, "Bullet", bulletPosition.x, bulletPosition.y, 32, 32, true, vDir,
-                    Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET), (short)0));
+                    Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short)0));
             nMax++;
         }
         return false;
