@@ -16,7 +16,12 @@ import com.badlogic.gdx.physics.box2d.*;
  * @author benny
  */
 public class TiledPolyLines {
-        public static void parseTiledObjectLayer(World world, MapObjects objects, short cBits, short mBits, short gIndex) {
+    Body tMap;
+    public TiledPolyLines(World _World, MapObjects _Objects, short cBits, short mBits, short gIndex) {
+        this.parseTiledObjectLayer(_World, _Objects, cBits, mBits, gIndex);
+    }
+
+        public void parseTiledObjectLayer(World world, MapObjects objects, short cBits, short mBits, short gIndex) {
         for (MapObject object : objects) {
             Shape shape;
             if (object instanceof PolylineMapObject) {
@@ -36,10 +41,12 @@ public class TiledPolyLines {
             fixtureDef.filter.groupIndex = gIndex;
             body = world.createBody(bdef);
             body.createFixture(shape,1.0f);
+            this.tMap = world.createBody(bdef);
+            this.tMap.createFixture(fixtureDef).setUserData(this);
             shape.dispose();
         }
     }
-    private static ChainShape createPolyLine(PolylineMapObject polyline) {
+    private  ChainShape createPolyLine(PolylineMapObject polyline) {
         float[] vertices = polyline.getPolyline().getTransformedVertices();
         Vector2[] worldVertices = new Vector2[vertices.length /2];
         
