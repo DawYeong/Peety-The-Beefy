@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Buttons;
@@ -24,6 +25,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch;
     Texture texMenu;
+    OrthographicCamera camera;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     
     
@@ -31,6 +33,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     public ScrMainMenu(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        this.camera = game.camera;
         texMenu = new Texture("mainMenu.png");
         Gdx.input.setInputProcessor(this);
     }
@@ -38,6 +41,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     @Override
     public void show() {
         createButtons();
+        camera.zoom = 1f;
     }
 
     @Override
@@ -45,6 +49,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
         
         Gdx.gl.glClearColor(1, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
         batch.draw(texMenu, 250, 200);
@@ -70,7 +75,6 @@ public class ScrMainMenu implements Screen, InputProcessor {
                 if (i == 0) {
                     System.out.println("moves to Lvl 1 screen");
                     ScrLvl1.isShowing = false;
-
                     game.updateScreen(3);
                 } else if (i == 1) {
                     System.out.println("moves to the controls");
@@ -87,7 +91,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     @Override
     public void resize(int i, int i1) {
-
+        camera.setToOrtho(false, Constants.SCREENWIDTH , Constants.SCREENHEIGHT);
     }
 
     @Override

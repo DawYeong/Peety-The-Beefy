@@ -38,7 +38,7 @@ import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
-    SpriteBatch batch;
+    SpriteBatch batch, fixedBatch;
     SpriteAnimation aniPeety, aniMeaty, aniMeaty2;
     World world;
     float fX, fY, fW, fH;
@@ -54,12 +54,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
     int nLevelHeight, nLevelWidth;
 
     TextureRegion trTemp, trTempMeat, trTempMeat2;
-    int nCount;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        fixedBatch = new SpriteBatch();
+        this.camera = game.camera;
         world = new World(new Vector2(0f, -18f), false);
         world.setVelocityThreshold(0f);
         fX = Constants.SCREENWIDTH / 2;
@@ -67,16 +68,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fW = 32;
         fH = 32;
 
-
-        v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 0, 0);
-        b2dr = new Box2DDebugRenderer();
-        Gdx.input.setInputProcessor(this);
-    }
-
-    @Override
-    public void show() {
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects());
@@ -86,15 +77,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
         nLevelWidth = props.get("width", Integer.class) ;
         nLevelHeight = props.get("height", Integer.class);
 
-        if (nCount == 0) { //creates the boxes only once so it doesn't duplicate everytime the screen changes
-            b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
-            arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
-            arb2Enemies[1] = new Box2D(world, "ENEMIES2", fX - 100, fY + 50, fW, fH);
-            aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png", b2Player, batch, false);
-            aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[0], batch, true);
-            aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[1], batch, true);
-            nCount++;
-        }
+        b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
+        arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
+        arb2Enemies[1] = new Box2D(world, "ENEMIES2", fX - 100, fY + 50, fW, fH);aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png", b2Player, batch, false);
+        aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[0], batch, true);
+        aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[1], batch, true);
+
+        v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
+
+
+        b2dr = new Box2DDebugRenderer();
+        Gdx.input.setInputProcessor(this);
+    }
+
+    @Override
+    public void show() {
+
     }
 
     @Override
@@ -157,14 +155,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         CameraStyles.lerpAverageBetweenTargets(camera, v2Target,b2Player.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
-
-        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
         camera.zoom = 0.8f;
+        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
 
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
+        alButtons.add(new Buttons("backButton", fixedBatch, -8, 0, 96, 32));
     }
 
     public void drawButtons() {
@@ -173,9 +170,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 System.out.println("move to main menu ");
-                game.updateScreen(0);
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
+                game.updateScreen(0);
             }
         }
     }
@@ -183,7 +180,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void resize(int i, int i1) {
         camera.setToOrtho(false, Constants.SCREENWIDTH , Constants.SCREENHEIGHT);
-        System.out.println("HERE");
     }
 
     @Override

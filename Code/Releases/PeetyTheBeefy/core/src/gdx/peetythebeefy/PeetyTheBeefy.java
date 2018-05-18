@@ -3,6 +3,7 @@ package gdx.peetythebeefy;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Constants;
 
@@ -14,11 +15,14 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrControls scrControls;
     ScrLvl1 scrLvl1;
     ScrLvl2 scrLvl2;
+    OrthographicCamera camera;
     float fMouseX, fMouseY;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 0, 0);
 
         scrMainMenu = new ScrMainMenu(this);
         scrStageSelect = new ScrStageSelect(this);
