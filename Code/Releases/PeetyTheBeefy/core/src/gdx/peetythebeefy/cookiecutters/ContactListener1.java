@@ -10,13 +10,25 @@ public class ContactListener1 implements ContactListener {
 
     @Override
     public void beginContact(Contact contact) {
-        Fixture fa = contact.getFixtureA();
-        Fixture fb = contact.getFixtureB();
+        Fixture fixA = contact.getFixtureA();
+        Fixture fixB = contact.getFixtureB();
         
-        if(fa == null || fb == null) return;
-        if(fa.getUserData() == null || fb.getUserData() == null) return;
-        
-        System.out.println("A collision happened");
+        if(fixA == null || fixB == null) return;
+        if(fixA.getUserData() == null || fixB.getUserData() == null) return;
+
+        if(isBulletOnWall(fixA, fixB)) {
+            Box2D bulletBody = (Box2D) fixB.getUserData();
+            bulletBody.isStuck = true;
+            //System.out.println("Stuck");
+        }
+        if(isBulletHitEnemy(fixA, fixB)) {
+            Box2D bulletBody = (Box2D) fixB.getUserData();
+            Box2D enemyBody = (Box2D) fixA.getUserData();
+            if(!bulletBody.isStuck && bulletBody.sId == "Bullet") {
+                enemyBody.nHealth --;
+            }
+        }
+        //System.out.println("A collision happened");
     }
 
     @Override
@@ -32,6 +44,18 @@ public class ContactListener1 implements ContactListener {
     @Override
     public void postSolve(Contact cntct, ContactImpulse ci) {
         
+    }
+    private boolean isBulletOnWall(Fixture fixA, Fixture fixB) {
+        if(fixA.getUserData() instanceof TiledPolyLines && fixB.getUserData() instanceof Box2D) {
+            return true;
+        }
+        return false;
+    }
+    private boolean isBulletHitEnemy(Fixture fixA, Fixture fixB) {
+        if(fixA.getUserData() instanceof  Box2D && fixB.getUserData() instanceof Box2D) {
+            return true;
+        }
+        return false;
     }
     
 }

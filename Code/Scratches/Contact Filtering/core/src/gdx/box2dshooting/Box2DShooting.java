@@ -75,6 +75,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
                         playerBody.body.getPosition().x + (playerBody.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
                         playerBody.body.getPosition().y - (playerBody.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
                         playerBody.body.getPosition().y + (playerBody.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
+                    System.out.println(alBullet.get(i).body.getMass());
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                     nMax--;
                     alBullet.remove(i);

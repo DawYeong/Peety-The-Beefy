@@ -25,6 +25,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import java.util.ArrayList;
@@ -39,21 +40,20 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
-    SpriteAnimation aniPeety, aniMeaty, aniMeaty2;
     World world;
     float fX, fY, fW, fH;
     Box2D b2Player;
-    Box2D[] arb2Enemies = new Box2D[2];
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
+    ArrayList<Box2D> alBullet = new ArrayList<Box2D>();
+    ArrayList<Box2D> alEnemy = new ArrayList<Box2D>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
-    Vector2 v2Target;
-    int nLevelHeight, nLevelWidth;
+    Vector2 v2Target, vDir, vMousePosition, vbulletPosition;;
+    int nLevelHeight, nLevelWidth, nMax = 0;
 
-    TextureRegion trTemp, trTempMeat, trTempMeat2;
     static boolean isShowing = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
@@ -62,6 +62,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fixedBatch = new SpriteBatch();
         this.camera = game.camera;
         world = new World(new Vector2(0f, -18f), false);
+        world.setContactListener(new ContactListener1());
         world.setVelocityThreshold(0f);
         fX = Constants.SCREENWIDTH / 2;
         fY = Constants.SCREENHEIGHT / 2;
@@ -70,29 +71,27 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
-        tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects());
+        tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
+                (short)(Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
         otmr = new OrthogonalTiledMapRenderer(tMapLvl1);
 
         MapProperties props = tMapLvl1.getProperties();
         nLevelWidth = props.get("width", Integer.class) ;
         nLevelHeight = props.get("height", Integer.class);
 
-        b2Player = new Box2D(world, "PLAYER", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 32, 32);
-        arb2Enemies[0] = new Box2D(world, "ENEMIES1", fX + 100, fY + 50, fW, fH);
-        arb2Enemies[1] = new Box2D(world, "ENEMIES2", fX - 100, fY + 50, fW, fH);aniPeety = new SpriteAnimation(9.2f, 0, 0, 0, 4, 6, "PTBsprite.png", b2Player, batch, false);
-        aniMeaty = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[0], batch, true);
-        aniMeaty2 = new SpriteAnimation(9.2f,0,0,0,4,1,"MTMsprite.png", arb2Enemies[1], batch, true);
-
+        b2Player = new Box2D(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
+                0, 4, 6, "PTBsprite.png", false, false,
+                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0));
+        createEnemy();
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
 
 
         b2dr = new Box2DDebugRenderer();
-        Gdx.input.setInputProcessor(this);
     }
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(this);
     }
 
     @Override
@@ -113,13 +112,21 @@ public class ScrLvl1 implements Screen, InputProcessor {
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
 
-        aniPeety.Update();
-        aniMeaty.Update();
-        aniMeaty2.Update();
-
-        b2Player.playerMove();
-        arb2Enemies[0].enemyMove();
-        arb2Enemies[1].enemyMove();
+        b2Player.Update();
+        moveEnemy();
+        for(int i = 0; i < alBullet.size();i++) {
+            alBullet.get(i).Update();
+            if(alBullet.get(i).canCollect) {
+                if (b2Player.body.getPosition().x - (b2Player.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
+                        b2Player.body.getPosition().x + (b2Player.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
+                        b2Player.body.getPosition().y - (b2Player.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
+                        b2Player.body.getPosition().y + (b2Player.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
+                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                    nMax--;
+                    alBullet.remove(i);
+                }
+            }
+        }
 
         otmr.setView(camera);
         otmr.render();
@@ -129,25 +136,40 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (isShowing == true) {
             drawButtons();
         }
+    }
 
-        for (int i = 0; i < 2; i++) {
-            if (b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y + 100 / PPM &&
-                    b2Player.body.getPosition().y >= arb2Enemies[i].body.getPosition().y ||
-                    b2Player.body.getPosition().y > arb2Enemies[i].body.getPosition().y - 100 / PPM &&
-                            b2Player.body.getPosition().y < arb2Enemies[i].body.getPosition().y) {
-                if (b2Player.body.getPosition().x < arb2Enemies[i].body.getPosition().x + 100 / PPM &&
-                        b2Player.body.getPosition().x >= arb2Enemies[i].body.getPosition().x) {
-                    arb2Enemies[i].isInRange = true;
-                    arb2Enemies[i].nDir = 1;
-                } else if (b2Player.body.getPosition().x > arb2Enemies[i].body.getPosition().x - 100 / PPM &&
-                        b2Player.body.getPosition().x < arb2Enemies[i].body.getPosition().x) {
-                    arb2Enemies[i].nDir = 2;
-                    arb2Enemies[i].isInRange = true;
+    public void createEnemy() {
+        alEnemy.add(new Box2D(world, "ENEMY", fX + 100, fY + 50, fW, fH, batch,9.2f,
+                0,0, 0,4,1,"MTMsprite.png", true, false,
+                Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                new Vector2(0,0)));
+        alEnemy.add(new Box2D(world, "ENEMY", fX - 100, fY + 50, fW, fH, batch, 9.2f,
+                0,0,0,4,1,"MTMsprite.png", true, false,
+                Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                new Vector2(0,0)));
+    }
+    public void moveEnemy() {
+        for(int i = 0; i < alEnemy.size(); i++) {
+            alEnemy.get(i).Update();
+            if (b2Player.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 100 / PPM &&
+                    b2Player.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
+                    b2Player.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 100 / PPM &&
+                            b2Player.body.getPosition().y < alEnemy.get(i).body.getPosition().y) {
+                if (b2Player.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 100 / PPM &&
+                        b2Player.body.getPosition().x >= alEnemy.get(i).body.getPosition().x) {
+                    alEnemy.get(i).isInRange = true;
+                    alEnemy.get(i).nDir = 1;
+                } else if (b2Player.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 100 / PPM &&
+                        b2Player.body.getPosition().x < alEnemy.get(i).body.getPosition().x) {
+                    alEnemy.get(i).nDir = 2;
+                    alEnemy.get(i).isInRange = true;
                 }
             } else {
-                arb2Enemies[i].isInRange = false;
+                alEnemy.get(i).isInRange = false;
             }
-            arb2Enemies[i].enemyMove();
+            if(alEnemy.get(i).isDeath) {
+                alEnemy.remove(i);
+            }
         }
     }
 
@@ -199,8 +221,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.dispose();
         b2dr.dispose();
         world.dispose();
-        aniPeety.cleanup();
-        aniMeaty.cleanup();
+        b2Player.cleanup();
     }
 
     @Override
@@ -220,6 +241,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
+        if(nMax < 4) {
+            vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            vbulletPosition = new Vector2(b2Player.body.getPosition().x *32, b2Player.body.getPosition().y *32);
+            vDir = vMousePosition.sub(vbulletPosition);
+            alBullet.add(new Box2D(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
+                    0, 4, 6, "PTBsprite.png", false, true,
+                    Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                    vDir));
+            nMax++;
+        }
         return false;
     }
 

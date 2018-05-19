@@ -4,19 +4,15 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.ChainShape;
-import com.badlogic.gdx.physics.box2d.Shape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 
 public class TiledPolyLines {
-
-    public TiledPolyLines(World _World, MapObjects _Objects) {
-        this.parseTiledObjectLayer(_World, _Objects);
+    Body tiledMap;
+    public TiledPolyLines(World _World, MapObjects _Objects, short cBits, short mBits, short gIndex) {
+        this.parseTiledObjectLayer(_World, _Objects, cBits, mBits, gIndex);
     }
 
-    public void parseTiledObjectLayer(World world, MapObjects objects) {
+    public void parseTiledObjectLayer(World world, MapObjects objects, short cBits, short mBits, short gIndex) {
         for (MapObject object : objects) {
             Shape shape;
             if (object instanceof PolylineMapObject) {
@@ -28,8 +24,16 @@ public class TiledPolyLines {
             Body body;
             BodyDef bdef = new BodyDef();
             bdef.type = BodyDef.BodyType.StaticBody;
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = shape;
+            fixtureDef.density = 1f;
+            fixtureDef.filter.categoryBits = cBits;
+            fixtureDef.filter.maskBits = mBits;
+            fixtureDef.filter.groupIndex = gIndex;
             body = world.createBody(bdef);
             body.createFixture(shape,1.0f);
+            this.tiledMap = world.createBody(bdef);
+            this.tiledMap.createFixture(fixtureDef).setUserData(this);
             shape.dispose();
         }
     }

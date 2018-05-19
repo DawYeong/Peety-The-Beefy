@@ -11,7 +11,7 @@ public class Box2D {
     public Body body;
     public String sId;
     int nCount = 0, nJump, nDir = 1, nHealth = 5;
-    World world;
+        World world;
     Vector2 vDir, vGravity;
     boolean isDeath = false, canCollect =false, isStuck;
     public FixtureDef fD = new FixtureDef();

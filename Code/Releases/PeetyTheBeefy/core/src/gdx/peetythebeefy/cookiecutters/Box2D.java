@@ -8,8 +8,11 @@ package gdx.peetythebeefy.cookiecutters;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -22,30 +25,82 @@ import com.badlogic.gdx.physics.box2d.World;
 // this class will be changed in the future
 public class Box2D {
 
-
+     public Texture txSheet;
+     public Sprite sprAni;
+    public Animation[] araniCharacter;
     public Body body;
-    public String sId;
-    public int nJumpInterval, nJumpCount, nJump, nDir = 1;
-    boolean isCounterStart;
-    public boolean isInRange;
+    public String sId, sTexture;
+    public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth = 5;
+    public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet;
+    public float fAniSpeed;
+     SpriteBatch batch;
+     TextureRegion trTemp;
+     Vector2 vDir;
+     public World world;
 
-    public Box2D(World world, String sId, float fX, float fY, float fWidth, float fHeight) {
+
+    public Box2D(World world, String sId, float fX, float fY, float fWidth, float fHeight, SpriteBatch batch, float fAniSpeed,
+                 int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, boolean isEnemy, boolean isBullet,
+                 short cBits, short mBits, short gIndex, Vector2 vDir) {
+
+        txSheet = new Texture(sTexture);
+        araniCharacter = new Animation[nRows*nColumns];
 
         this.sId = sId;
-        this.createBody(world, fX, fY, fWidth, fHeight);
+        this.batch = batch;
+        this.fAniSpeed = fAniSpeed;
+        this.nPos = nPos;
+        this.nFrame = nFrame;
+        this.nSpriteDir = nSpriteDir;
+        this.nRows = nRows;
+        this.nColumns = nColumns;
+        this.sTexture = sTexture;
+        this.isEnemy = isEnemy;
+        this.isBullet = isBullet;
+        this.vDir = vDir;
+        this.world = world;
+        vDir.setLength(0.9f);
+        this.createBody(world, fX, fY, fWidth, fHeight, cBits, mBits, gIndex);
+        this.playerSprite(araniCharacter);
     }
 
-    private void createBody(World world, float fX, float fY, float fWidth, float fHeight) {
+    public void Update() {
+        if(!isBullet) {
+            if(isEnemy) {
+                enemyMove();
+            } else if(!isEnemy) {
+                playerMove();
+            }
+            frameAnimation();
+            drawAnimation();
+        } else if(isBullet) {
+            bulletMove();
+        }
+    }
+
+    private void createBody(World world, float fX, float fY, float fWidth, float fHeight, short cBits, short mBits, short gIndex) {
         BodyDef bdef = new BodyDef();
         bdef.fixedRotation = true;
         bdef.type = BodyDef.BodyType.DynamicBody;
         bdef.position.set(fX / 32.0F, fY / 32.0F);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(fWidth / 32.0F / 2.0F, fHeight / 32.0F / 2.0F);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.friction = 0.01f;
-        fixtureDef.density = 1.0F;
+        fixtureDef.density = 1.0f;
+        if(!isBullet) {
+            shape.setAsBox(fWidth / 32.0F / 2.0F, fHeight / 32.0F / 2.0F);
+            fixtureDef.friction = 0.01f;
+            bdef.fixedRotation = true;
+        } else {
+            shape.setAsBox(fWidth/ 32.0f / 8.0f, fHeight / 32.0f / 8.0f);
+            fixtureDef.friction = 10f;
+            fixtureDef.restitution = 0.1f;
+            //bdef.fixedRotation = false;
+            bdef.bullet =true;
+        }
+        fixtureDef.filter.categoryBits = cBits;
+        fixtureDef.filter.maskBits = mBits;
+        fixtureDef.filter.groupIndex = gIndex;
         this.body = world.createBody(bdef);
         this.body.createFixture(fixtureDef).setUserData(this);
     }
@@ -115,6 +170,103 @@ public class Box2D {
             body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
         }
         body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
+        if(nHealth <= 0) {
+            isDeath = true;
+            world.destroyBody(body);
+        }
     }
 
+    public void bulletMove() {
+        if(nCount < 3) {
+            body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
+        }
+        if(body.getPosition().y < 0 && body.getLinearVelocity().y < 0) {
+            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight()/32, 0);
+        } else if(body.getPosition().y > Gdx.graphics.getHeight() /32 && body.getLinearVelocity().y > 0) {
+            body.setTransform(body.getPosition().x, 0, 0);
+        }
+        if(nCount >= 90) {
+            canCollect = true;
+        }
+        if(isStuck) {
+            body.setAwake(false);
+        }
+        nCount++;
+    }
+
+
+                                //          ANIMATION           //
+
+    private Animation[] playerSprite(Animation araniCharacter[]){
+        int nW, nH, nSx, nSy;
+        nW = txSheet.getWidth() / nRows;
+        nH = txSheet.getHeight() / nColumns;
+        for (int i = 0; i < nColumns; i++) {
+            Sprite[] arSprPeety = new Sprite[nRows];
+            for (int j = 0; j < nRows; j++) {
+                nSx = j * nW;
+                nSy = i * nH;
+                sprAni = new Sprite(txSheet, nSx, nSy, nW, nH);
+                arSprPeety[j] = new Sprite(sprAni);
+            }
+            araniCharacter[i] = new Animation(fAniSpeed, arSprPeety);
+        }
+        return araniCharacter;
+    }
+
+    public void drawAnimation() {
+        trTemp = (TextureRegion) araniCharacter[nPos].getKeyFrame(nFrame, true);
+        batch.begin();
+        batch.draw(trTemp,body.getPosition().x * 32 - 32 / 2, body.getPosition().y * 32 - 32 / 2, 32, 32);
+        batch.end();
+    }
+    public void frameAnimation() {
+        if(!isBullet) {
+            if (!isEnemy) {
+                if (body.getLinearVelocity().x != 0 || body.getLinearVelocity().y != 0) {
+                    nFrame++;
+                }
+                if (nFrame > 32) {
+                    nFrame = 0;
+                }
+
+                if (Gdx.input.isKeyPressed(Input.Keys.A) && body.getLinearVelocity().y >= 0) { //going left
+                    nSpriteDir = 1;
+                    nPos = 1;
+                    fAniSpeed = 9.2f;
+                    araniCharacter[nPos].setFrameDuration(fAniSpeed);
+                    //playerSprite(aniPeety.fAniSpeed);
+                } else if (Gdx.input.isKeyPressed(Input.Keys.D) && body.getLinearVelocity().y >= 0) { //going right
+                    nSpriteDir = 0;
+                    nPos = 0;
+                    fAniSpeed = 9.2f;
+                    araniCharacter[nPos].setFrameDuration(fAniSpeed);
+                }
+                if (body.getLinearVelocity().y < 0) { //falling animation + speed up
+                    nPos = 5;
+                    if (fAniSpeed >= 2.3f) {
+                        araniCharacter[nPos].setFrameDuration(fAniSpeed -= 0.1f);
+                    }
+                }
+                if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0) { //reset to last direction when stationary
+                    if (nSpriteDir == 1) {
+                        nPos = 1;
+                    } else if (nSpriteDir == 0) {
+                        nPos = 0;
+                    }
+                    fAniSpeed = 9.2f;
+                    araniCharacter[nPos].setFrameDuration(fAniSpeed);
+                }
+            } else {
+                if (nFrame > 32) {
+                    nFrame = 0;
+                }
+                nFrame++;
+            }
+        }
+    }
+    public void cleanup() {
+        txSheet.dispose();
+        batch.dispose();
+    }
 }
