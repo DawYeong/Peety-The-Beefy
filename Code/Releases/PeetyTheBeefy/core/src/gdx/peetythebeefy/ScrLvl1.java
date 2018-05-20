@@ -119,6 +119,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
         moveEnemy();
         for(int i = 0; i < alBullet.size();i++) {
             alBullet.get(i).Update();
+            if(isShowing) {
+                alBullet.get(i).body.setAwake(false);
+            } else if(!isShowing && !alBullet.get(i).isStuck){
+                alBullet.get(i).body.setAwake(true);
+            }
             if(alBullet.get(i).canCollect) {
                 if (b2Player.body.getPosition().x - (b2Player.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
                         b2Player.body.getPosition().x + (b2Player.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
@@ -127,11 +132,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                     nMax--;
                     alBullet.remove(i);
-                }
-                if(isShowing) {
-                    alBullet.get(i).body.setAwake(false);
-                } else if(!isShowing && !alBullet.get(i).isStuck){
-                    alBullet.get(i).body.setAwake(true);
                 }
             }
         }
@@ -165,6 +165,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void moveEnemy() {
         for(int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
+            if(isShowing) {
+                alEnemy.get(i).body.setAwake(false);
+                alEnemy.get(i).isMoving = false;
+            } else {
+                alEnemy.get(i).body.setAwake(true);
+                alEnemy.get(i).isMoving = true;
+            }
             if (b2Player.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 100 / PPM &&
                     b2Player.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
                     b2Player.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 100 / PPM &&
@@ -183,13 +190,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             if(alEnemy.get(i).isDeath) {
                 alEnemy.remove(i);
-            }
-            if(isShowing) {
-                alEnemy.get(i).body.setAwake(false);
-                alEnemy.get(i).isMoving = false;
-            } else {
-                alEnemy.get(i).body.setAwake(true);
-                alEnemy.get(i).isMoving = true;
             }
 
         }
