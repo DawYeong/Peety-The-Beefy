@@ -45,7 +45,6 @@ public class Box2D {
 
         txSheet = new Texture(sTexture);
         araniCharacter = new Animation[nRows*nColumns];
-
         this.sId = sId;
         this.batch = batch;
         this.fAniSpeed = fAniSpeed;
@@ -75,6 +74,7 @@ public class Box2D {
             drawAnimation();
         } else if(isBullet) {
             bulletMove();
+            drawTexture();
         }
     }
 
@@ -218,6 +218,11 @@ public class Box2D {
         trTemp = (TextureRegion) araniCharacter[nPos].getKeyFrame(nFrame, true);
         batch.begin();
         batch.draw(trTemp,body.getPosition().x * 32 - 32 / 2, body.getPosition().y * 32 - 32 / 2, 32, 32);
+        batch.end();
+    }
+    public void drawTexture() {
+        batch.begin();
+        batch.draw(txSheet,body.getPosition().x * 32 - 8 / 2, body.getPosition().y * 32 - 8 / 2, 8, 8);
         batch.end();
     }
     public void frameAnimation() {

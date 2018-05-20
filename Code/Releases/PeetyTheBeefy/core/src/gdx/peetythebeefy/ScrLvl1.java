@@ -53,6 +53,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vDir, vMousePosition, vbulletPosition;;
     int nLevelHeight, nLevelWidth, nMax = 0;
+    Texture txBackground;
 
     static boolean isShowing = false;
 
@@ -68,6 +69,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
         fH = 32;
+        txBackground = new Texture("level1Background.png");
 
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
@@ -115,6 +117,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
 
+        batch.begin();
+        batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
+        batch.end();
+
         b2Player.Update();
         moveEnemy();
         for(int i = 0; i < alBullet.size();i++) {
@@ -138,7 +144,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         otmr.setView(camera);
         otmr.render();
-        b2dr.render(world, camera.combined.scl(PPM));
+        //b2dr.render(world, camera.combined.scl(PPM));
 
 
         if (isShowing == true) {
@@ -153,11 +159,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createEnemy() {
-        alEnemy.add(new Box2D(world, "ENEMY", fX + 100, fY + 50, fW, fH, batch,9.2f,
+        alEnemy.add(new Box2D(world, "ENEMY", fX + 100, fY + 50, fW-10, fH, batch,9.2f,
                 0,0, 0,4,1,"MTMsprite.png", true, false,
                 Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                 new Vector2(0,0)));
-        alEnemy.add(new Box2D(world, "ENEMY", fX - 100, fY + 50, fW, fH, batch, 9.2f,
+        alEnemy.add(new Box2D(world, "ENEMY", fX - 100, fY + 50, fW-10, fH, batch, 9.2f,
                 0,0,0,4,1,"MTMsprite.png", true, false,
                 Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                 new Vector2(0,0)));
@@ -245,6 +251,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         b2dr.dispose();
         world.dispose();
         b2Player.cleanup();
+        txBackground.dispose();
     }
 
     @Override
@@ -270,7 +277,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 vbulletPosition = new Vector2(b2Player.body.getPosition().x * 32, b2Player.body.getPosition().y * 32);
                 vDir = vMousePosition.sub(vbulletPosition);
                 alBullet.add(new Box2D(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
-                        0, 4, 6, "PTBsprite.png", false, true,
+                        0, 4, 6, "bulletTexture.png", false, true,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir));
                 nMax++;
