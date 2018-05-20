@@ -31,7 +31,7 @@ public class Box2D {
     public Body body;
     public String sId, sTexture;
     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth = 5;
-    public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet;
+    public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet, isMoving = true;
     public float fAniSpeed;
      SpriteBatch batch;
      TextureRegion trTemp;
@@ -222,7 +222,7 @@ public class Box2D {
     }
     public void frameAnimation() {
         if(!isBullet) {
-            if (!isEnemy) {
+            if (!isEnemy && isMoving) {
                 if (body.getLinearVelocity().x != 0 || body.getLinearVelocity().y != 0) {
                     nFrame++;
                 }
@@ -261,7 +261,9 @@ public class Box2D {
                 if (nFrame > 32) {
                     nFrame = 0;
                 }
-                nFrame++;
+                if(isMoving) {
+                    nFrame++;
+                }
             }
         }
     }

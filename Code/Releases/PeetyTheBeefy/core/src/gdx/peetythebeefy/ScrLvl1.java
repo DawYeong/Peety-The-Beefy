@@ -91,7 +91,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(this);
+            Gdx.input.setInputProcessor(this);
     }
 
     @Override
@@ -107,6 +107,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 isShowing = false;
             }
+        }
+        if(Gdx.input.isKeyJustPressed((Input.Keys.J))) {
+            game.updateScreen(1);
         }
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
@@ -125,6 +128,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     nMax--;
                     alBullet.remove(i);
                 }
+                if(isShowing) {
+                    alBullet.get(i).body.setAwake(false);
+                } else if(!isShowing && !alBullet.get(i).isStuck){
+                    alBullet.get(i).body.setAwake(true);
+                }
             }
         }
 
@@ -135,7 +143,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         if (isShowing == true) {
             drawButtons();
+            b2Player.body.setAwake(false);
+            b2Player.isMoving = false;
+        } else {
+            b2Player.body.setAwake(true);
+            b2Player.isMoving = true;
         }
+        //System.out.println(game.fMouseX + " " + game.fMouseY);
     }
 
     public void createEnemy() {
@@ -170,6 +184,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
             if(alEnemy.get(i).isDeath) {
                 alEnemy.remove(i);
             }
+            if(isShowing) {
+                alEnemy.get(i).body.setAwake(false);
+                alEnemy.get(i).isMoving = false;
+            } else {
+                alEnemy.get(i).body.setAwake(true);
+                alEnemy.get(i).isMoving = true;
+            }
+
         }
     }
 
@@ -179,6 +201,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
         CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
+        camera.update();
 
     }
 
@@ -241,21 +264,27 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
-        if(nMax < 4) {
-            vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-            vbulletPosition = new Vector2(b2Player.body.getPosition().x *32, b2Player.body.getPosition().y *32);
-            vDir = vMousePosition.sub(vbulletPosition);
-            alBullet.add(new Box2D(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
-                    0, 4, 6, "PTBsprite.png", false, true,
-                    Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                    vDir));
-            nMax++;
+        if(!isShowing) {
+            if (nMax < 4) {
+                vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                vbulletPosition = new Vector2(b2Player.body.getPosition().x * 32, b2Player.body.getPosition().y * 32);
+                vDir = vMousePosition.sub(vbulletPosition);
+                alBullet.add(new Box2D(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
+                        0, 4, 6, "PTBsprite.png", false, true,
+                        Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                        vDir));
+                nMax++;
+            }
         }
         return false;
     }
 
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
+        if(isShowing) {  // going to have to set fMouseX and fMouseY here because of the problem with setting the input processor
+            game.fMouseX = Gdx.input.getX();
+            game.fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
+        }
         return false;
     }
 
