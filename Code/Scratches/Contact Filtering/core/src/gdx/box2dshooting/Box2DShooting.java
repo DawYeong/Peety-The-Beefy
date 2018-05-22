@@ -174,14 +174,14 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if(nMax < 4) {
+//        if(nMax < 4) {
             vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             bulletPosition = new Vector2(playerBody.body.getPosition().x *32, playerBody.body.getPosition().y *32);
             vDir = vMousePosition.sub(bulletPosition);
             alBullet.add(new Box2D(world, "Bullet", bulletPosition.x, bulletPosition.y, 32, 32, true, vDir,
                     Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short)0));
             nMax++;
-        }
+//        }
         return false;
     }
 

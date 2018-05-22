@@ -51,8 +51,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<Box2D> alEnemy = new ArrayList<Box2D>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
-    Vector2 v2Target, vDir, vMousePosition, vbulletPosition;;
-    int nLevelHeight, nLevelWidth, nMax = 0;
+    Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
+    int nLevelHeight, nLevelWidth, nMax = 0, nSpawn, nCount = 0;
     Texture txBackground;
 
     static boolean isShowing = false;
@@ -84,16 +84,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
         b2Player = new Box2D(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", false, false,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0));
-        createEnemy();
+       // createEnemy();
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
 
-
+        nSpawn = 10;
         b2dr = new Box2DDebugRenderer();
     }
 
     @Override
     public void show() {
-            Gdx.input.setInputProcessor(this);
+        Gdx.input.setInputProcessor(this);
     }
 
     @Override
@@ -120,6 +120,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.begin();
         batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
+
+        createEnemy();
 
         b2Player.Update();
         moveEnemy();
@@ -159,14 +161,19 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createEnemy() {
-        alEnemy.add(new Box2D(world, "ENEMY", fX + 100, fY + 50, fW-10, fH, batch,9.2f,
-                0,0, 0,4,1,"MTMsprite.png", true, false,
-                Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                new Vector2(0,0)));
-        alEnemy.add(new Box2D(world, "ENEMY", fX - 100, fY + 50, fW-10, fH, batch, 9.2f,
-                0,0,0,4,1,"MTMsprite.png", true, false,
-                Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                new Vector2(0,0)));
+        if(nSpawn > 200 && nCount< 11) {
+            alEnemy.add(new Box2D(world, "ENEMY", fX + 100, fY + 50, fW - 10, fH, batch, 9.2f,
+                    0, 0, 0, 4, 1, "MTMsprite.png", true, false,
+                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                    new Vector2(0, 0)));
+//            alEnemy.add(new Box2D(world, "ENEMY", fX - 100, fY + 50, fW - 10, fH, batch, 9.2f,
+//                    0, 0, 0, 4, 1, "MTMsprite.png", true, false,
+//                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+//                    new Vector2(0, 0)));
+            nCount++;
+            nSpawn = 0;
+        }
+        nSpawn++;
     }
     public void moveEnemy() {
         for(int i = 0; i < alEnemy.size(); i++) {
@@ -195,6 +202,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 alEnemy.get(i).isInRange = false;
             }
             if(alEnemy.get(i).isDeath) {
+                alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
+                nCount--;
                 alEnemy.remove(i);
             }
 
@@ -248,9 +257,20 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public void dispose() {
         batch.dispose();
+        fixedBatch.dispose();
         b2dr.dispose();
         world.dispose();
         b2Player.cleanup();
+        otmr.dispose();
+        game.dispose();
+        game.scrLvl1.dispose();
+        tMapLvl1.dispose();
+        for(int i = 0; i < alEnemy.size(); i++) {
+            alEnemy.get(i).cleanup();
+        }
+        for(int i =0 ; i < alBullet.size(); i++) {
+            alBullet.get(i).cleanup();
+        }
         txBackground.dispose();
     }
 

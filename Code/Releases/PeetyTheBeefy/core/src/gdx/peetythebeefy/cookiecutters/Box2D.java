@@ -27,12 +27,12 @@ public class Box2D {
 
      public Texture txSheet;
      public Sprite sprAni;
-    public Animation[] araniCharacter;
-    public Body body;
-    public String sId, sTexture;
-    public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth = 5;
-    public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet, isMoving = true;
-    public float fAniSpeed;
+     public Animation[] araniCharacter;
+     public Body body;
+     public String sId, sTexture;
+     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth = 5;
+     public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet, isMoving = true;
+     public float fAniSpeed;
      SpriteBatch batch;
      TextureRegion trTemp;
      Vector2 vDir;
@@ -103,6 +103,7 @@ public class Box2D {
         fixtureDef.filter.groupIndex = gIndex;
         this.body = world.createBody(bdef);
         this.body.createFixture(fixtureDef).setUserData(this);
+        shape.dispose();
     }
 
     public void playerMove() {
@@ -172,7 +173,6 @@ public class Box2D {
         body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
         if(nHealth <= 0) {
             isDeath = true;
-            world.destroyBody(body);
         }
     }
 
@@ -275,5 +275,7 @@ public class Box2D {
     public void cleanup() {
         txSheet.dispose();
         batch.dispose();
+        world.dispose();
+
     }
 }
