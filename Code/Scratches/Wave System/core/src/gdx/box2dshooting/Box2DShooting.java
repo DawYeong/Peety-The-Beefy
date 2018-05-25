@@ -4,9 +4,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
 
     SpriteBatch batch;
+    Sprite sprPlayer;
     Texture img;
     OrthographicCamera camera;
     TiledPolyLines tMap1;
@@ -30,10 +33,12 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
     private Box2DDebugRenderer b2dr;
     OrthogonalTiledMapRenderer otmr;
     TiledMap tMap;
+    Texture txPlayer;
 
-    int nJumpInterval, nJumpCount;
+    int nJumpInterval, nJumpCount, nWaveCount = 1, nEnemies = 0, nSpawnrate = 0, nMaxEnemies = 5, nSpawnLocation;
     boolean isCounterStart;
-    Vector2 vDir, vMousePosition, bulletPosition;
+    Vector2 vDir, vMousePosition, bulletPosition, vPlayerPosition;
+    float fX, fY;
 
     ArrayList<Box2D> alBullet = new ArrayList<Box2D>();
     ArrayList<Box2D> alEnemy = new ArrayList<Box2D>();
@@ -42,7 +47,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
     @Override
     public void create() {
         batch = new SpriteBatch();
-        img = new Texture("badlogic.jpg");
+        txPlayer = new Texture("badlogic.jpg");
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
         camera = new OrthographicCamera();
@@ -50,10 +55,13 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         b2dr = new Box2DDebugRenderer();
         tMap = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         otmr = new OrthogonalTiledMapRenderer(tMap);
+        sprPlayer = new Sprite(txPlayer);
+        sprPlayer.setSize(32, 32);
+
 
         playerBody = new Box2D(world, "PLAYER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 32, 32, false, new Vector2(0,0),
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short)0);
-        createEnemy();
+        //createEnemy();
         tMap1 = new TiledPolyLines(world, tMap.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL, (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
         Gdx.input.setInputProcessor(this);
     }
@@ -65,6 +73,10 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         world.step(1 / 60f, 6, 2);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        sprPlayer.draw(batch);
+        batch.end();
+        createEnemy();
 
         move();
         moveEnemy();
@@ -75,12 +87,15 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
                         playerBody.body.getPosition().x + (playerBody.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
                         playerBody.body.getPosition().y - (playerBody.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
                         playerBody.body.getPosition().y + (playerBody.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
-                    System.out.println(alBullet.get(i).body.getMass());
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                     nMax--;
                     alBullet.remove(i);
                 }
             }
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            sprPlayer.setColor(Color.RED);
+        } else {
         }
 
 
@@ -90,14 +105,32 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
     }
 
     public void createEnemy() {
-        alEnemy.add(new Box2D(world, "ENEMY", Gdx.graphics.getWidth()/2 +100, Gdx.graphics.getHeight()/2 +50, 32, 32, false,
-                new Vector2(0,0), Constants.BIT_ENEMY, (short)(Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0 ));
+        if(nSpawnrate > 200 && nEnemies < nMaxEnemies) {
+            nSpawnLocation = (int) (Math.random() * 3 + 1);
+            if (nSpawnLocation == 1) {
+                fX = Gdx.graphics.getWidth()/2 - 328;
+                fY = Gdx.graphics.getHeight()/2 + 50;
+            } else if(nSpawnLocation == 2) {
+                fX = Gdx.graphics.getWidth()/2 + 328;
+                fY = Gdx.graphics.getHeight()/2 + 50;
+            } else if(nSpawnLocation == 3) {
+                fX = Gdx.graphics.getWidth()/2;
+                fY = Gdx.graphics.getHeight()/2 + 160;
+            }
+            alEnemy.add(new Box2D(world, "ENEMY", fX, fY, 32, 32, false,
+                    new Vector2(0, 0), Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0));
+            nEnemies ++;
+            nSpawnrate = 0;
+        }
+        nSpawnrate ++;
     }
 
     public void moveEnemy() {
         for(int i = 0 ; i < alEnemy.size(); i++) {
             alEnemy.get(i).enemyMove();
             if(alEnemy.get(i).isDeath) {
+                System.out.println("Wave: " + nWaveCount + " Enemies: " + (nMaxEnemies)--);
+                alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 alEnemy.remove(i);
             }
         }
@@ -106,9 +139,10 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
+        txPlayer.dispose();
     }
     public void move() {
+        sprPlayer.setPosition(playerBody.body.getPosition().x *32 - 16, playerBody.body.getPosition().y * 32 -16);
         float fHForce = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             fHForce -= 1;
@@ -178,6 +212,7 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
             vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             bulletPosition = new Vector2(playerBody.body.getPosition().x *32, playerBody.body.getPosition().y *32);
             vDir = vMousePosition.sub(bulletPosition);
+            System.out.println(vMousePosition);
             alBullet.add(new Box2D(world, "Bullet", bulletPosition.x, bulletPosition.y, 32, 32, true, vDir,
                     Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short)0));
             nMax++;

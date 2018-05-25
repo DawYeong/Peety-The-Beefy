@@ -78,7 +78,6 @@ public class Box2D {
         body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
         if(nHealth <= 0) {
             isDeath = true;
-            world.destroyBody(body);
         }
     }
 
