@@ -17,13 +17,13 @@ public class ContactListener1 implements ContactListener {
         if(fixA.getUserData() == null || fixB.getUserData() == null) return;
 
         if(isBulletOnWall(fixA, fixB)) {
-            Box2D bulletBody = (Box2D) fixB.getUserData();
+            EntityCreation bulletBody = (EntityCreation) fixB.getUserData();
             bulletBody.isStuck = true;
             //System.out.println("Stuck");
         }
         if(isBulletHitEnemy(fixA, fixB)) {
-            Box2D bulletBody = (Box2D) fixB.getUserData();
-            Box2D enemyBody = (Box2D) fixA.getUserData();
+            EntityCreation bulletBody = (EntityCreation) fixB.getUserData();
+            EntityCreation enemyBody = (EntityCreation) fixA.getUserData();
             if(!bulletBody.isStuck && bulletBody.sId == "Bullet") {
                 enemyBody.nHealth --;
             }
@@ -46,13 +46,13 @@ public class ContactListener1 implements ContactListener {
         
     }
     private boolean isBulletOnWall(Fixture fixA, Fixture fixB) {
-        if(fixA.getUserData() instanceof TiledPolyLines && fixB.getUserData() instanceof Box2D) {
+        if(fixA.getUserData() instanceof TiledPolyLines && fixB.getUserData() instanceof EntityCreation) {
             return true;
         }
         return false;
     }
     private boolean isBulletHitEnemy(Fixture fixA, Fixture fixB) {
-        if(fixA.getUserData() instanceof  Box2D && fixB.getUserData() instanceof Box2D) {
+        if(fixA.getUserData() instanceof EntityCreation && fixB.getUserData() instanceof EntityCreation) {
             return true;
         }
         return false;

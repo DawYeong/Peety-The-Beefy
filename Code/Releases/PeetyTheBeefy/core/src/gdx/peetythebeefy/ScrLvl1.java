@@ -12,20 +12,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import java.util.ArrayList;
@@ -42,18 +36,18 @@ public class ScrLvl1 implements Screen, InputProcessor {
     SpriteBatch batch, fixedBatch;
     World world;
     float fX, fY, fW, fH;
-    Box2D b2Player;
+    EntityCreation b2Player;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
-    ArrayList<Box2D> alBullet = new ArrayList<Box2D>();
-    ArrayList<Box2D> alEnemy = new ArrayList<Box2D>();
+    ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
+    ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
-    int nLevelHeight, nLevelWidth, nMax = 0, nSpawn, nCount = 0;
-    Texture txBackground;
+    int nLevelHeight, nLevelWidth, nBulletCount = 4, nSpawn, nCount = 0, nBulletGUIPos = 583;
+    Texture txBackground, txGUI, txHeart, txBullet, txSky;
 
     static boolean isShowing = false;
 
@@ -70,6 +64,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fW = 32;
         fH = 32;
         txBackground = new Texture("level1Background.png");
+        txGUI = new Texture("GUI.png");
+        txHeart = new Texture("Heart-Full.png");
+        txBullet = new Texture("bulletTexture.png");
+        txSky = new Texture("sky.png");
 
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
@@ -81,7 +79,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         nLevelWidth = props.get("width", Integer.class) ;
         nLevelHeight = props.get("height", Integer.class);
 
-        b2Player = new Box2D(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
+        b2Player = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", false, false,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0));
        // createEnemy();
@@ -117,6 +115,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
 
+        fixedBatch.begin();
+        fixedBatch.draw(txSky,0,0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
+        fixedBatch.end();
+
         batch.begin();
         batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
@@ -138,7 +140,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         b2Player.body.getPosition().y - (b2Player.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
                         b2Player.body.getPosition().y + (b2Player.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
-                    nMax--;
+                    nBulletCount++;
                     alBullet.remove(i);
                 }
             }
@@ -146,6 +148,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         otmr.setView(camera);
         otmr.render();
+
+        fixedBatch.begin();
+        fixedBatch.draw(txGUI,Constants.SCREENWIDTH - txGUI.getWidth(),0);
+        bulletsGUI();
+        fixedBatch.end();
         //b2dr.render(world, camera.combined.scl(PPM));
 
 
@@ -162,11 +169,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void createEnemy() {
         if(nSpawn > 200 && nCount< 11) {
-            alEnemy.add(new Box2D(world, "ENEMY", fX + 100, fY + 50, fW - 10, fH, batch, 9.2f,
+            alEnemy.add(new EntityCreation(world, "ENEMY", fX + 100, fY + 50, fW - 10, fH, batch, 9.2f,
                     0, 0, 0, 4, 1, "MTMsprite.png", true, false,
                     Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                     new Vector2(0, 0)));
-//            alEnemy.add(new Box2D(world, "ENEMY", fX - 100, fY + 50, fW - 10, fH, batch, 9.2f,
+//            alEnemy.add(new EntityCreation(world, "ENEMY", fX - 100, fY + 50, fW - 10, fH, batch, 9.2f,
 //                    0, 0, 0, 4, 1, "MTMsprite.png", true, false,
 //                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
 //                    new Vector2(0, 0)));
@@ -236,6 +243,21 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
         }
     }
+    public void bulletsGUI() {
+        if(nBulletCount >= 1) {
+            fixedBatch.draw(txBullet,nBulletGUIPos,14,27,27);
+            if(nBulletCount >= 2) {
+                fixedBatch.draw(txBullet,nBulletGUIPos - 45,14,27,27);
+                if(nBulletCount >= 3) {
+                    fixedBatch.draw(txBullet,nBulletGUIPos - 90,14,27,27);
+                    if(nBulletCount >= 4) {
+                        fixedBatch.draw(txBullet,nBulletGUIPos - 135,14,27,27);
+                    }
+                }
+            }
+
+        }
+    }
 
     @Override
     public void resize(int i, int i1) {
@@ -292,17 +314,18 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
         if(!isShowing) {
-            if (nMax < 4) {
+            if (nBulletCount > 0) {
                 vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
                 vbulletPosition = new Vector2(b2Player.body.getPosition().x * 32, b2Player.body.getPosition().y * 32);
                 vDir = vMousePosition.sub(vbulletPosition);
-                alBullet.add(new Box2D(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
+                alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
                         0, 4, 6, "bulletTexture.png", false, true,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir));
-                nMax++;
+                nBulletCount--;
             }
         }
+        System.out.println(nBulletCount);
         return false;
     }
 
