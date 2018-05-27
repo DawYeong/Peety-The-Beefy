@@ -35,11 +35,11 @@ public class ScrMainMenu implements Screen, InputProcessor {
         this.batch = game.batch;
         this.camera = game.camera;
         texMenu = new Texture("mainMenu.png");
-        Gdx.input.setInputProcessor(this);
     }
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(this);
         createButtons();
         camera.zoom = 1f;
     }
@@ -75,6 +75,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
                 if (i == 0) {
                     System.out.println("moves to Lvl 1 screen");
                     ScrLvl1.isShowing = false;
+                    ScrLvl1.isPlayerDead = false;
                     game.updateScreen(3);
                 } else if (i == 1) {
                     System.out.println("moves to the controls");
@@ -133,6 +134,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
+        game.fMouseX = Gdx.input.getX();
+        game.fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
         return false;
     }
 

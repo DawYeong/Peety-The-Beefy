@@ -46,8 +46,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
-    int nLevelHeight, nLevelWidth, nBulletCount = 4, nSpawn, nCount = 0, nBulletGUIPos = 583;
+    int nLevelHeight, nLevelWidth, nBulletCount = 4, nSpawn, nCount = 0, nBulletGUIPos = 583, nHealthGUIPosy = 108;
     Texture txBackground, txGUI, txHeart, txBullet, txSky;
+    static boolean isPlayerDead = false; // only setting this false for when the transition from main menu screen
 
     static boolean isShowing = false;
 
@@ -81,7 +82,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         b2Player = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", false, false,
-                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0));
+                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0), 4);
        // createEnemy();
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
 
@@ -114,7 +115,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
-
         fixedBatch.begin();
         fixedBatch.draw(txSky,0,0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         fixedBatch.end();
@@ -124,7 +124,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.end();
 
         createEnemy();
-
         b2Player.Update();
         moveEnemy();
         for(int i = 0; i < alBullet.size();i++) {
@@ -152,10 +151,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fixedBatch.begin();
         fixedBatch.draw(txGUI,Constants.SCREENWIDTH - txGUI.getWidth(),0);
         bulletsGUI();
+        healthGUI();
         fixedBatch.end();
-        //b2dr.render(world, camera.combined.scl(PPM));
-
-
+        b2dr.render(world, camera.combined.scl(PPM));
         if (isShowing == true) {
             drawButtons();
             b2Player.body.setAwake(false);
@@ -168,11 +166,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createEnemy() {
-        if(nSpawn > 200 && nCount< 11) {
+        if(nSpawn > 200 && nCount< 5) {
             alEnemy.add(new EntityCreation(world, "ENEMY", fX + 100, fY + 50, fW - 10, fH, batch, 9.2f,
                     0, 0, 0, 4, 1, "MTMsprite.png", true, false,
                     Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                    new Vector2(0, 0)));
+                    new Vector2(0, 0), 4));
 //            alEnemy.add(new EntityCreation(world, "ENEMY", fX - 100, fY + 50, fW - 10, fH, batch, 9.2f,
 //                    0, 0, 0, 4, 1, "MTMsprite.png", true, false,
 //                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
@@ -197,7 +195,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     b2Player.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 100 / PPM &&
                             b2Player.body.getPosition().y < alEnemy.get(i).body.getPosition().y) {
                 if (b2Player.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 100 / PPM &&
-                        b2Player.body.getPosition().x >= alEnemy.get(i).body.getPosition().x) {
+                        b2Player.body.getPosition().x > alEnemy.get(i).body.getPosition().x) {
                     alEnemy.get(i).isInRange = true;
                     alEnemy.get(i).nDir = 1;
                 } else if (b2Player.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 100 / PPM &&
@@ -208,7 +206,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if(alEnemy.get(i).isDeath) {
+            if(alEnemy.get(i).isDeath || isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 nCount--;
                 alEnemy.remove(i);
@@ -255,9 +253,31 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     }
                 }
             }
-
         }
     }
+    public void healthGUI() {
+        if(b2Player.nHealth >=1) {
+            fixedBatch.draw(txHeart, (float)690.5, nHealthGUIPosy, txHeart.getWidth() + 5, txHeart.getHeight()+5);
+            if(b2Player.nHealth >= 2) {
+                fixedBatch.draw(txHeart, (float)690.5,  (float) (nHealthGUIPosy + 38.5), txHeart.getWidth() +5 , txHeart.getHeight() +5);
+                if(b2Player.nHealth >= 3) {
+                    fixedBatch.draw(txHeart, (float)690.5, nHealthGUIPosy + 77, txHeart.getWidth()+5, txHeart.getHeight()+5);
+                    if(b2Player.nHealth >=4) {
+                        fixedBatch.draw(txHeart, (float)690.5   , (float) (nHealthGUIPosy + 115.5), txHeart.getWidth()+5, txHeart.getHeight()+5);
+                    }
+                }
+            }
+        }
+    }
+    public void death() { //doesn't really work
+        if(b2Player.nHealth == 0) {
+            b2Player.body.setTransform(Gdx.graphics.getWidth()/2 / PPM, Gdx.graphics.getHeight()/2 /PPM, 0);
+            b2Player.nHealth = 4;
+            isPlayerDead = true;
+            game.updateScreen(0);
+        }
+    }
+
 
     @Override
     public void resize(int i, int i1) {
@@ -321,7 +341,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
                         0, 4, 6, "bulletTexture.png", false, true,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                        vDir));
+                        vDir, 0));
                 nBulletCount--;
             }
         }

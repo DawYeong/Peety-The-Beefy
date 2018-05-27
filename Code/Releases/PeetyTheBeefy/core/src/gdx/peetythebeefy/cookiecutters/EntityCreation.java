@@ -30,7 +30,7 @@ public class EntityCreation {
      public Animation[] araniCharacter;
      public Body body;
      public String sId, sTexture;
-     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth = 5;
+     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth;
      public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet, isMoving = true;
      public float fAniSpeed;
      SpriteBatch batch;
@@ -41,7 +41,7 @@ public class EntityCreation {
 
     public EntityCreation(World world, String sId, float fX, float fY, float fWidth, float fHeight, SpriteBatch batch, float fAniSpeed,
                           int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, boolean isEnemy, boolean isBullet,
-                          short cBits, short mBits, short gIndex, Vector2 vDir) {
+                          short cBits, short mBits, short gIndex, Vector2 vDir, int nHealth) {
 
         txSheet = new Texture(sTexture);
         araniCharacter = new Animation[nRows*nColumns];
@@ -58,6 +58,7 @@ public class EntityCreation {
         this.isBullet = isBullet;
         this.vDir = vDir;
         this.world = world;
+        this.nHealth = nHealth;
         vDir.setLength(0.9f);
         this.createBody(world, fX, fY, fWidth, fHeight, cBits, mBits, gIndex);
         this.playerSprite(araniCharacter);

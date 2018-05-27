@@ -28,7 +28,15 @@ public class ContactListener1 implements ContactListener {
                 enemyBody.nHealth --;
             }
         }
-        //System.out.println("A collision happened");
+        if(isEnemyhitPlayer(fixA, fixB)) {
+            EntityCreation playerBody = (EntityCreation) fixA.getUserData();
+            EntityCreation enemyBody = (EntityCreation) fixB.getUserData();
+            if(playerBody.body.getPosition().y + playerBody.body.getMass()/2 <=
+                    enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId == "PLAYER") {
+                playerBody.nHealth --;
+                System.out.println(playerBody.nHealth);
+            }
+        }
     }
 
     @Override
@@ -45,17 +53,25 @@ public class ContactListener1 implements ContactListener {
     public void postSolve(Contact cntct, ContactImpulse ci) {
         
     }
+
     private boolean isBulletOnWall(Fixture fixA, Fixture fixB) {
         if(fixA.getUserData() instanceof TiledPolyLines && fixB.getUserData() instanceof EntityCreation) {
             return true;
         }
         return false;
     }
+
     private boolean isBulletHitEnemy(Fixture fixA, Fixture fixB) {
         if(fixA.getUserData() instanceof EntityCreation && fixB.getUserData() instanceof EntityCreation) {
             return true;
         }
         return false;
     }
-    
+
+    private boolean isEnemyhitPlayer(Fixture fixA, Fixture fixB) {
+        if(fixA.getUserData() instanceof EntityCreation && fixB.getUserData() instanceof EntityCreation) {
+            return true;
+        }
+        return false;
+    }
 }
