@@ -93,10 +93,6 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
                 }
             }
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            sprPlayer.setColor(Color.RED);
-        } else {
-        }
 
 
         otmr.setView(camera);
@@ -117,10 +113,17 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
                 fX = Gdx.graphics.getWidth()/2;
                 fY = Gdx.graphics.getHeight()/2 + 160;
             }
+            nEnemies ++;
             alEnemy.add(new Box2D(world, "ENEMY", fX, fY, 32, 32, false,
                     new Vector2(0, 0), Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET), (short) 0));
-            nEnemies ++;
+            System.out.println(nEnemies);
             nSpawnrate = 0;
+        }
+        if(alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
+            nWaveCount++;
+            nMaxEnemies ++;
+            nEnemies = 0;
+            System.out.println("yes");
         }
         nSpawnrate ++;
     }
@@ -129,9 +132,9 @@ public class Box2DShooting extends ApplicationAdapter implements InputProcessor{
         for(int i = 0 ; i < alEnemy.size(); i++) {
             alEnemy.get(i).enemyMove();
             if(alEnemy.get(i).isDeath) {
-                System.out.println("Wave: " + nWaveCount + " Enemies: " + (nMaxEnemies)--);
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 alEnemy.remove(i);
+                System.out.println("Wave: " + nWaveCount + " Enemies Left: " + alEnemy.size());
             }
         }
     }

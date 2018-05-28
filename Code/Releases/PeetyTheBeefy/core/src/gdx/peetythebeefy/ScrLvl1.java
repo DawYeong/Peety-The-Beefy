@@ -48,7 +48,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
     int nLevelHeight, nLevelWidth, nBulletCount = 4, nSpawn, nCount = 0, nBulletGUIPos = 583, nHealthGUIPosy = 108;
     Texture txBackground, txGUI, txHeart, txBullet, txSky;
-    static boolean isPlayerDead = false; // only setting this false for when the transition from main menu screen
 
     static boolean isShowing = false;
 
@@ -166,19 +165,19 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createEnemy() {
-        if(nSpawn > 200 && nCount< 5) {
-            alEnemy.add(new EntityCreation(world, "ENEMY", fX + 100, fY + 50, fW - 10, fH, batch, 9.2f,
-                    0, 0, 0, 4, 1, "MTMsprite.png", true, false,
-                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                    new Vector2(0, 0), 4));
+            if (nSpawn > 200 && nCount < 3) {
+                alEnemy.add(new EntityCreation(world, "ENEMY", fX + 100, fY + 50, fW - 10, fH, batch, 9.2f,
+                        0, 0, 0, 4, 1, "MTMsprite.png", true, false,
+                        Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                        new Vector2(0, 0), 4));
 //            alEnemy.add(new EntityCreation(world, "ENEMY", fX - 100, fY + 50, fW - 10, fH, batch, 9.2f,
 //                    0, 0, 0, 4, 1, "MTMsprite.png", true, false,
 //                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
 //                    new Vector2(0, 0)));
-            nCount++;
-            nSpawn = 0;
-        }
-        nSpawn++;
+                nCount++;
+                nSpawn = 0;
+            }
+            nSpawn++;
     }
     public void moveEnemy() {
         for(int i = 0; i < alEnemy.size(); i++) {
@@ -206,7 +205,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if(alEnemy.get(i).isDeath || isPlayerDead) {
+            if(alEnemy.get(i).isDeath) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 nCount--;
                 alEnemy.remove(i);
@@ -267,14 +266,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     }
                 }
             }
-        }
-    }
-    public void death() { //doesn't really work
-        if(b2Player.nHealth == 0) {
-            b2Player.body.setTransform(Gdx.graphics.getWidth()/2 / PPM, Gdx.graphics.getHeight()/2 /PPM, 0);
-            b2Player.nHealth = 4;
-            isPlayerDead = true;
-            game.updateScreen(0);
         }
     }
 
