@@ -12,11 +12,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -35,7 +37,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
     World world;
-    float fX, fY, fW, fH;
+    float fX, fY, fW, fH, fAngle;
     EntityCreation b2Player;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
@@ -47,7 +49,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
     int nLevelHeight, nLevelWidth, nBulletCount = 4, nSpawn, nCount = 0, nBulletGUIPos = 583, nHealthGUIPosy = 108;
-    Texture txBackground, txGUI, txHeart, txBullet, txSky;
+    Texture txBackground, txGUI, txHeart, txBullet, txSky, txWatergun;
+    Sprite sprWatergun;
 
     static boolean isShowing = false;
 
@@ -68,6 +71,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         txHeart = new Texture("Heart-Full.png");
         txBullet = new Texture("bulletTexture.png");
         txSky = new Texture("sky.png");
+        txWatergun = new Texture("Watergun.png");
+        sprWatergun = new Sprite(txWatergun);
 
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
@@ -152,7 +157,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         bulletsGUI();
         healthGUI();
         fixedBatch.end();
-        b2dr.render(world, camera.combined.scl(PPM));
+        //b2dr.render(world, camera.combined.scl(PPM));
         if (isShowing == true) {
             drawButtons();
             b2Player.body.setAwake(false);
@@ -161,6 +166,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
             b2Player.body.setAwake(true);
             b2Player.isMoving = true;
         }
+
+        Watergun();
         //System.out.println(game.fMouseX + " " + game.fMouseY);
     }
 
@@ -269,6 +276,25 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
+    public void Watergun() {
+        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        batch.begin();
+        sprWatergun.draw(batch);
+        batch.end();
+        fAngle = MathUtils.radiansToDegrees * MathUtils.atan2(vMousePosition.y - sprWatergun.getY(),vMousePosition.x - sprWatergun.getX() );
+        if(fAngle <0) {
+            fAngle +=360;
+        }
+        sprWatergun.setPosition( b2Player.body.getPosition().x * PPM - 6,  b2Player.body.getPosition().y * PPM - 6);
+        if(fAngle > 90 && fAngle < 270) {
+            sprWatergun.setFlip(true, true);
+
+        } else {
+            sprWatergun.setFlip(true, false);
+        }
+        sprWatergun.setRotation(fAngle);
+    }
+
 
     @Override
     public void resize(int i, int i1) {
@@ -305,6 +331,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
             alBullet.get(i).cleanup();
         }
         txBackground.dispose();
+        txHeart.dispose();
+        txBullet.dispose();
+        txGUI.dispose();
+        txSky.dispose();
+        txWatergun.dispose();
     }
 
     @Override
@@ -326,7 +357,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public boolean touchDown(int i, int i1, int i2, int i3) {
         if(!isShowing) {
             if (nBulletCount > 0) {
-                vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+//moved mouse position vector to draw cuz we need it for other things
                 vbulletPosition = new Vector2(b2Player.body.getPosition().x * 32, b2Player.body.getPosition().y * 32);
                 vDir = vMousePosition.sub(vbulletPosition);
                 alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
