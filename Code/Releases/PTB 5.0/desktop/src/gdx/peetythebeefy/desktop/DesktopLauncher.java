@@ -11,5 +11,6 @@ public class DesktopLauncher {
                 config.resizable = false;
                 config.width = 768;
                 config.height = 768;
+				config.title = "Peety The Beefy";
 	}
 }

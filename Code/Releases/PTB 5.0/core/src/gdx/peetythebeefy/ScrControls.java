@@ -23,15 +23,16 @@ public class ScrControls implements Screen {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
-    Texture texMenuNew, texMenuMain;
+    Texture txMenuNew, txMenuMain, txControls;
     float fMainX, fNewX;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
 
     public ScrControls(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        texMenuMain = new Texture("mainMenu.png");
-        texMenuNew = new Texture("mainMenu2.png");
+        txMenuMain = new Texture("mainMenu.png");
+        txMenuNew = new Texture("mainMenu2.png");
+        txControls = new Texture("Controls image.png");
 
     }
 
@@ -87,8 +88,9 @@ public class ScrControls implements Screen {
 
     @Override
     public void dispose() {
-        texMenuMain.dispose();
-        texMenuNew.dispose();
+        txMenuMain.dispose();
+        txMenuNew.dispose();
+        txControls.dispose();
         batch.dispose();
     }
 
@@ -103,8 +105,9 @@ public class ScrControls implements Screen {
 
         batch.begin();
 
-        batch.draw(texMenuMain, fMainX, 0);
-        batch.draw(texMenuNew, fNewX, 0);
+        batch.draw(txMenuMain, fMainX, 0);
+        batch.draw(txMenuNew, fNewX, 0);
+        batch.draw(txControls, fNewX, 0);
 
         batch.end();
 
