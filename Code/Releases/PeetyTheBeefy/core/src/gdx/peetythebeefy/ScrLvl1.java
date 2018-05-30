@@ -321,6 +321,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nEnemies = 0;
             nMaxEnemies = 3;
             nWaveCount = 1;
+            nSpawnrate = 0;
             game.updateScreen(0);
         }
     }
