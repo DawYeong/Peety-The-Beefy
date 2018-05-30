@@ -38,7 +38,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     SpriteBatch batch, fixedBatch;
     World world;
     float fX, fY, fW, fH, fAngle;
-    EntityCreation b2Player;
+    EntityCreation ecPlayer;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
@@ -84,7 +84,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         nLevelWidth = props.get("width", Integer.class) ;
         nLevelHeight = props.get("height", Integer.class);
 
-        b2Player = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
+        ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", false, false,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0), 4);
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
@@ -127,7 +127,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.end();
 
         createEnemy();
-        b2Player.Update();
+        ecPlayer.Update();
         moveEnemy();
         for(int i = 0; i < alBullet.size();i++) {
             alBullet.get(i).Update();
@@ -137,10 +137,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 alBullet.get(i).body.setAwake(true);
             }
             if(alBullet.get(i).canCollect) {
-                if (b2Player.body.getPosition().x - (b2Player.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
-                        b2Player.body.getPosition().x + (b2Player.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
-                        b2Player.body.getPosition().y - (b2Player.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
-                        b2Player.body.getPosition().y + (b2Player.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
+                if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
+                        ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
+                        ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
+                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                     nBulletCount++;
                     alBullet.remove(i);
@@ -159,11 +159,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
         //b2dr.render(world, camera.combined.scl(PPM));
         if (isShowing == true) {
             drawButtons();
-            b2Player.body.setAwake(false);
-            b2Player.isMoving = false;
+            ecPlayer.body.setAwake(false);
+            ecPlayer.isMoving = false;
         } else {
-            b2Player.body.setAwake(true);
-            b2Player.isMoving = true;
+            ecPlayer.body.setAwake(true);
+            ecPlayer.isMoving = true;
         }
 
         Watergun();
@@ -195,16 +195,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 alEnemy.get(i).body.setAwake(true);
                 alEnemy.get(i).isMoving = true;
             }
-            if (b2Player.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 100 / PPM &&
-                    b2Player.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
-                    b2Player.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 100 / PPM &&
-                            b2Player.body.getPosition().y < alEnemy.get(i).body.getPosition().y) {
-                if (b2Player.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 100 / PPM &&
-                        b2Player.body.getPosition().x > alEnemy.get(i).body.getPosition().x) {
+            if (ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 100 / PPM &&
+                    ecPlayer.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
+                    ecPlayer.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 100 / PPM &&
+                            ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y) {
+                if (ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 100 / PPM &&
+                        ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x) {
                     alEnemy.get(i).isInRange = true;
                     alEnemy.get(i).nDir = 1;
-                } else if (b2Player.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 100 / PPM &&
-                        b2Player.body.getPosition().x < alEnemy.get(i).body.getPosition().x) {
+                } else if (ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 100 / PPM &&
+                        ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x) {
                     alEnemy.get(i).nDir = 2;
                     alEnemy.get(i).isInRange = true;
                 }
@@ -221,7 +221,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void cameraUpdate() {
-        CameraStyles.lerpAverageBetweenTargets(camera, v2Target,b2Player.body.getPosition().scl(PPM));
+        CameraStyles.lerpAverageBetweenTargets(camera, v2Target,ecPlayer.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
@@ -261,13 +261,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
     public void healthGUI() {
-        if(b2Player.nHealth >=1) {
+        if(ecPlayer.nHealth >=1) {
             fixedBatch.draw(txHeart, (float)690.5, nHealthGUIPosy, txHeart.getWidth() + 5, txHeart.getHeight()+5);
-            if(b2Player.nHealth >= 2) {
+            if(ecPlayer.nHealth >= 2) {
                 fixedBatch.draw(txHeart, (float)690.5,  (float) (nHealthGUIPosy + 38.5), txHeart.getWidth() +5 , txHeart.getHeight() +5);
-                if(b2Player.nHealth >= 3) {
+                if(ecPlayer.nHealth >= 3) {
                     fixedBatch.draw(txHeart, (float)690.5, nHealthGUIPosy + 77, txHeart.getWidth()+5, txHeart.getHeight()+5);
-                    if(b2Player.nHealth >=4) {
+                    if(ecPlayer.nHealth >=4) {
                         fixedBatch.draw(txHeart, (float)690.5   , (float) (nHealthGUIPosy + 115.5), txHeart.getWidth()+5, txHeart.getHeight()+5);
                     }
                 }
@@ -284,7 +284,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if(fAngle <0) {
             fAngle +=360;
         }
-        sprWatergun.setPosition( b2Player.body.getPosition().x * PPM - 6,  b2Player.body.getPosition().y * PPM - 6);
+        sprWatergun.setPosition( ecPlayer.body.getPosition().x * PPM - 6,  ecPlayer.body.getPosition().y * PPM - 6);
         if(fAngle > 90 && fAngle < 270) {
             sprWatergun.setFlip(true, true);
 
@@ -318,7 +318,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fixedBatch.dispose();
         b2dr.dispose();
         world.dispose();
-        b2Player.cleanup();
+        ecPlayer.cleanup();
         otmr.dispose();
         game.dispose();
         game.scrLvl1.dispose();
@@ -357,7 +357,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if(!isShowing) {
             if (nBulletCount > 0) {
 //moved mouse position vector to draw cuz we need it for other things
-                vbulletPosition = new Vector2(b2Player.body.getPosition().x * 32, b2Player.body.getPosition().y * 32);
+                vbulletPosition = new Vector2(ecPlayer.body.getPosition().x * 32, ecPlayer.body.getPosition().y * 32);
                 vDir = vMousePosition.sub(vbulletPosition);
                 alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
                         0, 4, 6, "bulletTexture.png", false, true,

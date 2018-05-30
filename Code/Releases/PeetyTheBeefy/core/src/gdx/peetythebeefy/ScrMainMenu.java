@@ -75,6 +75,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
                 if (i == 0) {
                     System.out.println("moves to Lvl 1 screen");
                     ScrLvl1.isShowing = false;
+                    ScrLvl1.isPlayerDead = false;
                     game.updateScreen(3);
                 } else if (i == 1) {
                     System.out.println("moves to the controls");

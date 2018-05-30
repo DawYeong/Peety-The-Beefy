@@ -75,6 +75,7 @@ public class ScrStageSelect implements Screen {
                 if (i == 0) {
                     System.out.println("moves to lvl 1");
                     ScrLvl1.isShowing = false;
+                    ScrLvl1.isPlayerDead = false;
 
                     game.updateScreen(3);
                 } else if(i == 1) {
