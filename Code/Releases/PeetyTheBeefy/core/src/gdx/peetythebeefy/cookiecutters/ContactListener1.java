@@ -33,7 +33,7 @@ public class ContactListener1 implements ContactListener {
             EntityCreation enemyBody = (EntityCreation) fixB.getUserData();
             if(playerBody.body.getPosition().y + playerBody.body.getMass()/2 <=
                     enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId == "PLAYER") {
-                playerBody.nHealth --;
+                Constants.nHealth --;
                 System.out.println(playerBody.nHealth);
             }
         }

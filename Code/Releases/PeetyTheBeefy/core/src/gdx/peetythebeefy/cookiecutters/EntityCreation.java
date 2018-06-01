@@ -77,6 +77,16 @@ public class EntityCreation {
             bulletMove();
             drawTexture();
         }
+        if (body.getPosition().y < 0) {
+            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
+        } else if(body.getPosition().y > Gdx.graphics.getHeight()/32) {
+            body.setTransform(body.getPosition().x, 0, 0);
+        }
+        if(body.getPosition().x < 0) {
+            body.setTransform(Gdx.graphics.getWidth() /32, body.getPosition().y, 0);
+        } else if(body.getPosition().x > Gdx.graphics.getWidth()/32) {
+            body.setTransform(0, body.getPosition().y, 0);
+        }
     }
 
     private void createBody(World world, float fX, float fY, float fWidth, float fHeight, short cBits, short mBits, short gIndex) {
@@ -141,9 +151,6 @@ public class EntityCreation {
                 isCounterStart = false;
             }
         }
-        if (body.getPosition().y < 0) {
-            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
-        }
         body.setLinearVelocity(fHForce * 5, body.getLinearVelocity().y);
 
     }
@@ -168,9 +175,6 @@ public class EntityCreation {
         if (nJump == 5 && body.getLinearVelocity().y == 0) {
             body.applyForceToCenter(0, 350, false);
         }
-        if (body.getPosition().y < 0) {
-            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
-        }
         body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
         if(nHealth <= 0) {
             isDeath = true;
@@ -180,11 +184,6 @@ public class EntityCreation {
     public void bulletMove() {
         if(nCount < 2) {
             body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
-        }
-        if(body.getPosition().y < 0 && body.getLinearVelocity().y < 0) {
-            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight()/32, 0);
-        } else if(body.getPosition().y > Gdx.graphics.getHeight() /32 && body.getLinearVelocity().y > 0) {
-            body.setTransform(body.getPosition().x, 0, 0);
         }
         if(nCount >= 90) {
             canCollect = true;

@@ -22,6 +22,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import java.util.ArrayList;
@@ -48,12 +49,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
-    int nLevelHeight, nLevelWidth, nBulletCount = 4, nSpawnrate = 0, nCount = 0, nBulletGUIPos = 583, nHealthGUIPosy = 108,
-    nEnemies = 0, nMaxEnemies = 3, nWaveCount = 1;
-    Texture txBackground, txGUI, txHeart, txBullet, txSky, txWatergun;
+    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 3, nWaveCount = 1;
+    Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
 
-    static boolean isShowing = false, isPlayerDead = false; //required
+    public static boolean isShowing = false, isPlayerDead = false; //required
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -68,9 +68,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fW = 32;
         fH = 32;
         txBackground = new Texture("level1Background.png");
-        txGUI = new Texture("GUI.png");
-        txHeart = new Texture("Heart-Full.png");
-        txBullet = new Texture("bulletTexture.png");
         txSky = new Texture("sky.png");
         txWatergun = new Texture("Watergun.png");
         sprWatergun = new Sprite(txWatergun);
@@ -128,6 +125,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         ecPlayer.Update();
         moveEnemy();
+        playerDeath();
         for(int i = 0; i < alBullet.size();i++) {
             alBullet.get(i).Update();
             if(isShowing) {
@@ -142,7 +140,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)
                         || isPlayerDead) {
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
-                    nBulletCount++;
+                    Constants.nBulletCount++;
                     alBullet.remove(i);
                 }
             }
@@ -150,12 +148,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         otmr.setView(camera);
         otmr.render();
-
-        fixedBatch.begin();
-        fixedBatch.draw(txGUI,Constants.SCREENWIDTH - txGUI.getWidth(),0);
-        bulletsGUI();
-        healthGUI();
-        fixedBatch.end();
+        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         //b2dr.render(world, camera.combined.scl(PPM));
         if (isShowing == true) {
             drawButtons();
@@ -166,8 +160,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             ecPlayer.isMoving = true;
             createEnemy();
         }
-        Watergun();
-        playerDeath();
 
         //System.out.println(game.fMouseX + " " + game.fMouseY);
     }
@@ -189,11 +181,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 alEnemy.add(new EntityCreation(world, "ENEMY", fX , fY , fW - 10, fH, batch, 9.2f,
                         0, 0, 0, 4, 1, "MTMsprite.png", true, false,
                         Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                        new Vector2(0, 0), 4));
+                        new Vector2(0, 0), 2));
                 nCount++;
                 nSpawnrate = 0;
             }
             if(alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
+                if(nWaveCount == 2) {
+                    game.updateScreen(4);
+                }
                 nWaveCount ++;
                 nMaxEnemies++;
                 nEnemies = 0;
@@ -261,62 +256,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
         }
     }
-    public void bulletsGUI() {
-        if(nBulletCount >= 1) {
-            fixedBatch.draw(txBullet,nBulletGUIPos,14,27,27);
-            if(nBulletCount >= 2) {
-                fixedBatch.draw(txBullet,nBulletGUIPos - 45,14,27,27);
-                if(nBulletCount >= 3) {
-                    fixedBatch.draw(txBullet,nBulletGUIPos - 90,14,27,27);
-                    if(nBulletCount >= 4) {
-                        fixedBatch.draw(txBullet,nBulletGUIPos - 135,14,27,27);
-                    }
-                }
-            }
-        }
-    }
-    public void healthGUI() {
-        if(ecPlayer.nHealth >=1) {
-            fixedBatch.draw(txHeart, (float)690.5, nHealthGUIPosy, txHeart.getWidth() + 5, txHeart.getHeight()+5);
-            if(ecPlayer.nHealth >= 2) {
-                fixedBatch.draw(txHeart, (float)690.5,  (float) (nHealthGUIPosy + 38.5), txHeart.getWidth() +5 , txHeart.getHeight() +5);
-                if(ecPlayer.nHealth >= 3) {
-                    fixedBatch.draw(txHeart, (float)690.5, nHealthGUIPosy + 77, txHeart.getWidth()+5, txHeart.getHeight()+5);
-                    if(ecPlayer.nHealth >=4) {
-                        fixedBatch.draw(txHeart, (float)690.5   , (float) (nHealthGUIPosy + 115.5), txHeart.getWidth()+5, txHeart.getHeight()+5);
-                    }
-                }
-            }
-        }
-    }
 
-    public void Watergun() {
-        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        batch.begin();
-        sprWatergun.draw(batch);
-        batch.end();
-        if (!isShowing) {
-            fAngle = MathUtils.radiansToDegrees * MathUtils.atan2(vMousePosition.y - sprWatergun.getY(), vMousePosition.x - sprWatergun.getX());
-            if (fAngle < 0) {
-                fAngle += 360;
-            }
-            sprWatergun.setPosition(ecPlayer.body.getPosition().x * PPM - 6, ecPlayer.body.getPosition().y * PPM - 6);
-            if (fAngle > 90 && fAngle < 270) {
-                sprWatergun.setFlip(true, true);
-
-            } else {
-                sprWatergun.setFlip(true, false);
-            }
-            sprWatergun.setRotation(fAngle);
-        }
-    }
 
     public void playerDeath() {
-        if(ecPlayer.nHealth == 0) {
+        if(Constants.nHealth == 0) {
             isPlayerDead = true;
         }
         if(isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
-            ecPlayer.nHealth = 4;
+            Constants.nHealth = 4;
             ecPlayer.body.setTransform(Gdx.graphics.getWidth()/2/PPM, Gdx.graphics.getHeight()/2/PPM, 0);
             nEnemies = 0;
             nMaxEnemies = 3;
@@ -361,11 +308,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
             alBullet.get(i).cleanup();
         }
         txBackground.dispose();
-        txHeart.dispose();
-        txBullet.dispose();
-        txGUI.dispose();
         txSky.dispose();
-        txWatergun.dispose();
+        Constants.assetsDispose();
     }
 
     @Override
@@ -386,7 +330,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
         if(!isShowing) {
-            if (nBulletCount > 0) {
+            if (Constants.nBulletCount > 0) {
 //moved mouse position vector to draw cuz we need it for other things
                 vbulletPosition = new Vector2(ecPlayer.body.getPosition().x * 32, ecPlayer.body.getPosition().y * 32);
                 vDir = vMousePosition.sub(vbulletPosition);
@@ -394,10 +338,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         0, 4, 6, "bulletTexture.png", false, true,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir, 0));
-                nBulletCount--;
+                Constants.nBulletCount--;
             }
         }
-        System.out.println(nBulletCount);
         return false;
     }
 
