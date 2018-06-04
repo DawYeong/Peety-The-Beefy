@@ -104,7 +104,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
         otmr.render();
 
         b2dr.render(world, camera.combined.scl(PPM));
-        //playerGUI();
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         backButtonFunctionality();
@@ -124,9 +123,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
         camera.zoom = 0.8f;
         CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
         camera.update();
-    }
-    public void playerGUI() {
-
     }
 
 

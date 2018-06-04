@@ -12,6 +12,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
@@ -28,6 +29,7 @@ import gdx.peetythebeefy.cookiecutters.*;
 import java.util.ArrayList;
 
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
+import static gdx.peetythebeefy.cookiecutters.Constants.isPlayerDead;
 
 
 /**
@@ -53,7 +55,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
 
-    public static boolean isShowing = false, isPlayerDead = false; //required
+    public static boolean isShowing = false; //required
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -138,7 +140,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
                         ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
                         ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)
-                        || isPlayerDead) {
+                        || Constants.isPlayerDead) {
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                     Constants.nBulletCount++;
                     alBullet.remove(i);
@@ -161,7 +163,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             createEnemy();
         }
 
-        //System.out.println(game.fMouseX + " " + game.fMouseY);
     }
 
     public void createEnemy() {
@@ -186,7 +187,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 nSpawnrate = 0;
             }
             if(alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
-                if(nWaveCount == 2) {
+                if(nWaveCount == 2 && !isPlayerDead) {
                     game.updateScreen(4);
                 }
                 nWaveCount ++;
@@ -221,7 +222,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if(alEnemy.get(i).isDeath || isPlayerDead) {
+            if(alEnemy.get(i).isDeath || Constants.isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 nCount--;
                 alEnemy.remove(i);
@@ -259,10 +260,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
 
     public void playerDeath() {
-        if(Constants.nHealth == 0) {
-            isPlayerDead = true;
-        }
-        if(isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
+        if(Constants.isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
             Constants.nHealth = 4;
             ecPlayer.body.setTransform(Gdx.graphics.getWidth()/2/PPM, Gdx.graphics.getHeight()/2/PPM, 0);
             nEnemies = 0;
@@ -272,6 +270,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             game.updateScreen(0);
         }
     }
+
 
     @Override
     public void resize(int i, int i1) {

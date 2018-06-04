@@ -24,8 +24,14 @@ public class ContactListener1 implements ContactListener {
         if(isBulletHitEnemy(fixA, fixB)) {
             EntityCreation bulletBody = (EntityCreation) fixB.getUserData();
             EntityCreation enemyBody = (EntityCreation) fixA.getUserData();
-            if(!bulletBody.isStuck && bulletBody.sId == "Bullet") {
-                enemyBody.nHealth --;
+            if(!bulletBody.isStuck) {
+                if(bulletBody.sId == "Bullet" && enemyBody.sId == "ENEMY") {
+                    enemyBody.nHealth--;
+                    System.out.println("hit");
+                } else if(enemyBody.sId == "Bullet" && bulletBody.sId == "ENEMY") {
+                    bulletBody.nHealth--;
+                    System.out.println("Boom");
+                }
             }
         }
         if(isEnemyhitPlayer(fixA, fixB)) {
@@ -34,7 +40,6 @@ public class ContactListener1 implements ContactListener {
             if(playerBody.body.getPosition().y + playerBody.body.getMass()/2 <=
                     enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId == "PLAYER") {
                 Constants.nHealth --;
-                System.out.println(playerBody.nHealth);
             }
         }
     }
