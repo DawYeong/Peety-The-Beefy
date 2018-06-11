@@ -50,8 +50,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
-    Vector2 v2Target, vDir, vMousePosition, vbulletPosition;
-    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 3, nWaveCount = 1;
+    Vector2 v2Target, vMousePosition;
+    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1;
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
 
@@ -121,7 +121,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
 
-        playerShoot();
+        playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
 
         ecPlayer.Update();
         moveEnemy();
@@ -145,10 +145,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
         }
-
         otmr.setView(camera);
         otmr.render();
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+
         Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         //b2dr.render(world, camera.combined.scl(PPM));
         if (isShowing == true) {
@@ -160,11 +160,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
             ecPlayer.isMoving = true;
             createEnemy();
         }
-
     }
 
     public void createEnemy() {
-        if(nSpawnrate > 200 && nEnemies < nMaxEnemies) {
+        if(nSpawnrate > 200 && nEnemies < nMaxEnemies && nWaveCount != 3) {
             int nSpawnLocation = (int) (Math.random() * 3 + 1);
             if (nSpawnLocation == 1) {
                 fX = Gdx.graphics.getWidth()/2 - 328;
@@ -185,13 +184,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 nSpawnrate = 0;
             }
             if(alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
-                if(nWaveCount == 2 && !isPlayerDead) {
-                    game.updateScreen(4);
-                }
                 nWaveCount ++;
                 nMaxEnemies++;
                 nEnemies = 0;
             }
+        if(nWaveCount == 3 && !isPlayerDead && (ecPlayer.body.getPosition().x *PPM > 710 && ecPlayer.body.getPosition().x *PPM < 750) &&
+                (ecPlayer.body.getPosition().y *PPM > 410 && ecPlayer.body.getPosition().y * PPM < 480)) {
+            game.updateScreen(4);
+        }
             nSpawnrate++;
     }
     public void moveEnemy() {
@@ -211,10 +211,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 if (ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 100 / PPM &&
                         ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x) {
                     alEnemy.get(i).isInRange = true;
-                    alEnemy.get(i).nDir = 1;
                 } else if (ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 100 / PPM &&
                         ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x) {
-                    alEnemy.get(i).nDir = 2;
                     alEnemy.get(i).isInRange = true;
                 }
             } else {
@@ -270,13 +268,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void playerShoot() {
+    public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList Bullets, World world) {
         //moved mouse position vector to draw cuz we need it for other things
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()){
             if(Constants.nBulletCount > 0 && !isShowing) {
-                vbulletPosition = new Vector2(ecPlayer.body.getPosition().x * 32, ecPlayer.body.getPosition().y * 32);
-                vDir = vMousePosition.sub(vbulletPosition);
-                alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
+                Vector2 vbulletPosition = new Vector2(playerPosition.x * 32, playerPosition.y * 32);
+                Vector2 vDir = mousePosition.sub(vbulletPosition);
+                Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
                         0, 4, 6, "bulletTexture.png", false, true,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir, 0));
@@ -352,6 +350,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             game.fMouseX = Gdx.input.getX();
             game.fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
         }
+        System.out.println(vMousePosition);
         return false;
     }
 

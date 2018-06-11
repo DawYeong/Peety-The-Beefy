@@ -110,8 +110,28 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
         ecPlayer.Update();
         moveEnemy();
+        scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
         otmr.setView(camera);
         otmr.render();
+        for(int i = 0; i < alBullet.size();i++) {
+            alBullet.get(i).Update();
+//            if(isShowing) {
+//                alBullet.get(i).body.setAwake(false);
+//            } else if(!isShowing && !alBullet.get(i).isStuck){
+//                alBullet.get(i).body.setAwake(true);
+//            }
+            if(alBullet.get(i).canCollect) {
+                if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
+                        ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
+                        ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
+                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)
+                        || Constants.isPlayerDead) {
+                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                    Constants.nBulletCount++;
+                    alBullet.remove(i);
+                }
+            }
+        }
 
         b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
@@ -158,6 +178,10 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     alEnemy.get(i).nShootCount = 0;
                 }
                 alEnemy.get(i).nShootCount++ ;
+            }
+            if(alEnemy.get(i).isDeath || Constants.isPlayerDead) {
+                alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
+                alEnemy.remove(i);
             }
         }
         moveEnemyBullet();
