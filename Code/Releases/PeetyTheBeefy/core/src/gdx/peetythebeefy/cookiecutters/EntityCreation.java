@@ -30,7 +30,8 @@ public class EntityCreation {
      public Animation[] araniCharacter;
      public Body body;
      public String sId, sTexture;
-     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth;
+     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth,
+                nShootCount = 0;
      public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet, isMoving = true;
      public float fAniSpeed;
      SpriteBatch batch;
@@ -157,7 +158,6 @@ public class EntityCreation {
 
     public void enemyMove() {
         float fhForce = 0;
-        if (!isInRange) {
             if (body.getLinearVelocity().x == 0) {
                 if (nDir == 1) {
                     nDir = 2;
@@ -165,7 +165,6 @@ public class EntityCreation {
                     nDir = 1;
                 }
             }
-        }
         nJump = (int) (Math.random() * 99 + 1);
         if (nDir == 1) {
             fhForce = (isInRange) ? (float)1.5 : 1;

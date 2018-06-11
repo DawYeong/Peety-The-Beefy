@@ -19,6 +19,7 @@ public class Constants {
     public static final short BIT_SENSOR = 4;
     public static final short BIT_BULLET = 8;
     public static final short BIT_ENEMY = 16;
+    public static final short BIT_ENEMYBULLET = 32;
     public static int nHealth = 4, nBulletCount = 4;
 
     //textures

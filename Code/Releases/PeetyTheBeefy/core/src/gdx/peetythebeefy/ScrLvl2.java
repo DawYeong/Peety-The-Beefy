@@ -22,6 +22,8 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.*;
 
+import java.util.ArrayList;
+
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 
 /**
@@ -44,7 +46,10 @@ public class ScrLvl2 implements Screen, InputProcessor {
     float fX, fY, fW, fH;
     int nLevelWidth, nLevelHeight;
     Texture txBackground, txSky;
-    Vector2 vMousePosition;
+    Vector2 vMousePosition, vEnemyShootDir, vEBulletPos, vTargetPos;
+    ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
+    ArrayList<EntityCreation> alEnemyBullet = new ArrayList<EntityCreation>();
+    ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
 
     public ScrLvl2(PeetyTheBeefy game) {
         this.game = game;
@@ -61,7 +66,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         fH = 32;
         tMapLvl2 = new TmxMapLoader().load("PeetytheBeefy2.tmx");
         tplLvl2 = new TiledPolyLines(world, tMapLvl2.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
-                (short)(Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
+                (short)(Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
         txBackground = new Texture("level2Background.png");
         txSky = new Texture("skyDay.png");
         otmr = new OrthogonalTiledMapRenderer(tMapLvl2);
@@ -70,10 +75,14 @@ public class ScrLvl2 implements Screen, InputProcessor {
         nLevelWidth = props.get("width", Integer.class) ;
         nLevelHeight = props.get("height", Integer.class);
 
-        ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
+        ecPlayer = new EntityCreation(world, "PLAYER", fX - 300, fY-215, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", false, false,
-                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0),
+                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0,0),
                 scrLvl1.ecPlayer.nHealth);
+        alEnemy.add(new EntityCreation(world, "ENEMY", fX + 100, fY +100, fW - 10, fH, batch, 9.2f,
+                0, 0, 0, 4, 1, "MTMsprite.png", true, false,
+                Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                new Vector2(0, 0), 2));
     }
 
     @Override
@@ -100,6 +109,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         batch.end();
 
         ecPlayer.Update();
+        moveEnemy();
         otmr.setView(camera);
         otmr.render();
 
@@ -114,6 +124,51 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 && game.fMouseY > BackButton.fY && game.fMouseY < BackButton.fY + BackButton.fH) {
             System.out.println("moves to the main menu");
             game.updateScreen(0);
+        }
+    }
+    public void moveEnemy() {
+        for(int i = 0; i < alEnemy.size(); i++) {
+            alEnemy.get(i).Update();
+            if (ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 200 / PPM &&
+                    ecPlayer.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
+                    ecPlayer.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 200 / PPM &&
+                            ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y) {
+                if (ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 200 / PPM &&
+                        ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x) {
+                    alEnemy.get(i).isInRange = true;
+                } else if (ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 200 / PPM &&
+                        ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x) {
+                    alEnemy.get(i).isInRange = true;
+                }
+            } else {
+                alEnemy.get(i).isInRange = false;
+            }
+            if(alEnemy.get(i).isInRange) {
+                if(alEnemy.get(i).nShootCount == 100) {
+                    vEBulletPos = new Vector2(alEnemy.get(i).body.getPosition().x*32,alEnemy.get(i).body.getPosition().y*32 );
+                    vTargetPos = new Vector2(ecPlayer.body.getPosition().x*32, ecPlayer.body.getPosition().y*32);
+                    vEnemyShootDir = vTargetPos.sub(vEBulletPos);
+                    System.out.println(vEnemyShootDir);
+                    alEnemyBullet.add(new EntityCreation(world, "EnemyBullet", alEnemy.get(i).body.getPosition().x * 32, alEnemy.get(i).body.getPosition().y *32,
+                            fW, fH, batch, 9.2f, 0, 0, 0, 4, 6,
+                            "bulletTexture.png", false, true, Constants.BIT_ENEMYBULLET, (short)
+                            (Constants.BIT_WALL | Constants.BIT_ENEMYBULLET | Constants.BIT_PLAYER), (short) 0,
+                            vEnemyShootDir, 0));
+                    System.out.println("here");
+                    alEnemy.get(i).nShootCount = 0;
+                }
+                alEnemy.get(i).nShootCount++ ;
+            }
+        }
+        moveEnemyBullet();
+    }
+    public void moveEnemyBullet() {
+        for(int i = 0; i < alEnemyBullet.size(); i++) {
+            alEnemyBullet.get(i).Update();
+            if(alEnemyBullet.get(i).isStuck) {
+                alEnemyBullet.get(i).world.destroyBody(alEnemyBullet.get(i).body);
+                alEnemyBullet.remove(i);
+            }
         }
     }
     public void cameraUpdate() {
@@ -155,6 +210,12 @@ public class ScrLvl2 implements Screen, InputProcessor {
      b2dr.dispose();
      txBackground.dispose();
      txSky.dispose();
+     for(int i = 0; i<alEnemy.size();i++) {
+         alEnemy.get(i).cleanup();
+     }
+     for(int i = 0; i < alEnemyBullet.size(); i++) {
+         alEnemyBullet.get(i).cleanup();
+     }
      Constants.assetsDispose();
     }
 

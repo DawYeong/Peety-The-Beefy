@@ -105,11 +105,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
             game.fMouseY = Constants.SCREENHEIGHT;
-            if (isShowing == false) { //its like a pop up menu, if you want to go back press p to bring up back button
-                isShowing = true;
-            } else {
-                isShowing = false;
-            }
+            isShowing = !isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
         }
         if(Gdx.input.isKeyJustPressed((Input.Keys.J))) {
             game.updateScreen(1);
@@ -124,6 +120,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.begin();
         batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
+
+        playerShoot();
 
         ecPlayer.Update();
         moveEnemy();
@@ -253,6 +251,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 System.out.println("move to main menu ");
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
+                isShowing = false;
                 game.updateScreen(0);
             }
         }
@@ -268,6 +267,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nWaveCount = 1;
             nSpawnrate = 0;
             game.updateScreen(0);
+        }
+    }
+
+    public void playerShoot() {
+        //moved mouse position vector to draw cuz we need it for other things
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()){
+            if(Constants.nBulletCount > 0 && !isShowing) {
+                vbulletPosition = new Vector2(ecPlayer.body.getPosition().x * 32, ecPlayer.body.getPosition().y * 32);
+                vDir = vMousePosition.sub(vbulletPosition);
+                alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
+                        0, 4, 6, "bulletTexture.png", false, true,
+                        Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                        vDir, 0));
+                Constants.nBulletCount--;
+                System.out.println("here");
+            }
         }
     }
 
@@ -328,18 +343,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
-        if(!isShowing) {
-            if (Constants.nBulletCount > 0) {
-//moved mouse position vector to draw cuz we need it for other things
-                vbulletPosition = new Vector2(ecPlayer.body.getPosition().x * 32, ecPlayer.body.getPosition().y * 32);
-                vDir = vMousePosition.sub(vbulletPosition);
-                alBullet.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
-                        0, 4, 6, "bulletTexture.png", false, true,
-                        Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                        vDir, 0));
-                Constants.nBulletCount--;
-            }
-        }
         return false;
     }
 
