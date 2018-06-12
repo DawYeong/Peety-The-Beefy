@@ -6,6 +6,7 @@
 package gdx.peetythebeefy;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -25,6 +26,7 @@ import gdx.peetythebeefy.cookiecutters.*;
 import java.util.ArrayList;
 
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
+import static gdx.peetythebeefy.cookiecutters.Constants.isShowing;
 
 /**
  *
@@ -64,12 +66,16 @@ public class ScrLvl2 implements Screen, InputProcessor {
         fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
         fH = 32;
+
+        BackButton = new Buttons("backButton", scrLvl1.fixedBatch, -8, 0, 96, 32);
+
         tMapLvl2 = new TmxMapLoader().load("PeetytheBeefy2.tmx");
         tplLvl2 = new TiledPolyLines(world, tMapLvl2.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
                 (short)(Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
         txBackground = new Texture("level2Background.png");
         txSky = new Texture("skyDay.png");
         otmr = new OrthogonalTiledMapRenderer(tMapLvl2);
+
 
         MapProperties props = tMapLvl2.getProperties();
         nLevelWidth = props.get("width", Integer.class) ;
@@ -88,13 +94,18 @@ public class ScrLvl2 implements Screen, InputProcessor {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
-        BackButton = new Buttons("backButton", scrLvl1.fixedBatch, -8, 0, 96, 32);
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
+            game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+            game.fMouseY = Constants.SCREENHEIGHT;
+            Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
+        }
 
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
@@ -115,17 +126,16 @@ public class ScrLvl2 implements Screen, InputProcessor {
         otmr.render();
         for(int i = 0; i < alBullet.size();i++) {
             alBullet.get(i).Update();
-//            if(isShowing) {
-//                alBullet.get(i).body.setAwake(false);
-//            } else if(!isShowing && !alBullet.get(i).isStuck){
-//                alBullet.get(i).body.setAwake(true);
-//            }
+            if(Constants.isShowing) {
+                alBullet.get(i).body.setAwake(false);
+            } else if(!Constants.isShowing && !alBullet.get(i).isStuck){
+                alBullet.get(i).body.setAwake(true);
+            }
             if(alBullet.get(i).canCollect) {
                 if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
                         ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
                         ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
-                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)
-                        || Constants.isPlayerDead) {
+                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
                     alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                     Constants.nBulletCount++;
                     alBullet.remove(i);
@@ -133,22 +143,54 @@ public class ScrLvl2 implements Screen, InputProcessor {
             }
         }
 
-        b2dr.render(world, camera.combined.scl(PPM));
+        //b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        backButtonFunctionality();
+        if(Constants.isShowing) {
+            backButtonFunctionality();
+            ecPlayer.body.setAwake(false);
+            ecPlayer.isMoving = false;
+        } else  {
+            ecPlayer.body.setAwake(true);
+            ecPlayer.isMoving = true;
+        }
     }
     public void backButtonFunctionality() {
         BackButton.Update();
-        if(game.fMouseX > BackButton.fX && game.fMouseX < BackButton.fX + BackButton.fW
-                && game.fMouseY > BackButton.fY && game.fMouseY < BackButton.fY + BackButton.fH) {
-            System.out.println("moves to the main menu");
-            game.updateScreen(0);
-        }
+            if (game.fMouseX > BackButton.fX && game.fMouseX < BackButton.fX + BackButton.fW
+                    && game.fMouseY > BackButton.fY && game.fMouseY < BackButton.fY + BackButton.fH) {
+                System.out.println("moves to the main menu");
+                Constants.isShowing = false;
+                game.updateScreen(0);
+            }
+
     }
     public void moveEnemy() {
         for(int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
+            if(Constants.isShowing) {
+                alEnemy.get(i).body.setAwake(false);
+                alEnemy.get(i).isMoving = false;
+            } else {
+                alEnemy.get(i).body.setAwake(true);
+                alEnemy.get(i).isMoving = true;
+                if(alEnemy.get(i).isInRange) {
+                    if(alEnemy.get(i).nShootCount == 100) {
+                        vEBulletPos = new Vector2(alEnemy.get(i).body.getPosition().x*32,alEnemy.get(i).body.getPosition().y*32 );
+                        vTargetPos = new Vector2(ecPlayer.body.getPosition().x*32, ecPlayer.body.getPosition().y*32);
+                        vEnemyShootDir = vTargetPos.sub(vEBulletPos);
+                        System.out.println(vEnemyShootDir);
+                        alEnemyBullet.add(new EntityCreation(world, "EnemyBullet", alEnemy.get(i).body.getPosition().x * 32, alEnemy.get(i).body.getPosition().y *32,
+                                fW , fH, batch, 9.2f, 0, 0, 0, 4, 6,
+                                "Heart-Full.png", false, true, Constants.BIT_ENEMYBULLET, (short)
+                                (Constants.BIT_WALL | Constants.BIT_ENEMYBULLET | Constants.BIT_PLAYER), (short) 0,
+                                vEnemyShootDir, 0));
+                        System.out.println("here");
+                        alEnemy.get(i).nShootCount = 0;
+                    }
+                    alEnemy.get(i).nShootCount++ ;
+                }
+            }
             if (ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 200 / PPM &&
                     ecPlayer.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
                     ecPlayer.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 200 / PPM &&
@@ -163,23 +205,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if(alEnemy.get(i).isInRange) {
-                if(alEnemy.get(i).nShootCount == 100) {
-                    vEBulletPos = new Vector2(alEnemy.get(i).body.getPosition().x*32,alEnemy.get(i).body.getPosition().y*32 );
-                    vTargetPos = new Vector2(ecPlayer.body.getPosition().x*32, ecPlayer.body.getPosition().y*32);
-                    vEnemyShootDir = vTargetPos.sub(vEBulletPos);
-                    System.out.println(vEnemyShootDir);
-                    alEnemyBullet.add(new EntityCreation(world, "EnemyBullet", alEnemy.get(i).body.getPosition().x * 32, alEnemy.get(i).body.getPosition().y *32,
-                            fW, fH, batch, 9.2f, 0, 0, 0, 4, 6,
-                            "bulletTexture.png", false, true, Constants.BIT_ENEMYBULLET, (short)
-                            (Constants.BIT_WALL | Constants.BIT_ENEMYBULLET | Constants.BIT_PLAYER), (short) 0,
-                            vEnemyShootDir, 0));
-                    System.out.println("here");
-                    alEnemy.get(i).nShootCount = 0;
-                }
-                alEnemy.get(i).nShootCount++ ;
-            }
-            if(alEnemy.get(i).isDeath || Constants.isPlayerDead) {
+            if(alEnemy.get(i).isDeath ) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 alEnemy.remove(i);
             }

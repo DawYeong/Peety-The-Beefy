@@ -74,7 +74,7 @@ public class ScrStageSelect implements Screen {
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
                 if (i == 0) {
                     System.out.println("moves to lvl 1");
-                    ScrLvl1.isShowing = false;
+                    Constants.isShowing = false;
                     Constants.isPlayerDead = false;
 
                     game.updateScreen(3);

@@ -27,7 +27,7 @@ public class Constants {
             txBullet = new Texture("bulletTexture.png"), txGUI = new Texture("GUI.png"),
             txWaterGun = new Texture("Watergun.png");
     public static final Sprite sprWatergun = new Sprite(txWaterGun);
-    public static boolean isPlayerDead;
+    public static boolean isPlayerDead = false, isShowing;
 
 
     //this needs to be static since the GUI is universal for all levels
@@ -36,7 +36,7 @@ public class Constants {
         batch.begin();
         sprWatergun.draw(batch);
         batch.end();
-        if (!ScrLvl1.isShowing) {
+        if (!isShowing) {
             fAngle = MathUtils.radiansToDegrees * MathUtils.atan2(vMousePosition.y - sprWatergun.getY(), vMousePosition.x - sprWatergun.getX());
             if (fAngle < 0) {
                 fAngle += 360;
@@ -51,7 +51,7 @@ public class Constants {
             sprWatergun.setRotation(fAngle);
         }
         fixedBatch.begin();
-        fixedBatch.draw(txGUI,Constants.SCREENWIDTH - txGUI.getWidth(),0);
+        fixedBatch.draw(txGUI,SCREENWIDTH - txGUI.getWidth(),0);
         if(nHealth >=1) {
             fixedBatch.draw(txHeart, (float)690.5, 108, txHeart.getWidth() + 5, txHeart.getHeight()+5);
             if(nHealth >= 2) {

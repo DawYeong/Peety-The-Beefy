@@ -55,8 +55,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
 
-    public static boolean isShowing = false; //required
-
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
@@ -105,7 +103,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
             game.fMouseY = Constants.SCREENHEIGHT;
-            isShowing = !isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
+            Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
         }
         if(Gdx.input.isKeyJustPressed((Input.Keys.J))) {
             game.updateScreen(1);
@@ -128,9 +126,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         playerDeath();
         for(int i = 0; i < alBullet.size();i++) {
             alBullet.get(i).Update();
-            if(isShowing) {
+            if(Constants.isShowing) {
                 alBullet.get(i).body.setAwake(false);
-            } else if(!isShowing && !alBullet.get(i).isStuck){
+            } else if(!Constants.isShowing && !alBullet.get(i).isStuck){
                 alBullet.get(i).body.setAwake(true);
             }
             if(alBullet.get(i).canCollect) {
@@ -151,7 +149,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         //b2dr.render(world, camera.combined.scl(PPM));
-        if (isShowing == true) {
+        if (Constants.isShowing == true) {
             drawButtons();
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
@@ -197,7 +195,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void moveEnemy() {
         for(int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
-            if(isShowing) {
+            if(Constants.isShowing) {
                 alEnemy.get(i).body.setAwake(false);
                 alEnemy.get(i).isMoving = false;
             } else {
@@ -249,7 +247,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 System.out.println("move to main menu ");
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
-                isShowing = false;
+                Constants.isShowing = false;
                 game.updateScreen(0);
             }
         }
@@ -271,7 +269,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList Bullets, World world) {
         //moved mouse position vector to draw cuz we need it for other things
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()){
-            if(Constants.nBulletCount > 0 && !isShowing) {
+            if(Constants.nBulletCount > 0 && !Constants.isShowing) {
                 Vector2 vbulletPosition = new Vector2(playerPosition.x * 32, playerPosition.y * 32);
                 Vector2 vDir = mousePosition.sub(vbulletPosition);
                 Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
@@ -346,7 +344,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
-        if(isShowing) {  // going to have to set fMouseX and fMouseY here because of the problem with setting the input processor
+        if(Constants.isShowing) {  // going to have to set fMouseX and fMouseY here because of the problem with setting the input processor
             game.fMouseX = Gdx.input.getX();
             game.fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
         }
