@@ -15,6 +15,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrControls scrControls;
     ScrLvl1 scrLvl1;
     ScrLvl2 scrLvl2;
+    ScrDeath scrDeath;
     OrthographicCamera camera;
     float fMouseX, fMouseY;
 
@@ -29,6 +30,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         scrLvl1 = new ScrLvl1(this);
         scrControls = new ScrControls(this);
         scrLvl2 = new ScrLvl2(this);
+        scrDeath = new ScrDeath(this);
 
         Gdx.input.setInputProcessor(this);
         setScreen(scrMainMenu);
@@ -54,6 +56,8 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
             setScreen(scrLvl1);
         } else if (nScreen == 4) {
             setScreen(scrLvl2);
+        } else if(nScreen == 5) {
+            setScreen(scrDeath);
         }
 
     }

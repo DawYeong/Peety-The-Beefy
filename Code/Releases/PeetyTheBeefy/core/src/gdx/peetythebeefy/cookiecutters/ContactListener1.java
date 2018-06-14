@@ -24,7 +24,7 @@ public class ContactListener1 implements ContactListener {
         if(isBulletHit(fixA, fixB)) {
             EntityCreation bulletBody = (EntityCreation) fixB.getUserData();
             EntityCreation enemyBody = (EntityCreation) fixA.getUserData();
-            if(!bulletBody.isStuck) {
+            if(!bulletBody.isStuck || !enemyBody.isStuck) {
                 if(bulletBody.sId == "Bullet" && enemyBody.sId == "ENEMY") {
                     enemyBody.nHealth--;
                     System.out.println("hit");

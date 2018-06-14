@@ -106,7 +106,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
         }
         if(Gdx.input.isKeyJustPressed((Input.Keys.J))) {
-            game.updateScreen(1);
+            Constants.isLevelFinished[0] = true;
+            Constants.isLevelUnlocked[1] = true;
+            game.updateScreen(4);
         }
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
@@ -188,6 +190,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
         if(nWaveCount == 3 && !isPlayerDead && (ecPlayer.body.getPosition().x *PPM > 710 && ecPlayer.body.getPosition().x *PPM < 750) &&
                 (ecPlayer.body.getPosition().y *PPM > 410 && ecPlayer.body.getPosition().y * PPM < 480)) {
+            Constants.isLevelFinished[0] = true;
+            Constants.isLevelUnlocked[1] = true;
             game.updateScreen(4);
         }
             nSpawnrate++;
@@ -262,7 +266,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nMaxEnemies = 3;
             nWaveCount = 1;
             nSpawnrate = 0;
-            game.updateScreen(0);
+            game.updateScreen(5);
         }
     }
 
@@ -277,7 +281,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir, 0));
                 Constants.nBulletCount--;
-                System.out.println("here");
             }
         }
     }
@@ -348,7 +351,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             game.fMouseX = Gdx.input.getX();
             game.fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
         }
-        System.out.println(vMousePosition);
         return false;
     }
 

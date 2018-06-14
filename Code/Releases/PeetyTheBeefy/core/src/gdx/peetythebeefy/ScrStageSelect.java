@@ -7,6 +7,7 @@ package gdx.peetythebeefy;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -31,14 +32,14 @@ public class ScrStageSelect implements Screen {
         this.batch = game.batch;
         texMenuMain = new Texture("mainMenu.png");
         texMenuNew = new Texture("mainMenu2.png");
+        fY = Gdx.graphics.getHeight();
+        createButtons();
     }
 
     @Override
     public void show() {
         fMainX = 0;
         fNewX = 768;
-        fY = Gdx.graphics.getHeight();
-        createButtons();
     }
 
     @Override
@@ -76,35 +77,51 @@ public class ScrStageSelect implements Screen {
                     System.out.println("moves to lvl 1");
                     Constants.isShowing = false;
                     Constants.isPlayerDead = false;
-
+                    resetButtons();
                     game.updateScreen(3);
-                } else if(i == 1) {
+                } else if(i == 1 && Constants.isLevelUnlocked[1] == true) {
                     System.out.println("moves to lvl 2");
-
+                    resetButtons();
                     game.updateScreen(4);
                 }
                 else if (i == 12) {
                     System.out.println("moves to main menu");
-
+                    resetButtons();
                     game.updateScreen(0);
                 }
                 //resets the y position of each level button
-                alButtons.get(0).fY = Constants.SCREENHEIGHT;
-                alButtons.get(1).fY = Constants.SCREENHEIGHT;
-                alButtons.get(2).fY = Constants.SCREENHEIGHT;
-                alButtons.get(3).fY = Constants.SCREENHEIGHT;
-                alButtons.get(4).fY = Constants.SCREENHEIGHT;
-                alButtons.get(5).fY = Constants.SCREENHEIGHT;
-                alButtons.get(6).fY = Constants.SCREENHEIGHT;
-                alButtons.get(7).fY = Constants.SCREENHEIGHT;
-                alButtons.get(8).fY = Constants.SCREENHEIGHT;
-                alButtons.get(9).fY = Constants.SCREENHEIGHT;
-                alButtons.get(10).fY = Constants.SCREENHEIGHT;
-                alButtons.get(11).fY = Constants.SCREENHEIGHT;
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
             }
+            if(i < 12) {
+                if (Constants.isLevelUnlocked[i] == false) {
+                    alButtons.get(i).sprButton.setColor(Color.GRAY);
+                    alButtons.get(i).sprButton.setAlpha(100);
+                }
+//                else if(Constants.isLevelUnlocked[i] == true && Constants.isLevelFinished[i] == true) {
+//                    alButtons.get(i).sprButton.setColor(Color.DARK_GRAY);
+//                    alButtons.get(i).sprButton.setAlpha(10);
+//                }
+                else if(Constants.isLevelUnlocked[i] == true && Constants.isLevelFinished[i] == false) {
+                    alButtons.get(i).sprButton.setColor(Color.WHITE);
+                    alButtons.get(i).sprButton.setAlpha(1);
+                }
+            }
         }
+    }
+    public void resetButtons() {
+        alButtons.get(0).fY = Constants.SCREENHEIGHT;
+        alButtons.get(1).fY = Constants.SCREENHEIGHT;
+        alButtons.get(2).fY = Constants.SCREENHEIGHT;
+        alButtons.get(3).fY = Constants.SCREENHEIGHT;
+        alButtons.get(4).fY = Constants.SCREENHEIGHT;
+        alButtons.get(5).fY = Constants.SCREENHEIGHT;
+        alButtons.get(6).fY = Constants.SCREENHEIGHT;
+        alButtons.get(7).fY = Constants.SCREENHEIGHT;
+        alButtons.get(8).fY = Constants.SCREENHEIGHT;
+        alButtons.get(9).fY = Constants.SCREENHEIGHT;
+        alButtons.get(10).fY = Constants.SCREENHEIGHT;
+        alButtons.get(11).fY = Constants.SCREENHEIGHT;
     }
 
     @Override
@@ -127,6 +144,9 @@ public class ScrStageSelect implements Screen {
     public void dispose() {
         texMenuNew.dispose();
         texMenuMain.dispose();
+        for(int i = 0; i< alButtons.size(); i++) {
+            alButtons.get(i).buttonAtlas.dispose();
+        }
         batch.dispose();
     }
 

@@ -28,6 +28,9 @@ public class Constants {
             txWaterGun = new Texture("Watergun.png");
     public static final Sprite sprWatergun = new Sprite(txWaterGun);
     public static boolean isPlayerDead = false, isShowing;
+    public static boolean[] isLevelFinished = new boolean[12];
+    public static boolean[] isLevelUnlocked = new boolean[12];
+
 
 
     //this needs to be static since the GUI is universal for all levels

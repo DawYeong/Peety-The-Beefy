@@ -16,8 +16,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 public class Buttons {
     
     SpriteBatch batch;
-    TextureAtlas buttonAtlas;
-    Sprite sprButton;
+    public TextureAtlas buttonAtlas;
+    public Sprite sprButton;
     public float fX, fY, fW, fH;
     public Buttons(String Image, SpriteBatch batch, float X, float Y, float Width, float Height) {
         this.batch = batch;

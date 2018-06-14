@@ -6,12 +6,15 @@
 package gdx.peetythebeefy;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
@@ -27,7 +30,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     Texture texMenu;
     OrthographicCamera camera;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
-    
+    Vector2 v2MousePosition;
     
 
     public ScrMainMenu(PeetyTheBeefy game) {
@@ -35,12 +38,16 @@ public class ScrMainMenu implements Screen, InputProcessor {
         this.batch = game.batch;
         this.camera = game.camera;
         texMenu = new Texture("mainMenu.png");
+        Constants.isLevelUnlocked[0] = true;
+        createButtons();
+        for(int i = 1; i < 12; i++) {
+            Constants.isLevelUnlocked[i] = false;
+        }
     }
 
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
-        createButtons();
         camera.zoom = 1f;
     }
 
@@ -56,6 +63,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
         batch.draw(texMenu, 0, 0);
 
         batch.end();
+
+        v2MousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         drawButtons();
 
 
@@ -86,6 +95,17 @@ public class ScrMainMenu implements Screen, InputProcessor {
                 }
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
+            }
+            if(v2MousePosition.x > alButtons.get(i).fX && v2MousePosition.x < alButtons.get(i).fX + alButtons.get(i).fW
+                    && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
+               // alButtons.get(i).sprButton.setAlpha(250);
+                alButtons.get(i).sprButton.setColor(1, 1, 1, 1);
+                if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                    alButtons.get(i).sprButton.setColor(Color.GRAY);
+                    alButtons.get(i).sprButton.setAlpha(10);
+                }
+            } else {
+                alButtons.get(i).sprButton.setColor(0.8f, 0.8f, 0.8f, 0.8f);
             }
         }
     }
