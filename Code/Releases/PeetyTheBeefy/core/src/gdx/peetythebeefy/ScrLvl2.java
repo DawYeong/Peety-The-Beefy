@@ -143,6 +143,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             }
         }
 
+        //Un-comment this if you want to see the Box2D debug renderer
         //b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);

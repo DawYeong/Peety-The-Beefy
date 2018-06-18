@@ -19,6 +19,7 @@ import gdx.peetythebeefy.cookiecutters.Buttons;
  *
  * @author tn200
  */
+//This screen is switched to when the user clicks the controls button on the main menu screen
 public class ScrControls implements Screen {
 
     PeetyTheBeefy game;
@@ -95,7 +96,12 @@ public class ScrControls implements Screen {
     }
 
     public void screenTransition() {
-
+        /*
+        Starts off by, when you click the controls button on main menu, changes screens instantly
+        but the screen starts off with the background of the main menu screen.
+        After that it adds to the x value of both the main menu background and the new background,
+        creating a scrolling effect.
+        */
         if (fMainX >= -768) {
             fMainX -= 16;
         }

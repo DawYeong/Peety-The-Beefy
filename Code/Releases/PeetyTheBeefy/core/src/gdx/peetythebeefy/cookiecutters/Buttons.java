@@ -13,6 +13,10 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
  *
  * @author benny
  */
+
+    /* This handles button creation by taking in the texturePacker file and TextureAtlas and creating a sprite
+    based on the location of the specified sprite */
+
 public class Buttons {
     
     SpriteBatch batch;

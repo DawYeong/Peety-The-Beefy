@@ -22,7 +22,8 @@ import com.badlogic.gdx.physics.box2d.World;
 /**
  * @author benny
  */
-// this class will be changed in the future
+    //This class handles every entity created in the game
+    //This includes player, enemies and bullets
 public class EntityCreation {
 
      public Texture txSheet;

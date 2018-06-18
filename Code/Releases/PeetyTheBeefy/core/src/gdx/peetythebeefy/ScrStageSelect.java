@@ -19,6 +19,7 @@ import gdx.peetythebeefy.cookiecutters.Constants;
  *
  * @author tn200
  */
+//This screen is switched to when the user clicks the stage select button on the main menu screen
 public class ScrStageSelect implements Screen {
 
     PeetyTheBeefy game;
@@ -53,6 +54,7 @@ public class ScrStageSelect implements Screen {
     }
 
     public void createButtons() {
+        //all of the level buttons (only 1 and 2 are operational now)
         alButtons.add(new Buttons("b1", batch, 64, fY, 64, 64));
         alButtons.add(new Buttons("b2", batch, 256, fY, 64, 64));
         alButtons.add(new Buttons("b3", batch, 448, fY, 64, 64));

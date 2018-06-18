@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Constants;
 
+//This screen is switched to when the player health reaches 0
 public class ScrDeath implements Screen, InputProcessor{
     PeetyTheBeefy game;
     SpriteBatch fixedBatch;

@@ -58,6 +58,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        //Drawing things like GUI requires fixedBatch (not updated with camera)
         fixedBatch = new SpriteBatch();
         this.camera = game.camera;
         world = new World(new Vector2(0f, -18f), false);
@@ -78,15 +79,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 (short)(Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
         otmr = new OrthogonalTiledMapRenderer(tMapLvl1);
 
+        //Gets the properties from the tiledmap, used for the Camera Boundary
         MapProperties props = tMapLvl1.getProperties();
         nLevelWidth = props.get("width", Integer.class) ;
         nLevelHeight = props.get("height", Integer.class);
 
+        //Entity Creation handles all creation of objects
         ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", false, false,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0), 4);
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
-
         b2dr = new Box2DDebugRenderer();
     }
 
@@ -126,6 +128,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         ecPlayer.Update();
         moveEnemy();
         playerDeath();
+
+        //Bullet Collection
         for(int i = 0; i < alBullet.size();i++) {
             alBullet.get(i).Update();
             if(Constants.isShowing) {
@@ -147,6 +151,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
         otmr.setView(camera);
         otmr.render();
+        //used for the gun following the mouse
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
 
         Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
@@ -162,7 +167,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void createEnemy() {
+    public void createEnemy() { //Makes the enemies in entity creation, based on spawn locations and when they spawn
         if(nSpawnrate > 200 && nEnemies < nMaxEnemies && nWaveCount != 3) {
             int nSpawnLocation = (int) (Math.random() * 3 + 1);
             if (nSpawnLocation == 1) {
@@ -230,6 +235,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void cameraUpdate() {
+        //CameraStyles.java explains camera movement
         CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
@@ -271,7 +277,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList Bullets, World world) {
-        //moved mouse position vector to draw cuz we need it for other things
+        //moved mouse position vector to draw because we need it for other things
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()){
             if(Constants.nBulletCount > 0 && !Constants.isShowing) {
                 Vector2 vbulletPosition = new Vector2(playerPosition.x * 32, playerPosition.y * 32);

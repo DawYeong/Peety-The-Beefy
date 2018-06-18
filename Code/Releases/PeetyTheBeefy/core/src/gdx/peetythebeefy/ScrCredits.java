@@ -9,6 +9,8 @@ package gdx.peetythebeefy;
  *
  * @author tn200
  */
+
+//Blank screen used for future release
 public class ScrCredits {
     
 }

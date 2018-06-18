@@ -22,9 +22,12 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     @Override
     public void create() {
         batch = new SpriteBatch();
+
+        //universal camera used between screens
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
 
+        //Different Screens
         scrMainMenu = new ScrMainMenu(this);
         scrStageSelect = new ScrStageSelect(this);
         scrLvl1 = new ScrLvl1(this);
@@ -33,19 +36,15 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         scrDeath = new ScrDeath(this);
 
         Gdx.input.setInputProcessor(this);
-        setScreen(scrMainMenu);
-//      Buttons();       
+        setScreen(scrMainMenu); //Starting screen
     }
 
     @Override
     public void render() {
         super.render();
-//        drawButtons();
-//        System.out.println(fMouseX + " " + fMouseY);
     }
 
     public void updateScreen(int nScreen) {
-        //lol
         if (nScreen == 0) {
             setScreen(scrMainMenu);
         } else if (nScreen == 1) {

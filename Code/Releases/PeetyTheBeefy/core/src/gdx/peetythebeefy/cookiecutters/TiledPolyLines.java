@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
+//Uses the tiled map information to create the boundaries (defined in TiledMap creation)
 public class TiledPolyLines {
     Body tiledMap;
     public TiledPolyLines(World _World, MapObjects _Objects, short cBits, short mBits, short gIndex) {
