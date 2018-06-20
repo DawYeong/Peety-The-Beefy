@@ -120,6 +120,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fixedBatch.end();
 
         batch.begin();
+        batch.setColor(1, 0, 0, 1);
         batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
 

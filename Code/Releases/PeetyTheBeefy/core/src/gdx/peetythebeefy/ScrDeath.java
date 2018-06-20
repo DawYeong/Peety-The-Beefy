@@ -34,10 +34,11 @@ public class ScrDeath implements Screen, InputProcessor{
         }
         fixedBatch.begin();
         bfDeath.setColor(1, 1, 1, fOpacity);
-        bfDeath.draw(fixedBatch, "You Schleep", Constants.SCREENWIDTH/2,Constants.SCREENHEIGHT/2);
+        bfDeath.draw(fixedBatch, "You Died (Press R)", Constants.SCREENWIDTH/2 - 50,Constants.SCREENHEIGHT/2 + 50);
         fixedBatch.end();
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            game.updateScreen(0);
+            Constants.isPlayerDead = false;
+            game.updateScreen(3);
         }
     }
 
