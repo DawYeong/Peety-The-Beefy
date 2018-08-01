@@ -14,33 +14,40 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import gdx.peetythebeefy.cookiecutters.Buttons;
+
 import java.util.ArrayList;
+
 import gdx.peetythebeefy.cookiecutters.Constants;
 
 /**
- *
  * @author tn200
  */
 public class ScrMainMenu implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
+    ShapeRenderer SR;
     Texture texMenu;
     OrthographicCamera camera;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     Vector2 v2MousePosition;
-    
+    static float fAlpha = 0;
+
 
     public ScrMainMenu(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
         this.camera = game.camera;
+        this.SR = game.SR;
         texMenu = new Texture("mainMenu.png");
         Constants.isLevelUnlocked[0] = true;
+        Constants.isLevelUnlocked[1] = true;
         createButtons();
-        for(int i = 1; i < 12; i++) {
+        for (int i = 2; i < 12; i++) {
             Constants.isLevelUnlocked[i] = false;
         }
     }
@@ -53,7 +60,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     @Override
     public void render(float f) {
-        
+
         Gdx.gl.glClearColor(1, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
@@ -66,14 +73,15 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
         v2MousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         drawButtons();
-
+        screenTransition();
+        transitionBlock();
 
     }
 
     public void createButtons() {
-        alButtons.add(new Buttons("playButton", batch, -8,Constants.SCREENHEIGHT/2, 192, 64));
-        alButtons.add(new Buttons("controlsButton", batch, -8,Constants.SCREENHEIGHT/2 - 128, 192, 64));
-        alButtons.add(new Buttons("stagesButton", batch, -8, Constants.SCREENHEIGHT/2 - 256, 192, 64));
+        alButtons.add(new Buttons("playButton", batch, -8, Constants.SCREENHEIGHT / 2, 192, 64));
+        alButtons.add(new Buttons("controlsButton", batch, -8, Constants.SCREENHEIGHT / 2 - 128, 192, 64));
+        alButtons.add(new Buttons("stagesButton", batch, -8, Constants.SCREENHEIGHT / 2 - 256, 192, 64));
     }
 
     public void drawButtons() {
@@ -85,7 +93,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
                     System.out.println("moves to Lvl 1 screen");
                     Constants.isShowing = false;
                     Constants.isPlayerDead = false;
-                    game.updateScreen(3);
+                    Constants.isFadeIn = true;
                 } else if (i == 1) {
                     System.out.println("moves to the controls");
                     game.updateScreen(2);
@@ -96,23 +104,48 @@ public class ScrMainMenu implements Screen, InputProcessor {
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
             }
-            if(v2MousePosition.x > alButtons.get(i).fX && v2MousePosition.x < alButtons.get(i).fX + alButtons.get(i).fW
-                    && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
-               // alButtons.get(i).sprButton.setAlpha(250);
-                alButtons.get(i).sprButton.setColor(1, 1, 1, 1);
-                if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                    alButtons.get(i).sprButton.setColor(Color.GRAY);
-                    alButtons.get(i).sprButton.setAlpha(10);
+            if (!Constants.isFadeIn) {
+                if (v2MousePosition.x > alButtons.get(i).fX && v2MousePosition.x < alButtons.get(i).fX + alButtons.get(i).fW
+                        && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
+                    // alButtons.get(i).sprButton.setAlpha(250);
+                    alButtons.get(i).sprButton.setColor(1, 1, 1, 1);
+                    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                        alButtons.get(i).sprButton.setColor(Color.GRAY);
+                        alButtons.get(i).sprButton.setAlpha(10);
+                    }
+                } else {
+                    alButtons.get(i).sprButton.setColor(0.8f, 0.8f, 0.8f, 0.8f);
                 }
-            } else {
-                alButtons.get(i).sprButton.setColor(0.8f, 0.8f, 0.8f, 0.8f);
             }
         }
     }
 
+    public void screenTransition() {
+        if (Constants.isFadeIn && fAlpha < 1) {
+            fAlpha += 0.01f;
+        }
+        if(fAlpha > 1) {
+            game.updateScreen(3);
+            Constants.isFadeIn = false;
+            Constants.isFadeOut = true;
+            System.out.println(Constants.isFadeOut);
+        }
+    }
+
+    public void transitionBlock() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        SR.begin(ShapeType.Filled);
+        SR.setColor(new Color(0f, 0f, 0f, fAlpha));
+        SR.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        SR.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+
     @Override
     public void resize(int i, int i1) {
-        camera.setToOrtho(false, Constants.SCREENWIDTH , Constants.SCREENHEIGHT);
+        camera.setToOrtho(false, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
     }
 
     @Override

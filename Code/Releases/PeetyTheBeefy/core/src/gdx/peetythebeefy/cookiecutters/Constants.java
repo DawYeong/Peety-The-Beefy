@@ -32,7 +32,7 @@ public class Constants {
             txBullet = new Texture("bulletTexture.png"), txGUI = new Texture("GUI.png"),
             txWaterGun = new Texture("Watergun.png");
     public static final Sprite sprWatergun = new Sprite(txWaterGun);
-    public static boolean isPlayerDead = false, isShowing;
+    public static boolean isPlayerDead = false, isShowing, isFadeIn = false, isFadeOut = false;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
 

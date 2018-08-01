@@ -32,8 +32,8 @@ public class EntityCreation {
      public Body body;
      public String sId, sTexture;
      public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth,
-                nShootCount = 0;
-     public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isEnemy, isBullet, isMoving = true;
+                nShootCount = 0, nType, nPlatDir = 1;
+     public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isMoving = true;
      public float fAniSpeed;
      SpriteBatch batch;
      TextureRegion trTemp;
@@ -42,8 +42,8 @@ public class EntityCreation {
 
 
     public EntityCreation(World world, String sId, float fX, float fY, float fWidth, float fHeight, SpriteBatch batch, float fAniSpeed,
-                          int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, boolean isEnemy, boolean isBullet,
-                          short cBits, short mBits, short gIndex, Vector2 vDir, int nHealth) {
+                          int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, int nType, short cBits, short mBits,
+                          short gIndex, Vector2 vDir, int nHealth) {
 
         txSheet = new Texture(sTexture);
         araniCharacter = new Animation[nRows*nColumns];
@@ -56,8 +56,7 @@ public class EntityCreation {
         this.nRows = nRows;
         this.nColumns = nColumns;
         this.sTexture = sTexture;
-        this.isEnemy = isEnemy;
-        this.isBullet = isBullet;
+        this.nType = nType;
         this.vDir = vDir;
         this.world = world;
         this.nHealth = nHealth;
@@ -67,18 +66,23 @@ public class EntityCreation {
     }
 
     public void Update() {
-        if(!isBullet) {
-            if(isEnemy) {
+        // 1 - Player, 2 - Enemy, 3 - Bullet, 4 - platform
+            if(nType == 2) {
                 enemyMove();
-            } else if(!isEnemy) {
+                frameAnimation();
+                drawAnimation();
+            } else if(nType == 1) {
                 playerMove();
+                frameAnimation();
+                drawAnimation();
             }
-            frameAnimation();
-            drawAnimation();
-        } else if(isBullet) {
+            else if(nType == 3) {
             bulletMove();
             drawTexture();
-        }
+        } else if(nType == 4) {
+                platformMove();
+                drawTexture();
+            }
         if (body.getPosition().y < 0) {
             body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
         } else if(body.getPosition().y > Gdx.graphics.getHeight()/32) {
@@ -94,13 +98,17 @@ public class EntityCreation {
     private void createBody(World world, float fX, float fY, float fWidth, float fHeight, short cBits, short mBits, short gIndex) {
         BodyDef bdef = new BodyDef();
         bdef.fixedRotation = true;
-        bdef.type = BodyDef.BodyType.DynamicBody;
+        if(nType == 4) {
+            bdef.type = BodyDef.BodyType.StaticBody;
+        } else {
+            bdef.type = BodyDef.BodyType.DynamicBody;
+        }
         bdef.position.set(fX / 32.0F, fY / 32.0F);
         PolygonShape shape = new PolygonShape();
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f;
-        if(!isBullet) {
+        if(nType != 3) {
             shape.setAsBox(fWidth / 32.0F / 2.0F, fHeight / 32.0F / 2.0F);
             fixtureDef.friction = 0.01f;
             bdef.fixedRotation = true;
@@ -194,6 +202,19 @@ public class EntityCreation {
         nCount++;
     }
 
+    public void platformMove() {
+        if(body.getPosition().y >= (Gdx.graphics.getHeight() - 100) / 32) {
+            nPlatDir = 2;
+        } else if(body.getPosition().y <= (Gdx.graphics.getHeight()/2 +150) / 32) {
+            nPlatDir = 1;
+        }
+        if(nPlatDir == 1) {
+            body.setTransform(body.getPosition().x, (float) (body.getPosition().y +0.02) , 0);
+        } else if(nPlatDir == 2){
+            body.setTransform(body.getPosition().x, (float) (body.getPosition().y - 0.02), 0);
+        }
+    }
+
 
                                 //          ANIMATION           //
 
@@ -226,8 +247,8 @@ public class EntityCreation {
         batch.end();
     }
     public void frameAnimation() {
-        if(!isBullet) {
-            if (!isEnemy && isMoving) {
+        if(nType != 3) {
+            if (nType != 2 && isMoving) {
                 if (body.getLinearVelocity().x != 0 || body.getLinearVelocity().y != 0) {
                     nFrame++;
                 }

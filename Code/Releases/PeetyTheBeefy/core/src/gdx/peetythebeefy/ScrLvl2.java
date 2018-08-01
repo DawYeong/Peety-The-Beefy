@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import java.util.ArrayList;
@@ -82,13 +83,13 @@ public class ScrLvl2 implements Screen, InputProcessor {
         nLevelHeight = props.get("height", Integer.class);
 
         ecPlayer = new EntityCreation(world, "PLAYER", fX - 300, fY-215, fW, fH, batch, 9.2f, 0, 0,
-                0, 4, 6, "PTBsprite.png", false, false,
+                0, 4, 6, "PTBsprite.png", 1,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0,0),
                 scrLvl1.ecPlayer.nHealth);
         alEnemy.add(new EntityCreation(world, "ENEMY", fX + 100, fY +100, fW - 10, fH, batch, 9.2f,
-                0, 0, 0, 4, 1, "MTMsprite.png", true, false,
+                0, 0, 0, 4, 1, "MTMsprite.png", 2,
                 Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                new Vector2(0, 0), 2));
+                new Vector2(0,0), 2));
     }
 
     @Override
@@ -144,7 +145,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         }
 
         //Un-comment this if you want to see the Box2D debug renderer
-        //b2dr.render(world, camera.combined.scl(PPM));
+        b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         if(Constants.isShowing) {
@@ -183,7 +184,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                         System.out.println(vEnemyShootDir);
                         alEnemyBullet.add(new EntityCreation(world, "EnemyBullet", alEnemy.get(i).body.getPosition().x * 32, alEnemy.get(i).body.getPosition().y *32,
                                 fW , fH, batch, 9.2f, 0, 0, 0, 4, 6,
-                                "Heart-Full.png", false, true, Constants.BIT_ENEMYBULLET, (short)
+                                "Heart-Full.png", 3, Constants.BIT_ENEMYBULLET, (short)
                                 (Constants.BIT_WALL | Constants.BIT_ENEMYBULLET | Constants.BIT_PLAYER), (short) 0,
                                 vEnemyShootDir, 0));
                         System.out.println("here");
@@ -222,6 +223,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             }
         }
     }
+
     public void cameraUpdate() {
         CameraStyles.lerpAverageBetweenTargets(camera, scrLvl1.v2Target, ecPlayer.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;

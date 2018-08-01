@@ -6,6 +6,8 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
+import javax.xml.stream.events.EndElement;
+
 public class ContactListener1 implements ContactListener {
 
     @Override
@@ -43,7 +45,7 @@ public class ContactListener1 implements ContactListener {
             EntityCreation playerBody = (EntityCreation) fixA.getUserData();
             EntityCreation enemyBody = (EntityCreation) fixB.getUserData();
             if(playerBody.body.getPosition().y + playerBody.body.getMass()/2 <=
-                    enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId == "PLAYER") {
+                    enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId == "PLAYER" && enemyBody.sId == "ENEMY") {
                 Constants.nHealth --;
             }
         }

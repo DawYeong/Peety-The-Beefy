@@ -9,12 +9,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -39,8 +41,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
+    ShapeRenderer SR;
     World world;
-    float fX, fY, fW, fH, fAngle;
+    float fX, fY, fW, fH, fAlpha = 1;
     EntityCreation ecPlayer;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
@@ -54,10 +57,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
     int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1;
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
+    boolean isGameStart = false;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        this.SR = game.SR;
         //Drawing things like GUI requires fixedBatch (not updated with camera)
         fixedBatch = new SpriteBatch();
         this.camera = game.camera;
@@ -86,7 +91,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         //Entity Creation handles all creation of objects
         ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
-                0, 4, 6, "PTBsprite.png", false, false,
+                0, 4, 6, "PTBsprite.png", 1,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0), 4);
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
         b2dr = new Box2DDebugRenderer();
@@ -101,70 +106,78 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
-            game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-            game.fMouseY = Constants.SCREENHEIGHT;
-            Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
-        }
-        if(Gdx.input.isKeyJustPressed((Input.Keys.J))) {
-            Constants.isLevelFinished[0] = true;
-            Constants.isLevelUnlocked[1] = true;
-            game.updateScreen(4);
-        }
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
         fixedBatch.begin();
-        fixedBatch.draw(txSky,0,0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
+        fixedBatch.draw(txSky, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         fixedBatch.end();
 
         batch.begin();
-        batch.draw(txBackground,0,0,Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
+        batch.draw(txBackground, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
 
-        playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
 
         ecPlayer.Update();
         moveEnemy();
-        playerDeath();
 
-        //Bullet Collection
-        for(int i = 0; i < alBullet.size();i++) {
-            alBullet.get(i).Update();
-            if(Constants.isShowing) {
-                alBullet.get(i).body.setAwake(false);
-            } else if(!Constants.isShowing && !alBullet.get(i).isStuck){
-                alBullet.get(i).body.setAwake(true);
-            }
-            if(alBullet.get(i).canCollect) {
-                if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
-                        ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
-                        ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
-                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)
-                        || Constants.isPlayerDead) {
-                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
-                    Constants.nBulletCount++;
-                    alBullet.remove(i);
-                }
-            }
-        }
         otmr.setView(camera);
         otmr.render();
+
         //used for the gun following the mouse
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-
         Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        //b2dr.render(world, camera.combined.scl(PPM));
-        if (Constants.isShowing == true) {
-            drawButtons();
-            ecPlayer.body.setAwake(false);
-            ecPlayer.isMoving = false;
-        } else {
-            ecPlayer.body.setAwake(true);
-            ecPlayer.isMoving = true;
-            createEnemy();
+        if(isGameStart) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
+                game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                game.fMouseY = Constants.SCREENHEIGHT;
+                Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
+            }
+            if (Gdx.input.isKeyJustPressed((Input.Keys.J))) {
+                Constants.isLevelFinished[0] = true;
+                Constants.isLevelUnlocked[1] = true;
+                game.updateScreen(4);
+            }
+
+            playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
+
+            playerDeath();
+
+            //Bullet Collection
+            for (int i = 0; i < alBullet.size(); i++) {
+                alBullet.get(i).Update();
+                if (Constants.isShowing) {
+                    alBullet.get(i).body.setAwake(false);
+                } else if (!Constants.isShowing && !alBullet.get(i).isStuck) {
+                    alBullet.get(i).body.setAwake(true);
+                }
+                if (alBullet.get(i).canCollect) {
+                    if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() * 2) &&
+                            ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass() * 2) &&
+                            ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass() * 2) &&
+                            ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)
+                            || Constants.isPlayerDead) {
+                        alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                        Constants.nBulletCount++;
+                        alBullet.remove(i);
+                    }
+                }
+            }
+
+            //b2dr.render(world, camera.combined.scl(PPM));
+            if (Constants.isShowing == true) {
+                drawButtons();
+                ecPlayer.body.setAwake(false);
+                ecPlayer.isMoving = false;
+            } else {
+                ecPlayer.body.setAwake(true);
+                ecPlayer.isMoving = true;
+                createEnemy();
+            }
         }
+        screenTransition();
+        transitionBlock();
+
     }
 
     public void createEnemy() { //Makes the enemies in entity creation, based on spawn locations and when they spawn
@@ -182,7 +195,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             nEnemies ++;
                 alEnemy.add(new EntityCreation(world, "ENEMY", fX , fY , fW - 10, fH, batch, 9.2f,
-                        0, 0, 0, 4, 1, "MTMsprite.png", true, false,
+                        0, 0, 0, 4, 1, "MTMsprite.png", 2,
                         Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         new Vector2(0, 0), 2));
                 nCount++;
@@ -258,6 +271,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
                 Constants.isShowing = false;
+                ScrMainMenu.fAlpha = 0;
                 game.updateScreen(0);
             }
         }
@@ -283,11 +297,31 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 Vector2 vbulletPosition = new Vector2(playerPosition.x * 32, playerPosition.y * 32);
                 Vector2 vDir = mousePosition.sub(vbulletPosition);
                 Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
-                        0, 4, 6, "bulletTexture.png", false, true,
+                        0, 4, 6, "bulletTexture.png", 3,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir, 0));
                 Constants.nBulletCount--;
             }
+        }
+    }
+
+    public void transitionBlock() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        SR.begin(ShapeRenderer.ShapeType.Filled);
+        SR.setColor(new Color(0f, 0f, 0f, fAlpha));
+        SR.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        SR.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public void screenTransition() {
+        if(Constants.isFadeOut && fAlpha > 0) {
+            fAlpha -= 0.01f;
+        }
+        if(fAlpha < 0) {
+            Constants.isFadeOut = false;
+            isGameStart = true;
         }
     }
 
