@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
@@ -84,6 +85,7 @@ public class ScrStageSelect implements Screen {
                 } else if(i == 1 && Constants.isLevelUnlocked[1] == true) {
                     System.out.println("moves to lvl 2");
                     resetButtons();
+                    Constants.isFadeOut[1] = true;
                     game.updateScreen(4);
                 }
                 else if (i == 12) {

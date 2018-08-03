@@ -118,8 +118,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.draw(txBackground, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
 
-        if(isChangedToLvl2) {
-            ecPlayer.body.setTransform((float)(690/32), (float) (450/32), 0);
+        if (isChangedToLvl2) {
+            ecPlayer.body.setTransform((float) (690 / 32), (float) (450 / 32), 0);
             isChangedToLvl2 = false;
         }
 
@@ -132,7 +132,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         //used for the gun following the mouse
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        System.out.println(ecPlayer.body.getPosition());
 
         if (Constants.isGameStart) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
@@ -174,14 +173,19 @@ public class ScrLvl1 implements Screen, InputProcessor {
             //b2dr.render(world, camera.combined.scl(PPM));
         }
 
-        if(Constants.isShowing) {
-            drawButtons();
+        if (!Constants.isGameStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
         } else {
-            ecPlayer.body.setAwake(true);
-            ecPlayer.isMoving = true;
-            createEnemy();
+            if (Constants.isShowing) {
+                drawButtons();
+                ecPlayer.body.setAwake(false);
+                ecPlayer.isMoving = false;
+            } else {
+                ecPlayer.body.setAwake(true);
+                ecPlayer.isMoving = true;
+                createEnemy();
+            }
         }
 
         screenTransition();
@@ -228,7 +232,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void moveEnemy() {
         for (int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
-            if (Constants.isShowing) {
+            if (Constants.isShowing || !Constants.isGameStart) {
                 alEnemy.get(i).body.setAwake(false);
                 alEnemy.get(i).isMoving = false;
             } else {

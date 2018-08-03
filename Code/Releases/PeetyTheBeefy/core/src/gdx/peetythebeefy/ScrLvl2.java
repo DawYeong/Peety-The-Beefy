@@ -108,11 +108,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
-            game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-            game.fMouseY = Constants.SCREENHEIGHT;
-            Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
-        }
 
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
@@ -128,24 +123,34 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
         ecPlayer.Update();
         moveEnemy();
-        scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
         otmr.setView(camera);
         otmr.render();
-        for(int i = 0; i < alBullet.size();i++) {
-            alBullet.get(i).Update();
-            if(Constants.isShowing) {
-                alBullet.get(i).body.setAwake(false);
-            } else if(!Constants.isShowing && !alBullet.get(i).isStuck){
-                alBullet.get(i).body.setAwake(true);
+
+        if(Constants.isGameStart) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
+                game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                game.fMouseY = Constants.SCREENHEIGHT;
+                Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
             }
-            if(alBullet.get(i).canCollect) {
-                if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
-                        ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
-                        ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
-                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
-                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
-                    Constants.nBulletCount++;
-                    alBullet.remove(i);
+
+            scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
+
+            for(int i = 0; i < alBullet.size();i++) {
+                alBullet.get(i).Update();
+                if(Constants.isShowing) {
+                    alBullet.get(i).body.setAwake(false);
+                } else if(!Constants.isShowing && !alBullet.get(i).isStuck){
+                    alBullet.get(i).body.setAwake(true);
+                }
+                if(alBullet.get(i).canCollect) {
+                    if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() *2) &&
+                            ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass()*2) &&
+                            ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() /2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass()*2) &&
+                            ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass()*2)) {
+                        alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                        Constants.nBulletCount++;
+                        alBullet.remove(i);
+                    }
                 }
             }
         }
@@ -154,15 +159,20 @@ public class ScrLvl2 implements Screen, InputProcessor {
         b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        if(Constants.isShowing) {
-            backButtonFunctionality();
+
+        if (!Constants.isGameStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
-        } else  {
-            ecPlayer.body.setAwake(true);
-            ecPlayer.isMoving = true;
+        } else {
+            if (Constants.isShowing) {
+                backButtonFunctionality();
+                ecPlayer.body.setAwake(false);
+                ecPlayer.isMoving = false;
+            } else {
+                ecPlayer.body.setAwake(true);
+                ecPlayer.isMoving = true;
+            }
         }
-
         screenTransition();
         transitionBlock();
     }
@@ -176,6 +186,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 ScrLvl1.fTransitWidth = 0;
                 ScrLvl1.fTransitHeight = 0;
                 ScrMainMenu.fAlpha = 0;
+                fTransitHeight = Gdx.graphics.getHeight() * (float)1.5;
+                fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
                 Constants.nCurrentScreen = 4;
                 ScrLvl1.isChangedToLvl2 = true;
                 game.updateScreen(0);
@@ -185,7 +197,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
     public void moveEnemy() {
         for(int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
-            if(Constants.isShowing) {
+            if(Constants.isShowing || !Constants.isGameStart) {
                 alEnemy.get(i).body.setAwake(false);
                 alEnemy.get(i).isMoving = false;
             } else {
@@ -261,6 +273,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             fTransitWidth -= 16;
         }
         if(fTransitWidth <= 0) {
+            Constants.isGameStart = true;
             Constants.isFadeOut[1] = false;
         }
     }

@@ -46,19 +46,21 @@ public class Constants {
         batch.begin();
         sprWatergun.draw(batch);
         batch.end();
-        if (!isShowing) {
+        if (!isShowing ) {
             fAngle = MathUtils.radiansToDegrees * MathUtils.atan2(vMousePosition.y - sprWatergun.getY(), vMousePosition.x - sprWatergun.getX());
             if (fAngle < 0) {
                 fAngle += 360;
             }
             sprWatergun.setPosition(v2PlayerPosition.x * PPM - 6, v2PlayerPosition.y * PPM - 6);
-            if (fAngle > 90 && fAngle < 270) {
-                sprWatergun.setFlip(true, true);
+            if(isGameStart) {
+                if (fAngle > 90 && fAngle < 270) {
+                    sprWatergun.setFlip(true, true);
 
-            } else {
-                sprWatergun.setFlip(true, false);
+                } else {
+                    sprWatergun.setFlip(true, false);
+                }
+                sprWatergun.setRotation(fAngle);
             }
-            sprWatergun.setRotation(fAngle);
         }
         fixedBatch.begin();
         fixedBatch.draw(txGUI,SCREENWIDTH - txGUI.getWidth(),0);
