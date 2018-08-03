@@ -24,7 +24,7 @@ public class Constants {
     public static final short BIT_BULLET = 8;
     public static final short BIT_ENEMY = 16;
     public static final short BIT_ENEMYBULLET = 32;
-    public static int nHealth = 4, nBulletCount = 4;
+    public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3;
 
     //Constant Textures that we need to draw across screens
     //This includes everything involved in drawing the GUI
@@ -32,9 +32,11 @@ public class Constants {
             txBullet = new Texture("bulletTexture.png"), txGUI = new Texture("GUI.png"),
             txWaterGun = new Texture("Watergun.png");
     public static final Sprite sprWatergun = new Sprite(txWaterGun);
-    public static boolean isPlayerDead = false, isShowing, isFadeIn = false, isFadeOut = false;
+    public static boolean isPlayerDead = false, isShowing, isGameStart;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
+    public static boolean[] isFadeIn = new boolean [12];
+    public static boolean[] isFadeOut = new boolean[12];
 
 
 

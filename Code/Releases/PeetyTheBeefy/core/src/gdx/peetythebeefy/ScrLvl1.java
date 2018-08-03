@@ -43,7 +43,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     SpriteBatch batch, fixedBatch;
     ShapeRenderer SR;
     World world;
-    float fX, fY, fW, fH, fAlpha = 1;
+    float fX, fY, fW, fH;
     EntityCreation ecPlayer;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
@@ -54,10 +54,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vMousePosition;
-    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1;
+    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 3;
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
-    boolean isGameStart = false;
+    static boolean isChangedToLvl2 = false;
+    static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -81,18 +82,18 @@ public class ScrLvl1 implements Screen, InputProcessor {
         createButtons();
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
-                (short)(Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
+                (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
         otmr = new OrthogonalTiledMapRenderer(tMapLvl1);
 
         //Gets the properties from the tiledmap, used for the Camera Boundary
         MapProperties props = tMapLvl1.getProperties();
-        nLevelWidth = props.get("width", Integer.class) ;
+        nLevelWidth = props.get("width", Integer.class);
         nLevelHeight = props.get("height", Integer.class);
 
         //Entity Creation handles all creation of objects
         ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", 1,
-                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0,0), 4);
+                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0, 0), 4);
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
         b2dr = new Box2DDebugRenderer();
     }
@@ -117,6 +118,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.draw(txBackground, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
 
+        if(isChangedToLvl2) {
+            ecPlayer.body.setTransform((float)(690/32), (float) (450/32), 0);
+            isChangedToLvl2 = false;
+        }
 
         ecPlayer.Update();
         moveEnemy();
@@ -127,7 +132,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         //used for the gun following the mouse
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        if(isGameStart) {
+        System.out.println(ecPlayer.body.getPosition());
+
+        if (Constants.isGameStart) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
@@ -165,59 +172,63 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
 
             //b2dr.render(world, camera.combined.scl(PPM));
-            if (Constants.isShowing == true) {
-                drawButtons();
-                ecPlayer.body.setAwake(false);
-                ecPlayer.isMoving = false;
-            } else {
-                ecPlayer.body.setAwake(true);
-                ecPlayer.isMoving = true;
-                createEnemy();
-            }
         }
+
+        if(Constants.isShowing) {
+            drawButtons();
+            ecPlayer.body.setAwake(false);
+            ecPlayer.isMoving = false;
+        } else {
+            ecPlayer.body.setAwake(true);
+            ecPlayer.isMoving = true;
+            createEnemy();
+        }
+
         screenTransition();
         transitionBlock();
 
     }
 
     public void createEnemy() { //Makes the enemies in entity creation, based on spawn locations and when they spawn
-        if(nSpawnrate > 200 && nEnemies < nMaxEnemies && nWaveCount != 3) {
+        if (nSpawnrate > 200 && nEnemies < nMaxEnemies && nWaveCount != 3) {
             int nSpawnLocation = (int) (Math.random() * 3 + 1);
             if (nSpawnLocation == 1) {
-                fX = Gdx.graphics.getWidth()/2 - 328;
-                fY = Gdx.graphics.getHeight()/2 + 50;
-            } else if(nSpawnLocation == 2) {
-                fX = Gdx.graphics.getWidth()/2 + 328;
-                fY = Gdx.graphics.getHeight()/2 + 50;
-            } else if(nSpawnLocation == 3) {
-                fX = Gdx.graphics.getWidth()/2;
-                fY = Gdx.graphics.getHeight()/2 + 160;
+                fX = Gdx.graphics.getWidth() / 2 - 328;
+                fY = Gdx.graphics.getHeight() / 2 + 50;
+            } else if (nSpawnLocation == 2) {
+                fX = Gdx.graphics.getWidth() / 2 + 328;
+                fY = Gdx.graphics.getHeight() / 2 + 50;
+            } else if (nSpawnLocation == 3) {
+                fX = Gdx.graphics.getWidth() / 2;
+                fY = Gdx.graphics.getHeight() / 2 + 160;
             }
-            nEnemies ++;
-                alEnemy.add(new EntityCreation(world, "ENEMY", fX , fY , fW - 10, fH, batch, 9.2f,
-                        0, 0, 0, 4, 1, "MTMsprite.png", 2,
-                        Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                        new Vector2(0, 0), 2));
-                nCount++;
-                nSpawnrate = 0;
-            }
-            if(alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
-                nWaveCount ++;
-                nMaxEnemies++;
-                nEnemies = 0;
-            }
-        if(nWaveCount == 3 && !isPlayerDead && (ecPlayer.body.getPosition().x *PPM > 710 && ecPlayer.body.getPosition().x *PPM < 750) &&
-                (ecPlayer.body.getPosition().y *PPM > 410 && ecPlayer.body.getPosition().y * PPM < 480)) {
+            nEnemies++;
+            alEnemy.add(new EntityCreation(world, "ENEMY", fX, fY, fW - 10, fH, batch, 9.2f,
+                    0, 0, 0, 4, 1, "MTMsprite.png", 2,
+                    Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                    new Vector2(0, 0), 2));
+            nCount++;
+            nSpawnrate = 0;
+        }
+        if (alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
+            nWaveCount++;
+            nMaxEnemies++;
+            nEnemies = 0;
+        }
+        if (nWaveCount == 3 && !isPlayerDead && (ecPlayer.body.getPosition().x * PPM > 710 && ecPlayer.body.getPosition().x * PPM < 750) &&
+                (ecPlayer.body.getPosition().y * PPM > 410 && ecPlayer.body.getPosition().y * PPM < 480)) {
             Constants.isLevelFinished[0] = true;
             Constants.isLevelUnlocked[1] = true;
-            game.updateScreen(4);
+            Constants.isGameStart = false;
+            Constants.isFadeIn[1] = true;
         }
-            nSpawnrate++;
+        nSpawnrate++;
     }
+
     public void moveEnemy() {
-        for(int i = 0; i < alEnemy.size(); i++) {
+        for (int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
-            if(Constants.isShowing) {
+            if (Constants.isShowing) {
                 alEnemy.get(i).body.setAwake(false);
                 alEnemy.get(i).isMoving = false;
             } else {
@@ -238,7 +249,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if(alEnemy.get(i).isDeath || Constants.isPlayerDead) {
+            if (alEnemy.get(i).isDeath || Constants.isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 nCount--;
                 alEnemy.remove(i);
@@ -272,6 +283,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseY = Constants.SCREENHEIGHT;
                 Constants.isShowing = false;
                 ScrMainMenu.fAlpha = 0;
+                Constants.nCurrentScreen = 3;
                 game.updateScreen(0);
             }
         }
@@ -279,9 +291,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
 
     public void playerDeath() {
-        if(Constants.isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
+        if (Constants.isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
             Constants.nHealth = 4;
-            ecPlayer.body.setTransform(Gdx.graphics.getWidth()/2/PPM, Gdx.graphics.getHeight()/2/PPM, 0);
+            ecPlayer.body.setTransform(Gdx.graphics.getWidth() / 2 / PPM, Gdx.graphics.getHeight() / 2 / PPM, 0);
             nEnemies = 0;
             nMaxEnemies = 3;
             nWaveCount = 1;
@@ -292,8 +304,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList Bullets, World world) {
         //moved mouse position vector to draw because we need it for other things
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()){
-            if(Constants.nBulletCount > 0 && !Constants.isShowing) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()) {
+            if (Constants.nBulletCount > 0 && !Constants.isShowing) {
                 Vector2 vbulletPosition = new Vector2(playerPosition.x * 32, playerPosition.y * 32);
                 Vector2 vDir = mousePosition.sub(vbulletPosition);
                 Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
@@ -313,22 +325,39 @@ public class ScrLvl1 implements Screen, InputProcessor {
         SR.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         SR.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        SR.begin(ShapeRenderer.ShapeType.Filled);
+        SR.setColor(0, 0, 0, 1);
+        SR.rect(Gdx.graphics.getWidth() / 2 - (fTransitWidth / 2), Gdx.graphics.getHeight() / 2 - (fTransitHeight / 2), fTransitWidth, fTransitHeight);
+        SR.end();
     }
 
     public void screenTransition() {
-        if(Constants.isFadeOut && fAlpha > 0) {
+        if (Constants.isFadeOut[0] && fAlpha > 0) {
             fAlpha -= 0.01f;
         }
-        if(fAlpha < 0) {
-            Constants.isFadeOut = false;
-            isGameStart = true;
+        if (fAlpha < 0 && !Constants.isFadeIn[1]) {
+            Constants.isFadeOut[0] = false;
+            Constants.isGameStart = true;
+        }
+        if (Constants.isFadeIn[1] && fTransitWidth <= Gdx.graphics.getWidth()) {
+            System.out.println(Constants.isGameStart);
+            fTransitHeight += 16;
+            fTransitWidth += 16;
+        }
+        if (fTransitWidth > Gdx.graphics.getWidth()) {
+            Constants.isFadeOut[1] = true;
+            Constants.isFadeIn[1] = false;
+            ScrLvl2.fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
+            ScrLvl2.fTransitHeight = Gdx.graphics.getHeight() * (float) 1.5;
+            game.updateScreen(4);
         }
     }
 
 
     @Override
     public void resize(int i, int i1) {
-        camera.setToOrtho(false, Constants.SCREENWIDTH , Constants.SCREENHEIGHT);
+        camera.setToOrtho(false, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
     }
 
     @Override
@@ -354,10 +383,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         game.dispose();
         game.scrLvl1.dispose();
         tMapLvl1.dispose();
-        for(int i = 0; i < alEnemy.size(); i++) {
+        for (int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).cleanup();
         }
-        for(int i =0 ; i < alBullet.size(); i++) {
+        for (int i = 0; i < alBullet.size(); i++) {
             alBullet.get(i).cleanup();
         }
         txBackground.dispose();
@@ -387,7 +416,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
-        if(Constants.isShowing) {  // going to have to set fMouseX and fMouseY here because of the problem with setting the input processor
+        if (Constants.isShowing) {  // going to have to set fMouseX and fMouseY here because of the problem with setting the input processor
             game.fMouseX = Gdx.input.getX();
             game.fMouseY = Constants.SCREENHEIGHT - Gdx.input.getY();
         }

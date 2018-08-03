@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -37,6 +38,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
+    ShapeRenderer SR;
     Buttons BackButton;
     TiledMap tMapLvl2;
     TiledPolyLines tplLvl2;
@@ -53,11 +55,13 @@ public class ScrLvl2 implements Screen, InputProcessor {
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alEnemyBullet = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
+    static float fTransitWidth, fTransitHeight;
 
     public ScrLvl2(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
         this.camera = game.camera;
+        this.SR = game.SR;
         scrLvl1 = new ScrLvl1(game);
         this.b2dr = scrLvl1.b2dr;
         world = new World(new Vector2(0f, -18f), false);
@@ -67,6 +71,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
         fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
         fH = 32;
+        fTransitHeight = Gdx.graphics.getHeight() * (float)1.5;
+        fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
 
         BackButton = new Buttons("backButton", scrLvl1.fixedBatch, -8, 0, 96, 32);
 
@@ -156,6 +162,9 @@ public class ScrLvl2 implements Screen, InputProcessor {
             ecPlayer.body.setAwake(true);
             ecPlayer.isMoving = true;
         }
+
+        screenTransition();
+        transitionBlock();
     }
     public void backButtonFunctionality() {
         BackButton.Update();
@@ -163,6 +172,12 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     && game.fMouseY > BackButton.fY && game.fMouseY < BackButton.fY + BackButton.fH) {
                 System.out.println("moves to the main menu");
                 Constants.isShowing = false;
+                Constants.isFadeIn[1] = false;
+                ScrLvl1.fTransitWidth = 0;
+                ScrLvl1.fTransitHeight = 0;
+                ScrMainMenu.fAlpha = 0;
+                Constants.nCurrentScreen = 4;
+                ScrLvl1.isChangedToLvl2 = true;
                 game.updateScreen(0);
             }
 
@@ -231,6 +246,23 @@ public class ScrLvl2 implements Screen, InputProcessor {
         camera.zoom = 0.8f;
         CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
         camera.update();
+    }
+
+    public void transitionBlock() {
+        SR.begin(ShapeRenderer.ShapeType.Filled);
+        SR.setColor(0, 0, 0, 1);
+        SR.rect(Gdx.graphics.getWidth()/2 - (fTransitWidth/2), Gdx.graphics.getHeight()/2 - (fTransitHeight/2), fTransitWidth, fTransitHeight);
+        SR.end();
+    }
+
+    public void screenTransition() {
+        if(Constants.isFadeOut[1] && fTransitWidth >= 0) {
+            fTransitHeight -= 16;
+            fTransitWidth -= 16;
+        }
+        if(fTransitWidth <= 0) {
+            Constants.isFadeOut[1] = false;
+        }
     }
 
 

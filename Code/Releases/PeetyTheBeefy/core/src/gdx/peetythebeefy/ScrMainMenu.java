@@ -93,7 +93,9 @@ public class ScrMainMenu implements Screen, InputProcessor {
                     System.out.println("moves to Lvl 1 screen");
                     Constants.isShowing = false;
                     Constants.isPlayerDead = false;
-                    Constants.isFadeIn = true;
+                    Constants.isFadeIn[0] = true;
+                    ScrLvl1.fAlpha = 1;
+                    Constants.isGameStart = false;
                 } else if (i == 1) {
                     System.out.println("moves to the controls");
                     game.updateScreen(2);
@@ -104,7 +106,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
             }
-            if (!Constants.isFadeIn) {
+            if (!Constants.isFadeIn[0]) {
                 if (v2MousePosition.x > alButtons.get(i).fX && v2MousePosition.x < alButtons.get(i).fX + alButtons.get(i).fW
                         && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
                     // alButtons.get(i).sprButton.setAlpha(250);
@@ -121,14 +123,13 @@ public class ScrMainMenu implements Screen, InputProcessor {
     }
 
     public void screenTransition() {
-        if (Constants.isFadeIn && fAlpha < 1) {
+        if (Constants.isFadeIn[0] && fAlpha < 1) {
             fAlpha += 0.01f;
         }
         if(fAlpha > 1) {
-            game.updateScreen(3);
-            Constants.isFadeIn = false;
-            Constants.isFadeOut = true;
-            System.out.println(Constants.isFadeOut);
+            game.updateScreen(Constants.nCurrentScreen);
+            Constants.isFadeIn[0] = false;
+            Constants.isFadeOut[0] = true;
         }
     }
 
