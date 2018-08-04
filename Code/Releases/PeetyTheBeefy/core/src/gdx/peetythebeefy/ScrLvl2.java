@@ -186,6 +186,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 ScrLvl1.fTransitWidth = 0;
                 ScrLvl1.fTransitHeight = 0;
                 ScrMainMenu.fAlpha = 0;
+                ScrStageSelect.fAlpha = 0;
                 fTransitHeight = Gdx.graphics.getHeight() * (float)1.5;
                 fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
                 Constants.nCurrentScreen = 4;

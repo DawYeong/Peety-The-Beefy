@@ -129,7 +129,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
         if(fAlpha > 1) {
             game.updateScreen(Constants.nCurrentScreen);
             Constants.isFadeIn[0] = false;
-            Constants.isFadeOut[0] = true;
+            Constants.isFadeOut[Constants.nCurrentScreen - 3] = true;
         }
     }
 

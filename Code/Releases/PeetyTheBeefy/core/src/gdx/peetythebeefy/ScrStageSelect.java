@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
@@ -24,14 +25,18 @@ import gdx.peetythebeefy.cookiecutters.Constants;
 public class ScrStageSelect implements Screen {
 
     PeetyTheBeefy game;
+    ShapeRenderer SR;
     SpriteBatch batch;
     Texture texMenuMain, texMenuNew;
     float fMainX, fNewX, fY;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
+    static float fAlpha = 0;
+    int nextScreen, nextTransition;
 
     public ScrStageSelect(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
+        this.SR = game.SR;
         texMenuMain = new Texture("mainMenu.png");
         texMenuNew = new Texture("mainMenu2.png");
         fY = Gdx.graphics.getHeight();
@@ -52,6 +57,9 @@ public class ScrStageSelect implements Screen {
         screenTransition();
 
         drawButtons();
+
+        screenTransition2();
+        transitionBlock();
     }
 
     public void createButtons() {
@@ -80,13 +88,15 @@ public class ScrStageSelect implements Screen {
                     System.out.println("moves to lvl 1");
                     Constants.isShowing = false;
                     Constants.isPlayerDead = false;
-                    resetButtons();
-                    game.updateScreen(3);
+                    nextScreen = 3;
+                    nextTransition = 0;
+                    Constants.isFadeIn[12] = true;
                 } else if(i == 1 && Constants.isLevelUnlocked[1] == true) {
                     System.out.println("moves to lvl 2");
-                    resetButtons();
                     Constants.isFadeOut[1] = true;
-                    game.updateScreen(4);
+                    nextScreen = 4;
+                    nextTransition = 1;
+                    Constants.isFadeIn[12] = true;
                 }
                 else if (i == 12) {
                     System.out.println("moves to main menu");
@@ -126,6 +136,28 @@ public class ScrStageSelect implements Screen {
         alButtons.get(9).fY = Constants.SCREENHEIGHT;
         alButtons.get(10).fY = Constants.SCREENHEIGHT;
         alButtons.get(11).fY = Constants.SCREENHEIGHT;
+    }
+
+    public void transitionBlock() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        SR.begin(ShapeRenderer.ShapeType.Filled);
+        SR.setColor(new Color(0f, 0f, 0f, fAlpha));
+        SR.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        SR.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public void screenTransition2() {
+        if(Constants.isFadeIn[12] && fAlpha < 1) {
+            fAlpha += 0.01f;
+        }
+        if(fAlpha > 1) {
+            game.updateScreen(nextScreen);
+            resetButtons();
+            Constants.isFadeIn[12] = false;
+            Constants.isFadeOut[nextTransition] = true;
+        }
     }
 
     @Override

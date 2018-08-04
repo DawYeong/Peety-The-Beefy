@@ -35,7 +35,7 @@ public class Constants {
     public static boolean isPlayerDead = false, isShowing, isGameStart;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
-    public static boolean[] isFadeIn = new boolean [12];
+    public static boolean[] isFadeIn = new boolean [13];
     public static boolean[] isFadeOut = new boolean[12];
 
 

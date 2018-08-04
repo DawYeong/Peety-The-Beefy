@@ -118,7 +118,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.draw(txBackground, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         batch.end();
 
-        if (isChangedToLvl2) {
+        if (isChangedToLvl2) { //puts the player outside the door so they don't trigger the transition
             ecPlayer.body.setTransform((float) (690 / 32), (float) (450 / 32), 0);
             isChangedToLvl2 = false;
         }
@@ -287,6 +287,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseY = Constants.SCREENHEIGHT;
                 Constants.isShowing = false;
                 ScrMainMenu.fAlpha = 0;
+                ScrStageSelect.fAlpha = 0;
                 Constants.nCurrentScreen = 3;
                 game.updateScreen(0);
             }
