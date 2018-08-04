@@ -54,7 +54,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vMousePosition;
-    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 3;
+    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1;
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
     static boolean isChangedToLvl2 = false;
@@ -119,7 +119,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.end();
 
         if (isChangedToLvl2) { //puts the player outside the door so they don't trigger the transition
-            ecPlayer.body.setTransform((float) (690 / 32), (float) (450 / 32), 0);
+            ecPlayer.body.setTransform((float) (690 / PPM), (float) (450 / PPM), 0);
             isChangedToLvl2 = false;
         }
 
