@@ -14,8 +14,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeType;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -41,9 +45,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
+    BitmapFont Test, font;
+    Text tLvl1;
     ShapeRenderer SR;
     World world;
-    float fX, fY, fW, fH;
+    float fX, fY, fW, fH, textWidth;
     EntityCreation ecPlayer;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
@@ -53,6 +59,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
+    String sTest;
     Vector2 v2Target, vMousePosition;
     int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1;
     Texture txBackground, txSky, txWatergun;
@@ -67,6 +74,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         //Drawing things like GUI requires fixedBatch (not updated with camera)
         fixedBatch = new SpriteBatch();
         this.camera = game.camera;
+        font = new BitmapFont();
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
         world.setVelocityThreshold(0f);
@@ -78,8 +86,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
         txSky = new Texture("sky.png");
         txWatergun = new Texture("Watergun.png");
         sprWatergun = new Sprite(txWatergun);
+        Test = new BitmapFont();
+
 
         createButtons();
+        createText();
+        sTest = "";
+        GlyphLayout layout = new GlyphLayout(Test, sTest);
+        textWidth = layout.width;
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
                 (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
@@ -122,7 +136,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             ecPlayer.body.setTransform((float) (690 / PPM), (float) (450 / PPM), 0);
             isChangedToLvl2 = false;
         }
-
         ecPlayer.Update();
         moveEnemy();
 
@@ -138,11 +151,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
                 Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
-            }
-            if (Gdx.input.isKeyJustPressed((Input.Keys.J))) {
-                Constants.isLevelFinished[0] = true;
-                Constants.isLevelUnlocked[1] = true;
-                game.updateScreen(4);
             }
 
             playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
@@ -169,6 +177,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     }
                 }
             }
+            tLvl1.drawText();
 
             //b2dr.render(world, camera.combined.scl(PPM));
         }
@@ -184,7 +193,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 ecPlayer.body.setAwake(true);
                 ecPlayer.isMoving = true;
-                createEnemy();
+                if(tLvl1.isFinished) {
+                    createEnemy();
+                }
             }
         }
 
@@ -359,6 +370,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
+    public void createText(){
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, fixedBatch);
+        generator.dispose();
+
+    }
 
     @Override
     public void resize(int i, int i1) {
