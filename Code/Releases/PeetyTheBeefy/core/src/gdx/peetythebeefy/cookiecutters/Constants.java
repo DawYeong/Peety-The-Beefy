@@ -25,14 +25,17 @@ public class Constants {
     public static final short BIT_ENEMY = 16;
     public static final short BIT_ENEMYBULLET = 32;
     public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3;
+    public static float fOpacity = 0;
 
     //Constant Textures that we need to draw across screens
     //This includes everything involved in drawing the GUI
     public static final Texture txHeart = new Texture("Heart-Full.png"),
             txBullet = new Texture("bulletTexture.png"), txGUI = new Texture("GUI.png"),
             txWaterGun = new Texture("Watergun.png"),
-            txTextBoxPeety = new Texture("TextBoxPeety.png");
-    public static final Sprite sprWatergun = new Sprite(txWaterGun), sprTextPeety = new Sprite(txTextBoxPeety);
+            txTextBoxPeety = new Texture("TextBoxPeety.png"),
+            txTextBoxMatty = new Texture("TextBoxMatty.png");
+    public static final Sprite sprWatergun = new Sprite(txWaterGun), sprTextPeety = new Sprite(txTextBoxPeety),
+                        sprTextMatty = new Sprite(txTextBoxMatty);
     public static boolean isPlayerDead = false, isShowing, isGameStart;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
@@ -40,10 +43,16 @@ public class Constants {
     public static boolean[] isFadeOut = new boolean[12];
 
 
-    public static void textBox(SpriteBatch fixedBatch, int nType) {
+    public static void textBox(SpriteBatch fixedBatch, int nType, boolean isTransition) {
+        if(isTransition && fOpacity <= 1) {
+            fOpacity += 0.05f;
+        }
         fixedBatch.begin();
+        sprTextPeety.setAlpha(fOpacity);
         if(nType == 1) {
             sprTextPeety.draw(fixedBatch);
+        } else if(nType == 2) {
+            sprTextMatty.draw(fixedBatch);
         }
         fixedBatch.end();
     }
@@ -107,5 +116,6 @@ public class Constants {
         txHeart.dispose();
         txWaterGun.dispose();
         txTextBoxPeety.dispose();
+        txTextBoxMatty.dispose();
     }
 }

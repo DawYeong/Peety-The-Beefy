@@ -46,7 +46,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
     BitmapFont font;
-    Text tLvl1, tPeety;
+    Text tLvl1;
+    Text[] tDialogue;
     ShapeRenderer SR;
     World world;
     float fX, fY, fW, fH;
@@ -61,9 +62,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledPolyLines tplLvl1;
     String sTest;
     Vector2 v2Target, vMousePosition;
-    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1;
+    int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nDialogue = 0, nCharacter;
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
+    boolean isDialogueStart, isDialogueDone;
     static boolean isChangedToLvl2 = false;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
 
@@ -139,12 +141,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
         otmr.setView(camera);
         otmr.render();
 
+        changeBox();
+
         //used for the gun following the mouse
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        if (!tPeety.isStart) {
+        if (!isDialogueStart) {
             Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         } else {
-            Constants.textBox(fixedBatch, 1);
+            Constants.textBox(fixedBatch, nCharacter, isDialogueStart);
         }
 
         if (Constants.isGameStart) {
@@ -181,17 +185,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
             tLvl1.Update();
             //b2dr.render(world, camera.combined.scl(PPM));
         }
-        if (tLvl1.isFinished && !tPeety.isDone) {
-            tPeety.Update();
-            tPeety.isStart = true;
+        if (tLvl1.isFinished && !isDialogueDone) {
+            tDialogue[nDialogue].Update();
+            isDialogueStart = true;
         }
-        if (tPeety.isFinished) {
-            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                tPeety.isDone = true;
-                tPeety.isStart = false;
+        if(tDialogue[nDialogue].isFinished) {
+            if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                if(nDialogue == tDialogue.length -1) {
+                    isDialogueStart = false;
+                    isDialogueDone = true;
+                } else {
+                    nDialogue ++;
+                }
             }
         }
-        if (!Constants.isGameStart || tPeety.isStart) {
+
+        if (!Constants.isGameStart || isDialogueStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
         } else {
@@ -202,7 +211,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 ecPlayer.body.setAwake(true);
                 ecPlayer.isMoving = true;
-                if (tLvl1.isFinished && !tPeety.isStart) {
+                if (tLvl1.isFinished && !isDialogueStart) {
                     createEnemy();
                 }
             }
@@ -380,14 +389,30 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createText() {
+        tDialogue = new Text[5];
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
-                Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1);
-        tPeety = new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
-                "I know for a fact that I am not delusional, don't get me twisted. (Press Space to box)", 26, 30, 200, fixedBatch, 2, 15);
+                Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
+        tDialogue[0] = new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
+                "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, fixedBatch, 2, 15, "Peety");
+        tDialogue[1] = new Text(generator, parameter, font, "Matty: LMAO!!! Yo you hear this mans? Absolute buffoonery! Bro trust, I'm gon sit you down boi.",
+                26, 30, 200, fixedBatch, 2, 15, "Matty");
+        tDialogue[2] = new Text(generator, parameter, font, "Peety: Whatchu mean B? Y'all think you are up to my level? I am a king and you are the peasants!",
+                26, 30, 200, fixedBatch, 2, 15, "Peety");
+        tDialogue[3] = new Text(generator, parameter, font, "Matty: Dude... that's too far man. You knew that my parents were peasants! OK. That's. It. Enough's Enough!",
+                26, 30, 200, fixedBatch, 2, 15, "Matty");
+        tDialogue[4] = new Text(generator, parameter, font, "Peety: I can't wait to show these Matty The Meaties whose the beefiest in the school!"
+                , 26, 30, 200, fixedBatch, 2, 15, "Peety");
         generator.dispose();
 
+    }
+    public void changeBox() {
+        if(tDialogue[nDialogue].sId.contentEquals("Peety")) {
+            nCharacter = 1;
+        } else if(tDialogue[nDialogue].sId.contentEquals("Matty")) {
+            nCharacter = 2;
+        }
     }
 
     @Override

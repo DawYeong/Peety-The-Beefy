@@ -206,7 +206,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         tLvl2 = new Text(generator, parameter, font, "Peety The Beefy Meets a Dreamy Sweetie", 26, Gdx.graphics.getWidth()/2,
-                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1);
+                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
         generator.dispose();
 
     }

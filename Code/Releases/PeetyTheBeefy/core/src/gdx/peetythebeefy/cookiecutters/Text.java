@@ -25,9 +25,10 @@ public class Text {
     String[] sTemp;
     public boolean isFinished, isStart = false, isDone;
     boolean isForward = true;
+    public String sId;
 
     public Text(FreeTypeFontGenerator _generator, FreeTypeFontParameter _parameter, BitmapFont _font, String _sText, int _fSize, float _fX, float _fY,
-                SpriteBatch _batch, int _nType, int _LineSpacing) {
+                SpriteBatch _batch, int _nType, int _LineSpacing, String _sId) {
         this.generator = _generator;
         this.parameter = _parameter;
         this.font = _font;
@@ -36,6 +37,7 @@ public class Text {
         this.fX = _fX;
         this.fY = _fY;
         this.nType = _nType;
+        this.sId = _sId;
         arcText = sText.toCharArray();
         sTemp = new String[arcText.length];
         argTextLength = new GlyphLayout[arcText.length];
