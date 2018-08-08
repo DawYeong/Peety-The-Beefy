@@ -45,11 +45,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
-    BitmapFont Test, font;
-    Text tLvl1;
+    BitmapFont font;
+    Text tLvl1, tPeety;
     ShapeRenderer SR;
     World world;
-    float fX, fY, fW, fH, textWidth;
+    float fX, fY, fW, fH;
     EntityCreation ecPlayer;
     Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
@@ -71,6 +71,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         this.game = game;
         this.batch = game.batch;
         this.SR = game.SR;
+        this.font = game.font;
         //Drawing things like GUI requires fixedBatch (not updated with camera)
         fixedBatch = new SpriteBatch();
         this.camera = game.camera;
@@ -86,14 +87,10 @@ public class ScrLvl1 implements Screen, InputProcessor {
         txSky = new Texture("sky.png");
         txWatergun = new Texture("Watergun.png");
         sprWatergun = new Sprite(txWatergun);
-        Test = new BitmapFont();
 
 
         createButtons();
         createText();
-        sTest = "";
-        GlyphLayout layout = new GlyphLayout(Test, sTest);
-        textWidth = layout.width;
         tMapLvl1 = new TmxMapLoader().load("PeetytheBeefy1.tmx");
         tplLvl1 = new TiledPolyLines(world, tMapLvl1.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
                 (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0);
@@ -144,7 +141,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
         //used for the gun following the mouse
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
+        if (!tPeety.isStart) {
+            Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
+        } else {
+            Constants.textBox(fixedBatch, 1);
+        }
 
         if (Constants.isGameStart) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
@@ -177,12 +178,20 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     }
                 }
             }
-            tLvl1.drawText();
-
+            tLvl1.Update();
             //b2dr.render(world, camera.combined.scl(PPM));
         }
-
-        if (!Constants.isGameStart) {
+        if (tLvl1.isFinished && !tPeety.isDone) {
+            tPeety.Update();
+            tPeety.isStart = true;
+        }
+        if (tPeety.isFinished) {
+            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                tPeety.isDone = true;
+                tPeety.isStart = false;
+            }
+        }
+        if (!Constants.isGameStart || tPeety.isStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
         } else {
@@ -193,7 +202,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 ecPlayer.body.setAwake(true);
                 ecPlayer.isMoving = true;
-                if(tLvl1.isFinished) {
+                if (tLvl1.isFinished && !tPeety.isStart) {
                     createEnemy();
                 }
             }
@@ -370,10 +379,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void createText(){
+    public void createText() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, fixedBatch);
+        tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1);
+        tPeety = new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
+                "I know for a fact that I am not delusional, don't get me twisted. (Press Space to box)", 26, 30, 200, fixedBatch, 2, 15);
         generator.dispose();
 
     }

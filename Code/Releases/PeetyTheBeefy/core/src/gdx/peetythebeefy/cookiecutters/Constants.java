@@ -30,8 +30,9 @@ public class Constants {
     //This includes everything involved in drawing the GUI
     public static final Texture txHeart = new Texture("Heart-Full.png"),
             txBullet = new Texture("bulletTexture.png"), txGUI = new Texture("GUI.png"),
-            txWaterGun = new Texture("Watergun.png");
-    public static final Sprite sprWatergun = new Sprite(txWaterGun);
+            txWaterGun = new Texture("Watergun.png"),
+            txTextBoxPeety = new Texture("TextBoxPeety.png");
+    public static final Sprite sprWatergun = new Sprite(txWaterGun), sprTextPeety = new Sprite(txTextBoxPeety);
     public static boolean isPlayerDead = false, isShowing, isGameStart;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
@@ -39,6 +40,13 @@ public class Constants {
     public static boolean[] isFadeOut = new boolean[12];
 
 
+    public static void textBox(SpriteBatch fixedBatch, int nType) {
+        fixedBatch.begin();
+        if(nType == 1) {
+            sprTextPeety.draw(fixedBatch);
+        }
+        fixedBatch.end();
+    }
 
     //this needs to be static since the GUI is universal for all levels
     public static void playerGUI(SpriteBatch fixedBatch, SpriteBatch batch, Vector2 v2PlayerPosition, Vector2 vMousePosition) {
@@ -98,5 +106,6 @@ public class Constants {
         txGUI.dispose();
         txHeart.dispose();
         txWaterGun.dispose();
+        txTextBoxPeety.dispose();
     }
 }

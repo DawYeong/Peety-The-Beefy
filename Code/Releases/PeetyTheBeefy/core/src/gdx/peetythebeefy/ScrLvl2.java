@@ -12,7 +12,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -37,6 +39,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch;
+    BitmapFont font;
+    Text tLvl2;
     ShapeRenderer SR;
     Buttons BackButton;
     TiledMap tMapLvl2;
@@ -62,6 +66,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         this.batch = game.batch;
         this.camera = game.camera;
         this.SR = game.SR;
+        this.font = game.font;
         scrLvl1 = new ScrLvl1(game);
         this.b2dr = scrLvl1.b2dr;
         world = new World(new Vector2(0f, -18f), false);
@@ -92,6 +97,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 0, 4, 6, "PTBsprite.png", 1,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
                 scrLvl1.ecPlayer.nHealth);
+        createText();
     }
 
     @Override
@@ -149,6 +155,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     }
                 }
             }
+            tLvl2.Update();
         }
 
         //Un-comment this if you want to see the Box2D debug renderer
@@ -167,7 +174,9 @@ public class ScrLvl2 implements Screen, InputProcessor {
             } else {
                 ecPlayer.body.setAwake(true);
                 ecPlayer.isMoving = true;
-                createEnemy();
+                if(tLvl2.isFinished) {
+                    createEnemy();
+                }
             }
         }
         screenTransition();
@@ -191,6 +200,15 @@ public class ScrLvl2 implements Screen, InputProcessor {
             ScrLvl1.isChangedToLvl2 = true;
             game.updateScreen(0);
         }
+    }
+
+    public void createText(){
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        tLvl2 = new Text(generator, parameter, font, "Peety The Beefy Meets a Dreamy Sweetie", 26, Gdx.graphics.getWidth()/2,
+                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1);
+        generator.dispose();
+
     }
 
     public void createEnemy() {
@@ -349,6 +367,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         batch.dispose();
         scrLvl1.dispose();
         tMapLvl2.dispose();
+        scrLvl1.fixedBatch.dispose();
         otmr.dispose();
         b2dr.dispose();
         txBackground.dispose();
