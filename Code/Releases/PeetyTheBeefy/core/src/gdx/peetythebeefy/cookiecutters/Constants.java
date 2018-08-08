@@ -2,11 +2,14 @@ package gdx.peetythebeefy.cookiecutters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import gdx.peetythebeefy.ScrLvl1;
 
 //Variables that never change and we have to use between multiple screens
 public class Constants {
@@ -25,7 +28,7 @@ public class Constants {
     public static final short BIT_ENEMY = 16;
     public static final short BIT_ENEMYBULLET = 32;
     public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3;
-    public static float fOpacity = 0;
+    public static float fOpacity = 0, fOpacity2 = 0;
 
     //Constant Textures that we need to draw across screens
     //This includes everything involved in drawing the GUI
@@ -43,9 +46,16 @@ public class Constants {
     public static boolean[] isFadeOut = new boolean[12];
 
 
-    public static void textBox(SpriteBatch fixedBatch, int nType, boolean isTransition) {
+    public static void textBox(SpriteBatch fixedBatch, int nType, boolean isTransition, BitmapFont font, FreeTypeFontGenerator generator, FreeTypeFontParameter parameter,
+                               Text tText) {
+        parameter.size = 15;
+        font = generator.generateFont(parameter);
+        GlyphLayout layout = new GlyphLayout(font, "Press space");
         if(isTransition && fOpacity <= 1) {
             fOpacity += 0.05f;
+        }
+        if(tText.isFinished && fOpacity2 < 1) {
+            fOpacity2 += 0.02f;
         }
         fixedBatch.begin();
         sprTextPeety.setAlpha(fOpacity);
@@ -54,6 +64,8 @@ public class Constants {
         } else if(nType == 2) {
             sprTextMatty.draw(fixedBatch);
         }
+        font.setColor(1, 1, 1, fOpacity2);
+        font.draw(fixedBatch, "Press space",  Gdx.graphics.getWidth() - (layout.width * (float)1.25) , 25);
         fixedBatch.end();
     }
 

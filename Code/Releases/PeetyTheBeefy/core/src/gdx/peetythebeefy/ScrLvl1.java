@@ -35,6 +35,7 @@ import gdx.peetythebeefy.cookiecutters.*;
 import java.util.ArrayList;
 
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
+import static gdx.peetythebeefy.cookiecutters.Constants.fOpacity2;
 import static gdx.peetythebeefy.cookiecutters.Constants.isPlayerDead;
 
 
@@ -45,6 +46,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
     SpriteBatch batch, fixedBatch;
+    FreeTypeFontGenerator generator;
+    FreeTypeFontParameter parameter;
     BitmapFont font;
     Text tLvl1;
     Text[] tDialogue;
@@ -80,6 +83,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         font = new BitmapFont();
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
+        parameter = new FreeTypeFontParameter();
         world.setVelocityThreshold(0f);
         fX = Constants.SCREENWIDTH / 2;
         fY = Constants.SCREENHEIGHT / 2;
@@ -148,7 +153,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (!isDialogueStart) {
             Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
         } else {
-            Constants.textBox(fixedBatch, nCharacter, isDialogueStart);
+            Constants.textBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, tDialogue[nDialogue]);
         }
 
         if (Constants.isGameStart) {
@@ -189,12 +194,13 @@ public class ScrLvl1 implements Screen, InputProcessor {
             tDialogue[nDialogue].Update();
             isDialogueStart = true;
         }
-        if(tDialogue[nDialogue].isFinished) {
+        if(tDialogue[nDialogue].isFinished && Constants.fOpacity2 >= 1) {
             if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                 if(nDialogue == tDialogue.length -1) {
                     isDialogueStart = false;
                     isDialogueDone = true;
                 } else {
+                    Constants.fOpacity2 = 0;
                     nDialogue ++;
                 }
             }
@@ -390,8 +396,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void createText() {
         tDialogue = new Text[5];
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
                 Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
         tDialogue[0] = new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
@@ -404,8 +408,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 26, 30, 200, fixedBatch, 2, 15, "Matty");
         tDialogue[4] = new Text(generator, parameter, font, "Peety: I can't wait to show these Matty The Meaties whose the beefiest in the school!"
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety");
-        generator.dispose();
-
     }
     public void changeBox() {
         if(tDialogue[nDialogue].sId.contentEquals("Peety")) {
@@ -436,6 +438,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void dispose() {
         batch.dispose();
         fixedBatch.dispose();
+        generator.dispose();
         b2dr.dispose();
         world.dispose();
         ecPlayer.cleanup();

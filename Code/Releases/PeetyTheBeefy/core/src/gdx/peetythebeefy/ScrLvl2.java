@@ -40,6 +40,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
     PeetyTheBeefy game;
     SpriteBatch batch;
     BitmapFont font;
+    FreeTypeFontGenerator generator;
+    FreeTypeFontGenerator.FreeTypeFontParameter parameter;
     Text tLvl2;
     ShapeRenderer SR;
     Buttons BackButton;
@@ -72,6 +74,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
         world.setVelocityThreshold(3f);
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fX = Constants.SCREENWIDTH / 2;
         fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
@@ -203,12 +207,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
     }
 
     public void createText(){
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         tLvl2 = new Text(generator, parameter, font, "Peety The Beefy Meets a Dreamy Sweetie", 26, Gdx.graphics.getWidth()/2,
                 Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
-        generator.dispose();
-
     }
 
     public void createEnemy() {
@@ -366,6 +366,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
     public void dispose() {
         batch.dispose();
         scrLvl1.dispose();
+        generator.dispose();
         tMapLvl2.dispose();
         scrLvl1.fixedBatch.dispose();
         otmr.dispose();
