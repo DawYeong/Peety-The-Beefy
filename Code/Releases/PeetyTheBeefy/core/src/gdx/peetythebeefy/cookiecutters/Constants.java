@@ -65,7 +65,7 @@ public class Constants {
             sprTextMatty.draw(fixedBatch);
         }
         font.setColor(1, 1, 1, fOpacity2);
-        font.draw(fixedBatch, "Press space",  Gdx.graphics.getWidth() - (layout.width * (float)1.25) , 25);
+        font.draw(fixedBatch, "Press space",  Gdx.graphics.getWidth() - (layout.width * (float)1.25) , 30);
         fixedBatch.end();
     }
 

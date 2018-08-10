@@ -3,7 +3,6 @@ package gdx.peetythebeefy.cookiecutters;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
@@ -17,7 +16,7 @@ public class Text {
     BitmapFont font;
     SpriteBatch batch;
     String sText;
-    StringBuilder sbDisplay = new StringBuilder("");
+    public StringBuilder sbDisplay = new StringBuilder("");
     float fX, fY, fOpacity = 1, fLongevity = 0;
     int nCount = 0, nDelay = 0, nType;
     char[] arcText;
@@ -104,12 +103,12 @@ public class Text {
     public void characterText() {
         if (nCount < arcText.length) {
             nDelay++;
-            if (nDelay >= 4) {
+            if (nDelay >= 3) {
                 if (isForward) {
                     sbDisplay.append(arcText[nCount]);
                     nCount++;
-                    nDelay = 0;
                 }
+                nDelay = 0;
             }
         }
         if(nCount == arcText.length && !isFinished) {

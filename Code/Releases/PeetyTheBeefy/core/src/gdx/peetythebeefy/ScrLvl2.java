@@ -367,6 +367,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         batch.dispose();
         scrLvl1.dispose();
         generator.dispose();
+        font.dispose();
         tMapLvl2.dispose();
         scrLvl1.fixedBatch.dispose();
         otmr.dispose();

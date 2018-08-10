@@ -50,7 +50,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     FreeTypeFontParameter parameter;
     BitmapFont font;
     Text tLvl1;
-    Text[] tDialogue;
     ShapeRenderer SR;
     World world;
     float fX, fY, fW, fH;
@@ -61,9 +60,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
+    ArrayList<Text> alDialogue = new ArrayList<Text>();
     TiledMap tMapLvl1;
     TiledPolyLines tplLvl1;
-    String sTest;
     Vector2 v2Target, vMousePosition;
     int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nDialogue = 0, nCharacter;
     Texture txBackground, txSky, txWatergun;
@@ -146,15 +145,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         otmr.setView(camera);
         otmr.render();
 
-        changeBox();
-
-        //used for the gun following the mouse
-        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        if (!isDialogueStart) {
-            Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        } else {
-            Constants.textBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, tDialogue[nDialogue]);
-        }
 
         if (Constants.isGameStart) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
@@ -162,9 +152,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseY = Constants.SCREENHEIGHT;
                 Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
             }
-
-            playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
-
+            if(!isDialogueStart) {
+                playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
+            }
             playerDeath();
 
             //Bullet Collection
@@ -190,21 +180,21 @@ public class ScrLvl1 implements Screen, InputProcessor {
             tLvl1.Update();
             //b2dr.render(world, camera.combined.scl(PPM));
         }
-        if (tLvl1.isFinished && !isDialogueDone) {
-            tDialogue[nDialogue].Update();
-            isDialogueStart = true;
-        }
-        if(tDialogue[nDialogue].isFinished && Constants.fOpacity2 >= 1) {
-            if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                if(nDialogue == tDialogue.length -1) {
-                    isDialogueStart = false;
-                    isDialogueDone = true;
-                } else {
-                    Constants.fOpacity2 = 0;
-                    nDialogue ++;
-                }
+
+        changeBox();
+
+        //used for the gun following the mouse
+        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        if (!isDialogueStart) {
+            Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
+        } else {
+            if(alDialogue.size() != 0) {
+                Constants.textBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
             }
         }
+
+        dialogueLogic();
+
 
         if (!Constants.isGameStart || isDialogueStart) {
             ecPlayer.body.setAwake(false);
@@ -222,10 +212,34 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
         }
-
+        
         screenTransition();
         transitionBlock();
 
+    }
+
+    public void dialogueLogic() {
+        if(alDialogue.size() != 0) {
+            if (tLvl1.isFinished && !isDialogueDone) {
+                alDialogue.get(0).Update();
+                isDialogueStart = true;
+            }
+            if (alDialogue.get(0).isFinished && Constants.fOpacity2 >= 1) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                    if(isDialogueStart) {
+                        nDialogue++;
+                    }
+                    if (nDialogue == 5 || nDialogue == 9) {
+                        System.out.println("here");
+                        isDialogueDone = true;
+                        isDialogueStart = false;
+                    }
+                    Constants.fOpacity2 = 0;
+                    alDialogue.get(0).sbDisplay.delete(0, alDialogue.get(0).sbDisplay.length());
+                    alDialogue.remove(0);
+                }
+            }
+        }
     }
 
     public void createEnemy() { //Makes the enemies in entity creation, based on spawn locations and when they spawn
@@ -253,6 +267,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nWaveCount++;
             nMaxEnemies++;
             nEnemies = 0;
+        }
+        if(nWaveCount == 3 && alEnemy.size() == 0 && isDialogueDone) {
+            nDialogue++;
+            Constants.fOpacity = 0;
+            isDialogueDone = false;
         }
         if (nWaveCount == 3 && !isPlayerDead && (ecPlayer.body.getPosition().x * PPM > 710 && ecPlayer.body.getPosition().x * PPM < 750) &&
                 (ecPlayer.body.getPosition().y * PPM > 410 && ecPlayer.body.getPosition().y * PPM < 480)) {
@@ -395,25 +414,32 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createText() {
-        tDialogue = new Text[5];
         tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
                 Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
-        tDialogue[0] = new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
-                "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, fixedBatch, 2, 15, "Peety");
-        tDialogue[1] = new Text(generator, parameter, font, "Matty: LMAO!!! Yo you hear this mans? Absolute buffoonery! Bro trust, I'm gon sit you down boi.",
-                26, 30, 200, fixedBatch, 2, 15, "Matty");
-        tDialogue[2] = new Text(generator, parameter, font, "Peety: Whatchu mean B? Y'all think you are up to my level? I am a king and you are the peasants!",
-                26, 30, 200, fixedBatch, 2, 15, "Peety");
-        tDialogue[3] = new Text(generator, parameter, font, "Matty: Dude... that's too far man. You knew that my parents were peasants! OK. That's. It. Enough's Enough!",
-                26, 30, 200, fixedBatch, 2, 15, "Matty");
-        tDialogue[4] = new Text(generator, parameter, font, "Peety: I can't wait to show these Matty The Meaties whose the beefiest in the school!"
-                , 26, 30, 200, fixedBatch, 2, 15, "Peety");
+        alDialogue.add(new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
+                "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: LMAO!!! Yo you hear this mans? Absolute buffoonery! Bro trust, I'm gon sit you down boi.",
+                26, 30, 200, fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: Whatchu mean B? Y'all think you are up to my level? I am a king and you are the peasants!",
+                26, 30, 200, fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Dude... that's too far man. You know that my parents were peasants! OK. That's. It. Enough's Enough!",
+                26, 30, 200, fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: I can't wait to show these Matty The Meaties whose the beefiest in the school!"
+                , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: LMAOOOOOOO! Yo y'all trash at this game. Just uninstall now. While you're at it uninstall system 32."
+                , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Relax bro... I wasn't even using my maximum power. Catch me in level 2 and I'll show you whose boss."
+                , 26, 30, 200, fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: Pffftttt... Alright Matty I'll see about that."
+                , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
     }
     public void changeBox() {
-        if(tDialogue[nDialogue].sId.contentEquals("Peety")) {
-            nCharacter = 1;
-        } else if(tDialogue[nDialogue].sId.contentEquals("Matty")) {
-            nCharacter = 2;
+        if(alDialogue.size() != 0) {
+            if (alDialogue.get(0).sId.contentEquals("Peety")) {
+                nCharacter = 1;
+            } else if (alDialogue.get(0).sId.contentEquals("Matty")) {
+                nCharacter = 2;
+            }
         }
     }
 
@@ -439,6 +465,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         batch.dispose();
         fixedBatch.dispose();
         generator.dispose();
+        font.dispose();
+        SR.dispose();
         b2dr.dispose();
         world.dispose();
         ecPlayer.cleanup();
