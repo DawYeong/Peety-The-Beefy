@@ -28,7 +28,6 @@ public class Constants {
     public static final short BIT_ENEMY = 16;
     public static final short BIT_ENEMYBULLET = 32;
     public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3;
-    public static float fOpacity = 0, fOpacity2 = 0;
 
     //Constant Textures that we need to draw across screens
     //This includes everything involved in drawing the GUI
@@ -46,30 +45,7 @@ public class Constants {
     public static boolean[] isFadeOut = new boolean[12];
 
 
-    public static void textBox(SpriteBatch fixedBatch, int nType, boolean isTransition, BitmapFont font, FreeTypeFontGenerator generator, FreeTypeFontParameter parameter,
-                               Text tText) {
-        parameter.size = 15;
-        font = generator.generateFont(parameter);
-        GlyphLayout layout = new GlyphLayout(font, "Press space");
-        if(isTransition && fOpacity <= 1) {
-            fOpacity += 0.05f;
-        }
-        if(tText.isFinished && fOpacity2 < 1) {
-            fOpacity2 += 0.02f;
-        }
-        fixedBatch.begin();
-        sprTextPeety.setAlpha(fOpacity);
-        if(nType == 1) {
-            sprTextPeety.draw(fixedBatch);
-        } else if(nType == 2) {
-            sprTextMatty.draw(fixedBatch);
-        }
-        font.setColor(1, 1, 1, fOpacity2);
-        font.draw(fixedBatch, "Press space",  Gdx.graphics.getWidth() - (layout.width * (float)1.25) , 30);
-        fixedBatch.end();
-    }
 
-    //this needs to be static since the GUI is universal for all levels
     public static void playerGUI(SpriteBatch fixedBatch, SpriteBatch batch, Vector2 v2PlayerPosition, Vector2 vMousePosition) {
         float fAngle;
         batch.begin();

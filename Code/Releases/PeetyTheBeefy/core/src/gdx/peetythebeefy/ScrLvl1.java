@@ -35,7 +35,6 @@ import gdx.peetythebeefy.cookiecutters.*;
 import java.util.ArrayList;
 
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
-import static gdx.peetythebeefy.cookiecutters.Constants.fOpacity2;
 import static gdx.peetythebeefy.cookiecutters.Constants.isPlayerDead;
 
 
@@ -50,6 +49,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     FreeTypeFontParameter parameter;
     BitmapFont font;
     Text tLvl1;
+    TextBox tbCharacter;
     ShapeRenderer SR;
     World world;
     float fX, fY, fW, fH;
@@ -68,7 +68,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
     boolean isDialogueStart, isDialogueDone;
-    static boolean isChangedToLvl2 = false;
+    static boolean isChangedToLvl2 = false, isReset;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
 
     public ScrLvl1(PeetyTheBeefy game) {
@@ -113,6 +113,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0, 0), 4);
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
         b2dr = new Box2DDebugRenderer();
+        tbCharacter = new TextBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
     }
 
     @Override
@@ -127,6 +128,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
+        lvl1Reset();
         fixedBatch.begin();
         fixedBatch.draw(txSky, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         fixedBatch.end();
@@ -152,7 +154,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 game.fMouseY = Constants.SCREENHEIGHT;
                 Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
             }
-            if(!isDialogueStart) {
+            if (!isDialogueStart) {
                 playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
             }
             playerDeath();
@@ -179,21 +181,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             tLvl1.Update();
             //b2dr.render(world, camera.combined.scl(PPM));
-        }
 
-        changeBox();
 
-        //used for the gun following the mouse
-        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        if (!isDialogueStart) {
-            Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
-        } else {
-            if(alDialogue.size() != 0) {
-                Constants.textBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
+            changeBox();
+
+            //used for the gun following the mouse
+            vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            if (!isDialogueStart) {
+                Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
+            } else {
+                if (alDialogue.size() != 0) {
+                    tbCharacter.Update();
+                }
             }
-        }
 
-        dialogueLogic();
+            dialogueLogic();
+        }
 
 
         if (!Constants.isGameStart || isDialogueStart) {
@@ -212,19 +215,38 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
         }
-        
+
         screenTransition();
         transitionBlock();
 
     }
 
+    public void lvl1Reset() {
+        if(isReset) {
+            ecPlayer.body.setTransform(Gdx.graphics.getWidth() / 2 / PPM, Gdx.graphics.getHeight() / 2 / PPM, 0);
+            Constants.isFadeOut[0] = true;
+            fAlpha = 1;
+            Constants.isGameStart = false;
+            tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
+                    Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
+            Constants.nHealth = 4;
+            nEnemies = 0;
+            nMaxEnemies = 3;
+            nWaveCount = 1;
+            nSpawnrate = 0;
+            isReset = false;
+        }
+    }
+
     public void dialogueLogic() {
+        tbCharacter.isTransition = isDialogueStart;
         if(alDialogue.size() != 0) {
+            tbCharacter.tText = alDialogue.get(0);
             if (tLvl1.isFinished && !isDialogueDone) {
                 alDialogue.get(0).Update();
                 isDialogueStart = true;
             }
-            if (alDialogue.get(0).isFinished && Constants.fOpacity2 >= 1) {
+            if (alDialogue.get(0).isFinished && tbCharacter.fOpacity2 >= 1) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                     if(isDialogueStart) {
                         nDialogue++;
@@ -234,7 +256,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         isDialogueDone = true;
                         isDialogueStart = false;
                     }
-                    Constants.fOpacity2 = 0;
+                    tbCharacter.fOpacity2 = 0;
                     alDialogue.get(0).sbDisplay.delete(0, alDialogue.get(0).sbDisplay.length());
                     alDialogue.remove(0);
                 }
@@ -270,7 +292,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
         if(nWaveCount == 3 && alEnemy.size() == 0 && isDialogueDone) {
             nDialogue++;
-            Constants.fOpacity = 0;
+            tbCharacter.fOpacity = 0;
             isDialogueDone = false;
         }
         if (nWaveCount == 3 && !isPlayerDead && (ecPlayer.body.getPosition().x * PPM > 710 && ecPlayer.body.getPosition().x * PPM < 750) &&
@@ -324,7 +346,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         camera.zoom = 0.8f;
         CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
         camera.update();
-
     }
 
     public void createButtons() {
@@ -351,12 +372,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void playerDeath() {
         if (Constants.isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
-            Constants.nHealth = 4;
-            ecPlayer.body.setTransform(Gdx.graphics.getWidth() / 2 / PPM, Gdx.graphics.getHeight() / 2 / PPM, 0);
-            nEnemies = 0;
-            nMaxEnemies = 3;
-            nWaveCount = 1;
-            nSpawnrate = 0;
             game.updateScreen(5);
         }
     }
@@ -436,9 +451,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void changeBox() {
         if(alDialogue.size() != 0) {
             if (alDialogue.get(0).sId.contentEquals("Peety")) {
-                nCharacter = 1;
+                tbCharacter.nType = 1;
             } else if (alDialogue.get(0).sId.contentEquals("Matty")) {
-                nCharacter = 2;
+                tbCharacter.nType = 2;
             }
         }
     }
