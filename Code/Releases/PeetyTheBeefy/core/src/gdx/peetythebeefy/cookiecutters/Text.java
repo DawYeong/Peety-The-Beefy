@@ -74,45 +74,49 @@ public class Text {
     }
 
     public void levelText() {
-        if (nCount < arcText.length) {
-            nDelay++;
-            if (nDelay >= 4) {
-                if (isForward) {
-                    sbDisplay.append(arcText[nCount]);
-                    nCount++;
-                    nDelay = 0;
+        if (!Constants.isShowing) {
+            if (nCount < arcText.length) {
+                nDelay++;
+                if (nDelay >= 4) {
+                    if (isForward) {
+                        sbDisplay.append(arcText[nCount]);
+                        nCount++;
+                        nDelay = 0;
+                    }
                 }
             }
-        }
-        if(!isForward) {
-            if(fLongevity >= 100) {
-                fOpacity -= 0.01f;
-            } else {
-                fLongevity ++;
+            if (!isForward) {
+                if (fLongevity >= 100) {
+                    fOpacity -= 0.01f;
+                } else {
+                    fLongevity++;
+                }
             }
-        }
-        if (nCount == arcText.length) {
-            isForward = false;
-        }
-        if(fOpacity <= 0) {
-            sbDisplay.delete(0, sbDisplay.length());
-            isFinished = true;
+            if (nCount == arcText.length) {
+                isForward = false;
+            }
+            if (fOpacity <= 0) {
+                sbDisplay.delete(0, sbDisplay.length());
+                isFinished = true;
+            }
         }
     }
 
     public void characterText() {
-        if (nCount < arcText.length) {
-            nDelay++;
-            if (nDelay >= 3) {
-                if (isForward) {
-                    sbDisplay.append(arcText[nCount]);
-                    nCount++;
+        if (!Constants.isShowing) {
+            if (nCount < arcText.length) {
+                nDelay++;
+                if (nDelay >= 3) {
+                    if (isForward) {
+                        sbDisplay.append(arcText[nCount]);
+                        nCount++;
+                    }
+                    nDelay = 0;
                 }
-                nDelay = 0;
             }
-        }
-        if(nCount == arcText.length && !isFinished) {
-            isFinished = true;
+            if (nCount == arcText.length && !isFinished) {
+                isFinished = true;
+            }
         }
     }
 }

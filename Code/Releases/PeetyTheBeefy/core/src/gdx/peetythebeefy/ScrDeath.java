@@ -38,8 +38,8 @@ public class ScrDeath implements Screen, InputProcessor{
         fixedBatch.end();
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             Constants.isPlayerDead = false;
-            ScrLvl1.isReset = true;
-            game.updateScreen(3);
+            game.isReset = true;
+            game.updateScreen(Constants.nCurrentScreen);
         }
     }
 

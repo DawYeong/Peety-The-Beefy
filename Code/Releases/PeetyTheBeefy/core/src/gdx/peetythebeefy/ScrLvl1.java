@@ -68,7 +68,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Texture txBackground, txSky, txWatergun;
     Sprite sprWatergun;
     boolean isDialogueStart, isDialogueDone;
-    static boolean isChangedToLvl2 = false, isReset;
+    static boolean isChangedToLvl2 = false;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
 
     public ScrLvl1(PeetyTheBeefy game) {
@@ -188,7 +188,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             //used for the gun following the mouse
             vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             if (!isDialogueStart) {
-                Constants.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
+                game.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
             } else {
                 if (alDialogue.size() != 0) {
                     tbCharacter.Update();
@@ -202,6 +202,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (!Constants.isGameStart || isDialogueStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
+            if(Constants.isShowing) {
+                drawButtons();
+            }
         } else {
             if (Constants.isShowing) {
                 drawButtons();
@@ -222,7 +225,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void lvl1Reset() {
-        if(isReset) {
+        if(game.isReset) {
             ecPlayer.body.setTransform(Gdx.graphics.getWidth() / 2 / PPM, Gdx.graphics.getHeight() / 2 / PPM, 0);
             Constants.isFadeOut[0] = true;
             fAlpha = 1;
@@ -234,7 +237,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nMaxEnemies = 3;
             nWaveCount = 1;
             nSpawnrate = 0;
-            isReset = false;
+            game.isReset = false;
         }
     }
 
@@ -251,7 +254,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     if(isDialogueStart) {
                         nDialogue++;
                     }
-                    if (nDialogue == 5 || nDialogue == 9) {
+                    if (nDialogue == 5 || nDialogue == 8) {
                         System.out.println("here");
                         isDialogueDone = true;
                         isDialogueStart = false;
@@ -291,7 +294,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nEnemies = 0;
         }
         if(nWaveCount == 3 && alEnemy.size() == 0 && isDialogueDone) {
-            nDialogue++;
+            //nDialogue++;
             tbCharacter.fOpacity = 0;
             isDialogueDone = false;
         }
@@ -372,6 +375,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void playerDeath() {
         if (Constants.isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
+            Constants.nCurrentScreen = 3;
             game.updateScreen(5);
         }
     }
@@ -441,7 +445,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 26, 30, 200, fixedBatch, 2, 15, "Matty"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: I can't wait to show these Matty The Meaties whose the beefiest in the school!"
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
-        alDialogue.add(new Text(generator, parameter, font, "Peety: LMAOOOOOOO! Yo y'all trash at this game. Just uninstall now. While you're at it uninstall system 32."
+        alDialogue.add(new Text(generator, parameter, font, "Peety: LMAOOOOOOO! Yo y'all trash at this game. Just uninstall now. While you're at it delete system 32."
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: Relax bro... I wasn't even using my maximum power. Catch me in level 2 and I'll show you whose boss."
                 , 26, 30, 200, fixedBatch, 2, 15, "Matty"));
