@@ -68,7 +68,7 @@ public class Text {
         if(nType == 1) {
             font.draw(batch, sbDisplay, fX -(layout.width/2), fY + 150);
         } else if(nType == 2) {
-            font.draw(batch, sbDisplay, fX, fY, Gdx.graphics.getWidth() - fX, Align.left, true);
+            font.draw(batch, sbDisplay, fX, fY, Gdx.graphics.getWidth() - fX * 2, Align.left, true);
         }
         batch.end();
     }

@@ -22,23 +22,23 @@ import com.badlogic.gdx.physics.box2d.World;
 /**
  * @author benny
  */
-    //This class handles every entity created in the game
-    //This includes player, enemies and bullets
+//This class handles every entity created in the game
+//This includes player, enemies and bullets
 public class EntityCreation {
 
-     public Texture txSheet;
-     public Sprite sprAni;
-     public Animation[] araniCharacter;
-     public Body body;
-     public String sId, sTexture;
-     public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth,
-                nShootCount = 0, nType, nPlatDir = 1;
-     public  boolean isCounterStart, isDeath = false, canCollect =false, isStuck,isInRange, isMoving = true;
-     public float fAniSpeed;
-     SpriteBatch batch;
-     TextureRegion trTemp;
-     Vector2 vDir;
-     public World world;
+    public Texture txSheet;
+    public Sprite sprAni;
+    public Animation[] araniCharacter;
+    public Body body;
+    public String sId, sTexture;
+    public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth,
+            nShootCount = 0, nType, nPlatDir = 1;
+    public boolean isCounterStart, isDeath = false, canCollect = false, isStuck, isInRange, isMoving = true;
+    public float fAniSpeed;
+    SpriteBatch batch;
+    TextureRegion trTemp;
+    Vector2 vDir;
+    public World world;
 
 
     public EntityCreation(World world, String sId, float fX, float fY, float fWidth, float fHeight, SpriteBatch batch, float fAniSpeed,
@@ -46,7 +46,7 @@ public class EntityCreation {
                           short gIndex, Vector2 vDir, int nHealth) {
 
         txSheet = new Texture(sTexture);
-        araniCharacter = new Animation[nRows*nColumns];
+        araniCharacter = new Animation[nRows * nColumns];
         this.sId = sId;
         this.batch = batch;
         this.fAniSpeed = fAniSpeed;
@@ -67,30 +67,29 @@ public class EntityCreation {
 
     public void Update() {
         // 1 - Player, 2 - Enemy, 3 - Bullet, 4 - platform
-            if(nType == 2) {
-                enemyMove();
-                frameAnimation();
-                drawAnimation();
-            } else if(nType == 1) {
-                playerMove();
-                frameAnimation();
-                drawAnimation();
-            }
-            else if(nType == 3) {
+        if (nType == 2) {
+            enemyMove();
+            frameAnimation();
+            drawAnimation();
+        } else if (nType == 1) {
+            playerMove();
+            frameAnimation();
+            drawAnimation();
+        } else if (nType == 3) {
             bulletMove();
             drawTexture();
-        } else if(nType == 4) {
-                platformMove();
-                drawTexture();
-            }
+        } else if (nType == 4) {
+            platformMove();
+            drawTexture();
+        }
         if (body.getPosition().y < 0) {
             body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
-        } else if(body.getPosition().y > Gdx.graphics.getHeight()/32) {
+        } else if (body.getPosition().y > Gdx.graphics.getHeight() / 32) {
             body.setTransform(body.getPosition().x, 0, 0);
         }
-        if(body.getPosition().x < 0) {
-            body.setTransform(Gdx.graphics.getWidth() /32, body.getPosition().y, 0);
-        } else if(body.getPosition().x > Gdx.graphics.getWidth()/32) {
+        if (body.getPosition().x < 0) {
+            body.setTransform(Gdx.graphics.getWidth() / 32, body.getPosition().y, 0);
+        } else if (body.getPosition().x > Gdx.graphics.getWidth() / 32) {
             body.setTransform(0, body.getPosition().y, 0);
         }
     }
@@ -98,7 +97,7 @@ public class EntityCreation {
     private void createBody(World world, float fX, float fY, float fWidth, float fHeight, short cBits, short mBits, short gIndex) {
         BodyDef bdef = new BodyDef();
         bdef.fixedRotation = true;
-        if(nType == 4) {
+        if (nType == 4) {
             bdef.type = BodyDef.BodyType.StaticBody;
         } else {
             bdef.type = BodyDef.BodyType.DynamicBody;
@@ -108,16 +107,16 @@ public class EntityCreation {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f;
-        if(nType != 3) {
+        if (nType != 3) {
             shape.setAsBox(fWidth / 32.0F / 2.0F, fHeight / 32.0F / 2.0F);
             fixtureDef.friction = 0.01f;
             bdef.fixedRotation = true;
         } else {
-            shape.setAsBox(fWidth/ 32.0f / 8.0f, fHeight / 32.0f / 8.0f);
+            shape.setAsBox(fWidth / 32.0f / 8.0f, fHeight / 32.0f / 8.0f);
             fixtureDef.friction = 10f;
             fixtureDef.restitution = 0.1f;
             //bdef.fixedRotation = false;
-            bdef.bullet =true;
+            bdef.bullet = true;
         }
         fixtureDef.filter.categoryBits = cBits;
         fixtureDef.filter.maskBits = mBits;
@@ -167,58 +166,58 @@ public class EntityCreation {
 
     public void enemyMove() {
         float fhForce = 0;
-            if (body.getLinearVelocity().x == 0) {
-                if (nDir == 1) {
-                    nDir = 2;
-                } else if (nDir == 2) {
-                    nDir = 1;
-                }
+        if (body.getLinearVelocity().x == 0) {
+            if (nDir == 1) {
+                nDir = 2;
+            } else if (nDir == 2) {
+                nDir = 1;
             }
+        }
         nJump = (int) (Math.random() * 99 + 1);
         if (nDir == 1) {
-            fhForce = (isInRange) ? (float)1.5 : 1;
+            fhForce = (isInRange) ? (float) 1.5 : 1;
         } else if (nDir == 2) {
-            fhForce = (isInRange) ? (float) -1.5: -1;
+            fhForce = (isInRange) ? (float) -1.5 : -1;
         }
         if (nJump == 5 && body.getLinearVelocity().y == 0) {
             body.applyForceToCenter(0, 350, false);
         }
         body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
-        if(nHealth <= 0) {
+        if (nHealth <= 0) {
             isDeath = true;
         }
     }
 
     public void bulletMove() {
-        if(nCount < 2) {
+        if (nCount < 2) {
             body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
         }
-        if(nCount >= 90) {
+        if (nCount >= 90) {
             canCollect = true;
         }
-        if(isStuck) {
+        if (isStuck) {
             body.setAwake(false);
         }
         nCount++;
     }
 
     public void platformMove() {
-        if(body.getPosition().y >= (Gdx.graphics.getHeight() - 100) / 32) {
+        if (body.getPosition().y >= (Gdx.graphics.getHeight() - 100) / 32) {
             nPlatDir = 2;
-        } else if(body.getPosition().y <= (Gdx.graphics.getHeight()/2 +150) / 32) {
+        } else if (body.getPosition().y <= (Gdx.graphics.getHeight() / 2 + 150) / 32) {
             nPlatDir = 1;
         }
-        if(nPlatDir == 1) {
-            body.setTransform(body.getPosition().x, (float) (body.getPosition().y +0.02) , 0);
-        } else if(nPlatDir == 2){
+        if (nPlatDir == 1) {
+            body.setTransform(body.getPosition().x, (float) (body.getPosition().y + 0.02), 0);
+        } else if (nPlatDir == 2) {
             body.setTransform(body.getPosition().x, (float) (body.getPosition().y - 0.02), 0);
         }
     }
 
 
-                                //          ANIMATION           //
+    //          ANIMATION           //
 
-    private Animation[] playerSprite(Animation araniCharacter[]){
+    private Animation[] playerSprite(Animation araniCharacter[]) {
         int nW, nH, nSx, nSy;
         nW = txSheet.getWidth() / nRows;
         nH = txSheet.getHeight() / nColumns;
@@ -238,16 +237,18 @@ public class EntityCreation {
     public void drawAnimation() {
         trTemp = (TextureRegion) araniCharacter[nPos].getKeyFrame(nFrame, true);
         batch.begin();
-        batch.draw(trTemp,body.getPosition().x * 32 - 32 / 2, body.getPosition().y * 32 - 32 / 2, 32, 32);
+        batch.draw(trTemp, body.getPosition().x * 32 - 32 / 2, body.getPosition().y * 32 - 32 / 2, 32, 32);
         batch.end();
     }
+
     public void drawTexture() {
         batch.begin();
-        batch.draw(txSheet,body.getPosition().x * 32 - 8 / 2, body.getPosition().y * 32 - 8 / 2, 8, 8);
+        batch.draw(txSheet, body.getPosition().x * 32 - 8 / 2, body.getPosition().y * 32 - 8 / 2, 8, 8);
         batch.end();
     }
+
     public void frameAnimation() {
-        if(nType != 3) {
+        if (nType != 3) {
             if (nType != 2 && isMoving) {
                 if (body.getLinearVelocity().x != 0 || body.getLinearVelocity().y != 0) {
                     nFrame++;
@@ -287,12 +288,13 @@ public class EntityCreation {
                 if (nFrame > 32) {
                     nFrame = 0;
                 }
-                if(isMoving) {
+                if (isMoving) {
                     nFrame++;
                 }
             }
         }
     }
+
     public void cleanup() {
         txSheet.dispose();
         batch.dispose();

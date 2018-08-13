@@ -5,7 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -18,12 +21,15 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     BitmapFont font;
     ScrMainMenu scrMainMenu;
     ScrStageSelect scrStageSelect;
+    FreeTypeFontParameter parameter;
     ScrControls scrControls;
     ScrLvl1 scrLvl1;
     ScrLvl2 scrLvl2;
     ScrDeath scrDeath;
     OrthographicCamera camera;
-    float fMouseX, fMouseY;
+    GlyphLayout layout;
+    float fMouseX, fMouseY, fBeefyProgression = 0, fLevelUp = 2;
+    int nBeefinessLevel = 1;
     boolean isReset;
 
     @Override
@@ -31,6 +37,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         batch = new SpriteBatch();
         SR = new ShapeRenderer();
         font = new BitmapFont();
+        parameter = new FreeTypeFontParameter();
         //universal camera used between screens
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 0, 0);
@@ -50,6 +57,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     @Override
     public void render() {
         super.render();
+        playerLvl();
     }
 
     public void updateScreen(int nScreen) {
@@ -74,8 +82,12 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         super.dispose();
         batch.dispose();
     }
-    public void playerGUI(SpriteBatch fixedBatch, SpriteBatch batch, Vector2 v2PlayerPosition, Vector2 vMousePosition) {
+    public void playerGUI(SpriteBatch fixedBatch, SpriteBatch batch, Vector2 v2PlayerPosition, Vector2 vMousePosition,
+                          BitmapFont font, FreeTypeFontGenerator generator) {
         float fAngle;
+        parameter.size = 30;
+        font = generator.generateFont(parameter);
+        layout = new GlyphLayout(font, "BLV: " + nBeefinessLevel);
         batch.begin();
         Constants.sprWatergun.draw(batch);
         batch.end();
@@ -121,9 +133,18 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
                 }
             }
         }
+        font.draw(fixedBatch, "BLV: " + nBeefinessLevel, 0, layout.height);
         fixedBatch.end();
         if(Constants.nHealth == 0) {
             Constants.isPlayerDead = true;
+        }
+    }
+
+    public void playerLvl() {
+        if(fBeefyProgression >= fLevelUp) {
+            nBeefinessLevel++;
+            fLevelUp++;
+            fBeefyProgression = 0;
         }
     }
 

@@ -71,11 +71,11 @@ public class ScrLvl2 implements Screen, InputProcessor {
         this.font = game.font;
         scrLvl1 = new ScrLvl1(game);
         this.b2dr = scrLvl1.b2dr;
+        this.parameter = game.parameter;
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
         world.setVelocityThreshold(3f);
         generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
-        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fX = Constants.SCREENWIDTH / 2;
         fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
@@ -165,7 +165,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         //Un-comment this if you want to see the Box2D debug renderer
 //        b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        game.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition);
+        game.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition, font, generator);
 
         if (!Constants.isGameStart) {
             ecPlayer.body.setAwake(false);
