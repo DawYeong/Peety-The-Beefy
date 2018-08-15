@@ -16,6 +16,7 @@ import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
+import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 /**
  *
@@ -37,8 +38,8 @@ public class ScrStageSelect implements Screen {
         this.game = game;
         this.batch = game.batch;
         this.SR = game.SR;
-        texMenuMain = new Texture("mainMenu.png");
-        texMenuNew = new Texture("mainMenu2.png");
+        texMenuMain = assetManager.get("mainMenu.png");
+        texMenuNew = assetManager.get("mainMenu2.png");
         fY = Gdx.graphics.getHeight();
         createButtons();
     }
@@ -178,12 +179,6 @@ public class ScrStageSelect implements Screen {
 
     @Override
     public void dispose() {
-        texMenuNew.dispose();
-        texMenuMain.dispose();
-        for(int i = 0; i< alButtons.size(); i++) {
-            alButtons.get(i).buttonAtlas.dispose();
-        }
-        batch.dispose();
     }
 
     public void screenTransition() {

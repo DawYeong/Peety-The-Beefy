@@ -31,6 +31,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
+import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 import java.util.ArrayList;
 
@@ -38,9 +39,6 @@ import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 import static gdx.peetythebeefy.cookiecutters.Constants.isPlayerDead;
 
 
-/**
- * @author tn200
- */
 public class ScrLvl1 implements Screen, InputProcessor {
 
     PeetyTheBeefy game;
@@ -50,6 +48,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     BitmapFont font;
     Text tLvl1;
     TextBox tbCharacter;
+    PlayerGUI pGUI;
     ShapeRenderer SR;
     World world;
     float fX, fY, fW, fH;
@@ -65,8 +64,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     TiledPolyLines tplLvl1;
     Vector2 v2Target, vMousePosition;
     int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nDialogue = 0, nCharacter, nDialogueDelay = 0;
-    Texture txBackground, txSky, txWatergun;
-    Sprite sprWatergun;
+    Texture txBackground, txSky;
     boolean isDialogueStart, isDialogueDone, isLevelDialogue = true;
     static boolean isChangedToLvl2 = false;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
@@ -80,7 +78,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fixedBatch = new SpriteBatch();
         this.camera = game.camera;
         this.parameter = game.parameter;
-        font = new BitmapFont();
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
         generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
@@ -89,10 +86,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fY = Constants.SCREENHEIGHT / 2;
         fW = 32;
         fH = 32;
-        txBackground = new Texture("level1Background.png");
-        txSky = new Texture("sky.png");
-        txWatergun = new Texture("Watergun.png");
-        sprWatergun = new Sprite(txWatergun);
+        txBackground = assetManager.get("level1Background.png");
+        txSky = assetManager.get("sky.png");
 
 
         createButtons();
@@ -112,8 +107,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 0, 4, 6, "PTBsprite.png", 1,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0, 0), 4);
         v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
-        b2dr = new Box2DDebugRenderer();
         tbCharacter = new TextBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
+        pGUI = new PlayerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0),font, generator, parameter);
     }
 
     @Override
@@ -180,15 +175,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
             tLvl1.Update();
-            //b2dr.render(world, camera.combined.scl(PPM));
 
 
             changeBox();
 
             //used for the gun following the mouse
             vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            pGUI.vMousePosition = vMousePosition;
+            pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
             if (!isDialogueStart) {
-                game.playerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition, font, generator);
+                pGUI.Update();
             } else {
                 if (alDialogue.size() != 0) {
                     tbCharacter.Update();
@@ -218,6 +214,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
         }
+        fixedBatch.begin();
+        font.draw(fixedBatch, Integer.toString(Gdx.graphics.getFramesPerSecond()), 10, Gdx.graphics.getHeight() - 20);
+        fixedBatch.end();
 
         screenTransition();
         transitionBlock();
@@ -264,7 +263,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     alDialogue.remove(0);
                 }
             }
-            if(game.nBeefinessLevel == 2 && isLevelDialogue) {
+            if(Constants.nBeefinessLevel == 2 && isLevelDialogue && nDialogue < 14) {
                 nDialogueDelay++;
                 if(nDialogueDelay >= 75) {
                     tbCharacter.fOpacity = 0;
@@ -346,7 +345,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             if (alEnemy.get(i).isDeath || Constants.isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
-                game.fBeefyProgression ++;
+                Constants.fBeefyProgression ++;
                 nCount--;
                 alEnemy.remove(i);
             }
@@ -432,7 +431,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
             Constants.isGameStart = true;
         }
         if (Constants.isFadeIn[1] && fTransitWidth <= Gdx.graphics.getWidth()) {
-            System.out.println(Constants.isGameStart);
             fTransitHeight += 16;
             fTransitWidth += 16;
         }
@@ -475,7 +473,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         alDialogue.add(new Text(generator, parameter, font, "Peety: Wait its Termin...... Well whatever enough of this small talk!", 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: LMAOOOOOOO! Yo y'all trash at this game. Just uninstall now. While you're at it delete system 32."
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
-        alDialogue.add(new Text(generator, parameter, font, "Matty: Relax bro... I wasn't even using my maximum power. Catch me in level 2 and I'll show you whose boss."
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Relax bro... I wasn't even using my maximum power. Catch me in level 2 and I'll show you who's boss."
                 , 26, 30, 200, fixedBatch, 2, 15, "Matty"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: Pffftttt... Alright Matty I'll see about that."
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
@@ -509,27 +507,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
-        batch.dispose();
         fixedBatch.dispose();
         generator.dispose();
-        font.dispose();
-        SR.dispose();
-        b2dr.dispose();
         world.dispose();
-        ecPlayer.cleanup();
         otmr.dispose();
-        game.dispose();
-        game.scrLvl1.dispose();
         tMapLvl1.dispose();
-        for (int i = 0; i < alEnemy.size(); i++) {
-            alEnemy.get(i).cleanup();
-        }
-        for (int i = 0; i < alBullet.size(); i++) {
-            alBullet.get(i).cleanup();
-        }
-        txBackground.dispose();
-        txSky.dispose();
-        Constants.assetsDispose();
     }
 
     @Override

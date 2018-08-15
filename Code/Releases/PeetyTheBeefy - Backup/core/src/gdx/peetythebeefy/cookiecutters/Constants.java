@@ -27,14 +27,29 @@ public class Constants {
     public static final short BIT_BULLET = 8;
     public static final short BIT_ENEMY = 16;
     public static final short BIT_ENEMYBULLET = 32;
-    public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3, nBeefinessLevel = 1;
-    public static float fBeefyProgression = 0, fLevelUp = 2;
+    public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3;
 
-
+    //Constant Textures that we need to draw across screens
+    //This includes everything involved in drawing the GUI
+    public static final Texture txHeart = new Texture("Heart-Full.png"),
+            txBullet = new Texture("bulletTexture.png"), txGUI = new Texture("GUI.png"),
+            txWaterGun = new Texture("Watergun.png"),
+            txTextBoxPeety = new Texture("TextBoxPeety.png"),
+            txTextBoxMatty = new Texture("TextBoxMatty.png");
+    public static final Sprite sprWatergun = new Sprite(txWaterGun), sprTextPeety = new Sprite(txTextBoxPeety),
+                        sprTextMatty = new Sprite(txTextBoxMatty);
     public static boolean isPlayerDead = false, isShowing, isGameStart;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
     public static boolean[] isFadeIn = new boolean [13];
     public static boolean[] isFadeOut = new boolean[12];
 
+    public static void assetsDispose() {
+        txBullet.dispose();
+        txGUI.dispose();
+        txHeart.dispose();
+        txWaterGun.dispose();
+        txTextBoxPeety.dispose();
+        txTextBoxMatty.dispose();
+    }
 }

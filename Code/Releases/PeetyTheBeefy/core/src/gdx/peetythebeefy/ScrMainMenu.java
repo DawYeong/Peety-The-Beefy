@@ -43,7 +43,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
         this.batch = game.batch;
         this.camera = game.camera;
         this.SR = game.SR;
-        texMenu = new Texture("mainMenu.png");
+        texMenu = PeetyTheBeefy.assetManager.get("mainMenu.png");
         Constants.isLevelUnlocked[0] = true;
         Constants.isLevelUnlocked[1] = true;
         createButtons();
@@ -163,7 +163,6 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
-        texMenu.dispose();
     }
 
     @Override

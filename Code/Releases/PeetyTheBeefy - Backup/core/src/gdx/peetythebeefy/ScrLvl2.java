@@ -26,10 +26,11 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
+
 import java.util.ArrayList;
+
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 import static gdx.peetythebeefy.cookiecutters.Constants.isShowing;
-import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 /**
  * @author tn200
@@ -47,7 +48,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
     TiledMap tMapLvl2;
     TiledPolyLines tplLvl2;
     World world;
-    PlayerGUI pGUI;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     Box2DDebugRenderer b2dr;
@@ -88,8 +88,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
         tMapLvl2 = new TmxMapLoader().load("PeetytheBeefy2.tmx");
         tplLvl2 = new TiledPolyLines(world, tMapLvl2.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
                 (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
-        txBackground = assetManager.get("level2Background.png");
-        txSky = assetManager.get("skyDay.png");
+        txBackground = new Texture("level2Background.png");
+        txSky = new Texture("skyDay.png");
         otmr = new OrthogonalTiledMapRenderer(tMapLvl2);
 
 
@@ -102,7 +102,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
                 scrLvl1.ecPlayer.nHealth);
         createText();
-        pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0), font, generator, parameter);
     }
 
     @Override
@@ -166,9 +165,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         //Un-comment this if you want to see the Box2D debug renderer
 //        b2dr.render(world, camera.combined.scl(PPM));
         vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        pGUI.vMousePosition = vMousePosition;
-        pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
-        pGUI.Update();
+        game.playerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), vMousePosition, font, generator);
 
         if (!Constants.isGameStart) {
             ecPlayer.body.setAwake(false);
@@ -367,10 +364,23 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
+        batch.dispose();
         scrLvl1.dispose();
         generator.dispose();
+        font.dispose();
         tMapLvl2.dispose();
+        scrLvl1.fixedBatch.dispose();
         otmr.dispose();
+        b2dr.dispose();
+        txBackground.dispose();
+        txSky.dispose();
+        for (int i = 0; i < alEnemy.size(); i++) {
+            alEnemy.get(i).cleanup();
+        }
+        for (int i = 0; i < alEnemyBullet.size(); i++) {
+            alEnemyBullet.get(i).cleanup();
+        }
+        Constants.assetsDispose();
     }
 
     @Override

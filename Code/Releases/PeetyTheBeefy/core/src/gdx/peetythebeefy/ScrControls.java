@@ -14,6 +14,7 @@ import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
 import gdx.peetythebeefy.cookiecutters.Buttons;
+import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 /**
  *
@@ -31,9 +32,9 @@ public class ScrControls implements Screen {
     public ScrControls(PeetyTheBeefy game) {
         this.game = game;
         this.batch = game.batch;
-        txMenuMain = new Texture("mainMenu.png");
-        txMenuNew = new Texture("mainMenu2.png");
-        txControls = new Texture("Controls image.png");
+        txMenuMain = assetManager.get("mainMenu.png");
+        txMenuNew = assetManager.get("mainMenu2.png");
+        txControls = assetManager.get("Controls image.png");
 
     }
 
@@ -89,10 +90,6 @@ public class ScrControls implements Screen {
 
     @Override
     public void dispose() {
-        txMenuMain.dispose();
-        txMenuNew.dispose();
-        txControls.dispose();
-        batch.dispose();
     }
 
     public void screenTransition() {

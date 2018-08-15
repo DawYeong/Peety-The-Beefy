@@ -31,7 +31,8 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrDeath scrDeath;
     OrthographicCamera camera;
     GlyphLayout layout;
-    float fMouseX, fMouseY;
+    float fMouseX, fMouseY, fBeefyProgression = 0, fLevelUp = 2;
+    int nBeefinessLevel = 1;
     boolean isReset;
     public static final AssetManager assetManager = new AssetManager();
 
@@ -84,28 +85,79 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         }
 
     }
+    public void queueAssets() {
+        assetManager.load("mainMenu.png", Texture.class);
+    }
 
     @Override
     public void dispose() {
         super.dispose();
         batch.dispose();
-        SR.dispose();
-        font.dispose();
-        scrLoading.dispose();
-        scrLvl1.dispose();
-        scrLvl2.dispose();
-        scrControls.dispose();
-        scrDeath.dispose();
-        scrMainMenu.dispose();
-        scrStageSelect.dispose();
         assetManager.dispose();
+    }
+    public void playerGUI(SpriteBatch fixedBatch, SpriteBatch batch, Vector2 v2PlayerPosition, Vector2 vMousePosition,
+                          BitmapFont font, FreeTypeFontGenerator generator) {
+        float fAngle;
+        parameter.size = 30;
+        font = generator.generateFont(parameter);
+        layout = new GlyphLayout(font, "BLV: " + nBeefinessLevel);
+        batch.begin();
+        Constants.sprWatergun.draw(batch);
+        batch.end();
+        if (!Constants.isShowing ) {
+            fAngle = MathUtils.radiansToDegrees * MathUtils.atan2(vMousePosition.y - Constants.sprWatergun.getY(), vMousePosition.x - Constants.sprWatergun.getX());
+            if (fAngle < 0) {
+                fAngle += 360;
+            }
+            Constants.sprWatergun.setPosition(v2PlayerPosition.x * Constants.PPM - 6, v2PlayerPosition.y *Constants.PPM - 6);
+            if(Constants.isGameStart) {
+                if (fAngle > 90 && fAngle < 270) {
+                    Constants.sprWatergun.setFlip(true, true);
+
+                } else {
+                    Constants.sprWatergun.setFlip(true, false);
+                }
+                Constants.sprWatergun.setRotation(fAngle);
+            }
+        }
+        fixedBatch.begin();
+        fixedBatch.draw(Constants.txGUI,Constants.SCREENWIDTH - Constants.txGUI.getWidth(),0);
+        if(Constants.nHealth >=1) {
+            fixedBatch.draw(Constants.txHeart, (float)690.5, 108, Constants.txHeart.getWidth() + 5, Constants.txHeart.getHeight()+5);
+            if(Constants.nHealth >= 2) {
+                fixedBatch.draw(Constants.txHeart, (float)690.5,  (float) (108 + 38.5), Constants.txHeart.getWidth() +5 , Constants.txHeart.getHeight() +5);
+                if(Constants.nHealth >= 3) {
+                    fixedBatch.draw(Constants.txHeart, (float)690.5, 108 + 77, Constants.txHeart.getWidth()+5, Constants.txHeart.getHeight()+5);
+                    if(Constants.nHealth >=4) {
+                        fixedBatch.draw(Constants.txHeart, (float)690.5   , (float) (108 + 115.5), Constants.txHeart.getWidth()+5, Constants.txHeart.getHeight()+5);
+                    }
+                }
+            }
+        }
+        if(Constants.nBulletCount >= 1) {
+            fixedBatch.draw(Constants.txBullet,583,14,27,27);
+            if(Constants.nBulletCount >= 2) {
+                fixedBatch.draw(Constants.txBullet,583 - 45,14,27,27);
+                if(Constants.nBulletCount >= 3) {
+                    fixedBatch.draw(Constants.txBullet,583 - 90,14,27,27);
+                    if(Constants.nBulletCount >= 4) {
+                        fixedBatch.draw(Constants.txBullet,583 - 135,14,27,27);
+                    }
+                }
+            }
+        }
+        font.draw(fixedBatch, "BLV: " + nBeefinessLevel, 0, layout.height);
+        fixedBatch.end();
+        if(Constants.nHealth == 0) {
+            Constants.isPlayerDead = true;
+        }
     }
 
     public void playerLvl() {
-        if(Constants.fBeefyProgression >= Constants.fLevelUp) {
-            Constants.nBeefinessLevel++;
-            Constants.fLevelUp++;
-            Constants.fBeefyProgression = 0;
+        if(fBeefyProgression >= fLevelUp) {
+            nBeefinessLevel++;
+            fLevelUp++;
+            fBeefyProgression = 0;
         }
     }
 

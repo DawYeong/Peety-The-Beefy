@@ -18,7 +18,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 /**
  * @author benny
@@ -46,7 +45,7 @@ public class EntityCreation {
                           int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, int nType, short cBits, short mBits,
                           short gIndex, Vector2 vDir, int nHealth) {
 
-        txSheet = assetManager.get(sTexture);
+        txSheet = new Texture(sTexture);
         araniCharacter = new Animation[nRows * nColumns];
         this.sId = sId;
         this.batch = batch;
@@ -296,4 +295,10 @@ public class EntityCreation {
         }
     }
 
+    public void cleanup() {
+        txSheet.dispose();
+        batch.dispose();
+        world.dispose();
+
+    }
 }
