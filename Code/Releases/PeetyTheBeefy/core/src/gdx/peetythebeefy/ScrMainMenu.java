@@ -35,6 +35,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
     OrthographicCamera camera;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     Vector2 v2MousePosition;
+    boolean isStart;
     static float fAlpha = 0;
 
 
@@ -87,36 +88,38 @@ public class ScrMainMenu implements Screen, InputProcessor {
     public void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
-            if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
-                    && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
-                if (i == 0) {
-                    System.out.println("moves to Lvl 1 screen");
-                    Constants.isShowing = false;
-                    Constants.isPlayerDead = false;
-                    Constants.isFadeIn[0] = true;
-                    ScrLvl1.fAlpha = 1;
-                    Constants.isGameStart = false;
-                } else if (i == 1) {
-                    System.out.println("moves to the controls");
-                    game.updateScreen(2);
-                } else if (i == 2) {
-                    System.out.println("moves to the stage select");
-                    game.updateScreen(1);
-                }
-                game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-                game.fMouseY = Constants.SCREENHEIGHT;
-            }
-            if (!Constants.isFadeIn[0]) {
-                if (v2MousePosition.x > alButtons.get(i).fX && v2MousePosition.x < alButtons.get(i).fX + alButtons.get(i).fW
-                        && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
-                    // alButtons.get(i).sprButton.setAlpha(250);
-                    alButtons.get(i).sprButton.setColor(1, 1, 1, 1);
-                    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                        alButtons.get(i).sprButton.setColor(Color.GRAY);
-                        alButtons.get(i).sprButton.setAlpha(10);
+            if (isStart) {
+                if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
+                        && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
+                    if (i == 0) {
+                        System.out.println("moves to Lvl 1 screen");
+                        Constants.isShowing = false;
+                        Constants.isPlayerDead = false;
+                        Constants.isFadeIn[0] = true;
+                        ScrLvl1.fAlpha = 1;
+                        Constants.isGameStart = false;
+                    } else if (i == 1) {
+                        System.out.println("moves to the controls");
+                        game.updateScreen(2);
+                    } else if (i == 2) {
+                        System.out.println("moves to the stage select");
+                        game.updateScreen(1);
                     }
-                } else {
-                    alButtons.get(i).sprButton.setColor(0.8f, 0.8f, 0.8f, 0.8f);
+                    game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                    game.fMouseY = Constants.SCREENHEIGHT;
+                }
+                if (!Constants.isFadeIn[0]) {
+                    if (v2MousePosition.x > alButtons.get(i).fX && v2MousePosition.x < alButtons.get(i).fX + alButtons.get(i).fW
+                            && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
+                        // alButtons.get(i).sprButton.setAlpha(250);
+                        alButtons.get(i).sprButton.setColor(1, 1, 1, 1);
+                        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                            alButtons.get(i).sprButton.setColor(Color.GRAY);
+                            alButtons.get(i).sprButton.setAlpha(10);
+                        }
+                    } else {
+                        alButtons.get(i).sprButton.setColor(0.8f, 0.8f, 0.8f, 0.8f);
+                    }
                 }
             }
         }
@@ -130,6 +133,13 @@ public class ScrMainMenu implements Screen, InputProcessor {
             game.updateScreen(Constants.nCurrentScreen);
             Constants.isFadeIn[0] = false;
             Constants.isFadeOut[Constants.nCurrentScreen - 3] = true;
+        }
+        if(Constants.isMainMenuOut && fAlpha >0) {
+            fAlpha -= 0.02f;
+        }
+        if(fAlpha <= 0) {
+            isStart = true;
+            Constants.isMainMenuOut = false;
         }
     }
 

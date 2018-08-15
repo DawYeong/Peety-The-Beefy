@@ -32,7 +32,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     OrthographicCamera camera;
     GlyphLayout layout;
     float fMouseX, fMouseY;
-    boolean isReset;
+    boolean isReset, isReady = true;
     public static final AssetManager assetManager = new AssetManager();
 
     @Override
@@ -49,15 +49,15 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         setScreen(scrLoading); //Starting screen
 
         //No code is done unless assets are loaded
-        assetManager.finishLoading();
+//        assetManager.finishLoading();
 
         //Different Screens
-        scrMainMenu = new ScrMainMenu(this);
-        scrStageSelect = new ScrStageSelect(this);
-        scrLvl1 = new ScrLvl1(this);
-        scrControls = new ScrControls(this);
-        scrLvl2 = new ScrLvl2(this);
-        scrDeath = new ScrDeath(this);
+//        scrMainMenu = new ScrMainMenu(this);
+//        scrStageSelect = new ScrStageSelect(this);
+//        scrLvl1 = new ScrLvl1(this);
+//        scrControls = new ScrControls(this);
+//        scrLvl2 = new ScrLvl2(this);
+//        scrDeath = new ScrDeath(this);
 
         Gdx.input.setInputProcessor(this);
     }

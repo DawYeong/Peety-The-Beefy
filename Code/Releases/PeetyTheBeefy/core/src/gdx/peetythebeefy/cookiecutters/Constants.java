@@ -31,7 +31,7 @@ public class Constants {
     public static float fBeefyProgression = 0, fLevelUp = 2;
 
 
-    public static boolean isPlayerDead = false, isShowing, isGameStart;
+    public static boolean isPlayerDead = false, isShowing, isGameStart, isLoadingIn, isMainMenuOut;
     public static boolean[] isLevelFinished = new boolean[12];
     public static boolean[] isLevelUnlocked = new boolean[12];
     public static boolean[] isFadeIn = new boolean [13];
