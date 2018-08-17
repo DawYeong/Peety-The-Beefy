@@ -31,6 +31,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
+
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     Vector2 v2Target, vMousePosition;
     int nLevelHeight, nLevelWidth, nSpawnrate = 0, nCount = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nDialogue = 0, nCharacter, nDialogueDelay = 0;
     Texture txBackground, txSky;
-    boolean isDialogueStart, isDialogueDone, isLevelDialogue = true;
+    boolean isDialogueStart, isDialogueDone, isLevelDialogue = true, isBack;
     static boolean isChangedToLvl2 = false;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
 
@@ -106,14 +107,16 @@ public class ScrLvl1 implements Screen, InputProcessor {
         ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", 1,
                 Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0, 0), 4);
-        v2Target = new Vector2(Constants.SCREENWIDTH / 2, Constants.SCREENHEIGHT / 2);
+        v2Target = new Vector2(nLevelWidth * PPM / 2, nLevelHeight * PPM / 2);
         tbCharacter = new TextBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
-        pGUI = new PlayerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0),font, generator, parameter);
+        pGUI = new PlayerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0, 0), font, generator, parameter);
     }
 
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
+        tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
     }
 
     @Override
@@ -136,14 +139,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
             ecPlayer.body.setTransform((float) (690 / PPM), (float) (450 / PPM), 0);
             isChangedToLvl2 = false;
         }
-            ecPlayer.Update();
+        ecPlayer.Update();
         moveEnemy();
 
         otmr.setView(camera);
         otmr.render();
 
 
-        if (Constants.isGameStart) {
+        if (Constants.isGameStart && !isBack) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
@@ -198,7 +201,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (!Constants.isGameStart || isDialogueStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
-            if(Constants.isShowing) {
+            if (Constants.isShowing) {
                 drawButtons();
             }
         } else {
@@ -224,7 +227,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void lvl1Reset() {
-        if(game.isReset) {
+        if (game.isReset) {
             ecPlayer.body.setTransform(Gdx.graphics.getWidth() / 2 / PPM, Gdx.graphics.getHeight() / 2 / PPM, 0);
             Constants.isFadeOut[0] = true;
             fAlpha = 1;
@@ -242,7 +245,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void dialogueLogic() {
         tbCharacter.isTransition = isDialogueStart;
-        if(alDialogue.size() != 0) {
+        if (alDialogue.size() != 0) {
             tbCharacter.tText = alDialogue.get(0);
             if (tLvl1.isFinished && !isDialogueDone) {
                 alDialogue.get(0).Update();
@@ -250,7 +253,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             if (alDialogue.get(0).isFinished && tbCharacter.fOpacity2 >= 1) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                    if(isDialogueStart) {
+                    if (isDialogueStart) {
                         nDialogue++;
                     }
                     if (nDialogue == 5 || nDialogue == 14 || nDialogue == 17) {
@@ -263,9 +266,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     alDialogue.remove(0);
                 }
             }
-            if(Constants.nBeefinessLevel == 2 && isLevelDialogue && nDialogue < 14) {
+            if (Constants.nBeefinessLevel == 2 && isLevelDialogue && nDialogue < 14) {
                 nDialogueDelay++;
-                if(nDialogueDelay >= 75) {
+                if (nDialogueDelay >= 75) {
                     tbCharacter.fOpacity = 0;
                     isDialogueDone = false;
                     nDialogueDelay = 0;
@@ -301,9 +304,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             nMaxEnemies++;
             nEnemies = 0;
         }
-        if(nWaveCount == 3 && alEnemy.size() == 0 && isDialogueDone) {
+        if (nWaveCount == 3 && alEnemy.size() == 0 && isDialogueDone) {
             nDialogueDelay++;
-            if(nDialogueDelay >= 75) {
+            if (nDialogueDelay >= 75) {
                 tbCharacter.fOpacity = 0;
                 nDialogueDelay = 0;
                 isDialogueDone = false;
@@ -345,7 +348,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             if (alEnemy.get(i).isDeath || Constants.isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
-                Constants.fBeefyProgression ++;
+                Constants.fBeefyProgression++;
                 nCount--;
                 alEnemy.remove(i);
             }
@@ -379,7 +382,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 ScrMainMenu.fAlpha = 0;
                 ScrStageSelect.fAlpha = 0;
                 Constants.nCurrentScreen = 3;
-                game.updateScreen(0);
+                isBack = true;
             }
         }
     }
@@ -424,11 +427,20 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     public void screenTransition() {
         if (Constants.isFadeOut[0] && fAlpha > 0) {
-            fAlpha -= 0.01f;
+            fAlpha -= 0.02f;
         }
         if (fAlpha < 0 && !Constants.isFadeIn[1]) {
             Constants.isFadeOut[0] = false;
             Constants.isGameStart = true;
+        }
+        if (isBack) {
+            if (fAlpha < 1) {
+                fAlpha += 0.02;
+            } else if (fAlpha >= 1) {
+                game.updateScreen(0);
+                isBack = false;
+                System.out.println("here");
+            }
         }
         if (Constants.isFadeIn[1] && fTransitWidth <= Gdx.graphics.getWidth()) {
             fTransitHeight += 16;
@@ -444,8 +456,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
     public void createText() {
-        tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
-                Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
         alDialogue.add(new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
                 "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: LMAO!!! Yo you hear this mans? Absolute buffoonery! Bro trust, I'm gon sit you down boi.",
@@ -478,8 +488,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
         alDialogue.add(new Text(generator, parameter, font, "Peety: Pffftttt... Alright Matty I'll see about that."
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
     }
+
     public void changeBox() {
-        if(alDialogue.size() != 0) {
+        if (alDialogue.size() != 0) {
             if (alDialogue.get(0).sId.contentEquals("Peety")) {
                 tbCharacter.nType = 1;
             } else if (alDialogue.get(0).sId.contentEquals("Matty")) {
