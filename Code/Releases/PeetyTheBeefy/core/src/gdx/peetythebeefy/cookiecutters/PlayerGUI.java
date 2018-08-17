@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.sun.xml.internal.ws.server.provider.SyncProviderInvokerTube;
 import gdx.peetythebeefy.cookiecutters.Constants;
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 

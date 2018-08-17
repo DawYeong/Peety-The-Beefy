@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
@@ -92,7 +91,7 @@ public class ScrStageSelect implements Screen {
                     nextScreen = 3;
                     nextTransition = 0;
                     Constants.isFadeIn[12] = true;
-                } else if(i == 1 && Constants.isLevelUnlocked[1] == true) {
+                } else if(i == 1 && Constants.isLevelUnlocked[1]) {
                     System.out.println("moves to lvl 2");
                     Constants.isFadeOut[1] = true;
                     nextScreen = 4;
@@ -109,7 +108,7 @@ public class ScrStageSelect implements Screen {
                 game.fMouseY = Constants.SCREENHEIGHT;
             }
             if(i < 12) {
-                if (Constants.isLevelUnlocked[i] == false) {
+                if (!Constants.isLevelUnlocked[i]) {
                     alButtons.get(i).sprButton.setColor(Color.GRAY);
                     alButtons.get(i).sprButton.setAlpha(100);
                 }
@@ -117,7 +116,7 @@ public class ScrStageSelect implements Screen {
 //                    alButtons.get(i).sprButton.setColor(Color.DARK_GRAY);
 //                    alButtons.get(i).sprButton.setAlpha(10);
 //                }
-                else if(Constants.isLevelUnlocked[i] == true && Constants.isLevelFinished[i] == false) {
+                else if(Constants.isLevelUnlocked[i] && !Constants.isLevelFinished[i]) {
                     alButtons.get(i).sprButton.setColor(Color.WHITE);
                     alButtons.get(i).sprButton.setAlpha(1);
                 }

@@ -61,7 +61,11 @@ public class EntityCreation {
         this.vDir = vDir;
         this.world = world;
         this.nHealth = nHealth;
-        vDir.setLength(0.7f);
+        if(sId.contentEquals("EnemyBullet")) {
+            vDir.setLength(0.4f);
+        } else {
+            vDir.setLength(0.7f);
+        }
         this.createBody(world, fX, fY, fWidth, fHeight, cBits, mBits, gIndex);
         this.playerSprite(araniCharacter);
     }
@@ -78,9 +82,6 @@ public class EntityCreation {
             drawAnimation();
         } else if (nType == 3) {
             bulletMove();
-            drawTexture();
-        } else if (nType == 4) {
-            platformMove();
             drawTexture();
         }
         if (body.getPosition().y < 0) {
@@ -127,7 +128,7 @@ public class EntityCreation {
         shape.dispose();
     }
 
-    public void playerMove() {
+    private void playerMove() {
         float fHForce = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             fHForce -= 1;
@@ -165,7 +166,7 @@ public class EntityCreation {
 
     }
 
-    public void enemyMove() {
+    private void enemyMove() {
         float fhForce = 0;
         if (body.getLinearVelocity().x == 0) {
             if (nDir == 1) {
@@ -189,7 +190,7 @@ public class EntityCreation {
         }
     }
 
-    public void bulletMove() {
+    private void bulletMove() {
         if (nCount < 2) {
             body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
         }
@@ -199,20 +200,10 @@ public class EntityCreation {
         if (isStuck) {
             body.setAwake(false);
         }
+//        if(sId.contentEquals("EnemyBullet")) {
+//            body.setLinearVelocity(body.getLinearVelocity().x, vDir.y);
+//        }
         nCount++;
-    }
-
-    public void platformMove() {
-        if (body.getPosition().y >= (Gdx.graphics.getHeight() - 100) / 32) {
-            nPlatDir = 2;
-        } else if (body.getPosition().y <= (Gdx.graphics.getHeight() / 2 + 150) / 32) {
-            nPlatDir = 1;
-        }
-        if (nPlatDir == 1) {
-            body.setTransform(body.getPosition().x, (float) (body.getPosition().y + 0.02), 0);
-        } else if (nPlatDir == 2) {
-            body.setTransform(body.getPosition().x, (float) (body.getPosition().y - 0.02), 0);
-        }
     }
 
 
@@ -230,25 +221,25 @@ public class EntityCreation {
                 sprAni = new Sprite(txSheet, nSx, nSy, nW, nH);
                 arSprPeety[j] = new Sprite(sprAni);
             }
-            araniCharacter[i] = new Animation(fAniSpeed, arSprPeety);
+            araniCharacter[i] = new Animation<TextureRegion>(fAniSpeed, arSprPeety);
         }
         return araniCharacter;
     }
 
-    public void drawAnimation() {
+    private void drawAnimation() {
         trTemp = (TextureRegion) araniCharacter[nPos].getKeyFrame(nFrame, true);
         batch.begin();
         batch.draw(trTemp, body.getPosition().x * 32 - 32 / 2, body.getPosition().y * 32 - 32 / 2, 32, 32);
         batch.end();
     }
 
-    public void drawTexture() {
+    private void drawTexture() {
         batch.begin();
         batch.draw(txSheet, body.getPosition().x * 32 - 8 / 2, body.getPosition().y * 32 - 8 / 2, 8, 8);
         batch.end();
     }
 
-    public void frameAnimation() {
+    private void frameAnimation() {
         if (nType != 3) {
             if (nType != 2 && isMoving) {
                 if (body.getLinearVelocity().x != 0 || body.getLinearVelocity().y != 0) {

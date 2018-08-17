@@ -24,7 +24,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 import java.util.ArrayList;
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
@@ -70,7 +69,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
         this.SR = game.SR;
         this.font = game.font;
         scrLvl1 = new ScrLvl1(game);
-        this.b2dr = scrLvl1.b2dr;
         this.parameter = game.parameter;
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
@@ -285,14 +283,14 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     alEnemy.get(i).nShootCount++;
                 }
             }
-            if (ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 200 / PPM &&
+            if (ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y + 400 / PPM &&
                     ecPlayer.body.getPosition().y >= alEnemy.get(i).body.getPosition().y ||
-                    ecPlayer.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 200 / PPM &&
+                    ecPlayer.body.getPosition().y > alEnemy.get(i).body.getPosition().y - 400 / PPM &&
                             ecPlayer.body.getPosition().y < alEnemy.get(i).body.getPosition().y) {
-                if (ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 200 / PPM &&
+                if (ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x + 400 / PPM &&
                         ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x) {
                     alEnemy.get(i).isInRange = true;
-                } else if (ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 200 / PPM &&
+                } else if (ecPlayer.body.getPosition().x > alEnemy.get(i).body.getPosition().x - 400 / PPM &&
                         ecPlayer.body.getPosition().x < alEnemy.get(i).body.getPosition().x) {
                     alEnemy.get(i).isInRange = true;
                 }

@@ -36,8 +36,10 @@ public class ContactListener1 implements ContactListener {
                 }
                 if(bulletBody.sId == "EnemyBullet" && enemyBody.sId == "PLAYER") {
                     Constants.nHealth--;
+                    bulletBody.isStuck = true;
                 } else if(enemyBody.sId == "EnemyBullet" && bulletBody.sId == "PLAYER") {
                     Constants.nHealth--;
+                    enemyBody.isStuck = true;
                 }
             }
         }

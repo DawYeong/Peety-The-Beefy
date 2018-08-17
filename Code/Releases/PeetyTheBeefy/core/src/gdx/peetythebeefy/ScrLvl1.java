@@ -29,7 +29,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
@@ -54,7 +53,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     World world;
     float fX, fY, fW, fH;
     EntityCreation ecPlayer;
-    Box2DDebugRenderer b2dr;
     OrthographicCamera camera;
     OrthogonalTiledMapRenderer otmr;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
@@ -395,7 +393,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList Bullets, World world) {
+    public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList<EntityCreation> Bullets, World world) {
         //moved mouse position vector to draw because we need it for other things
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()) {
             if (Constants.nBulletCount > 0 && !Constants.isShowing) {
