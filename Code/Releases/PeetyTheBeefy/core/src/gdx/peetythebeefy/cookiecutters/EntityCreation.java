@@ -32,10 +32,10 @@ public class EntityCreation {
     public Animation[] araniCharacter;
     public Body body;
     public String sId, sTexture;
-    public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0, nHealth,
+    public int nJumpInterval, nJumpCount, nJump, nDir = 1, nPos, nFrame, nSpriteDir, nRows, nColumns, nCount = 0,
             nShootCount = 0, nType, nPlatDir = 1;
-    public boolean isCounterStart, isDeath = false, canCollect = false, isStuck, isInRange, isMoving = true;
-    public float fAniSpeed;
+    public boolean isCounterStart, isDeath = false, canCollect = false, isStuck, isInRange, isMoving = true, canDamage = true;
+    public float fAniSpeed, fHealth;
     SpriteBatch batch;
     TextureRegion trTemp;
     Vector2 vDir;
@@ -44,7 +44,7 @@ public class EntityCreation {
 
     public EntityCreation(World world, String sId, float fX, float fY, float fWidth, float fHeight, SpriteBatch batch, float fAniSpeed,
                           int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, int nType, short cBits, short mBits,
-                          short gIndex, Vector2 vDir, int nHealth) {
+                          short gIndex, Vector2 vDir, float fHealth) {
 
         txSheet = assetManager.get(sTexture);
         araniCharacter = new Animation[nRows * nColumns];
@@ -60,7 +60,7 @@ public class EntityCreation {
         this.nType = nType;
         this.vDir = vDir;
         this.world = world;
-        this.nHealth = nHealth;
+        this.fHealth = fHealth;
         if(sId.contentEquals("EnemyBullet")) {
             vDir.setLength(0.4f);
         } else {
@@ -185,7 +185,7 @@ public class EntityCreation {
             body.applyForceToCenter(0, 350, false);
         }
         body.setLinearVelocity(fhForce * 2, body.getLinearVelocity().y);
-        if (nHealth <= 0) {
+        if (fHealth <= 0) {
             isDeath = true;
         }
     }

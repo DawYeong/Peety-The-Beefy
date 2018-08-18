@@ -96,9 +96,9 @@ public class ScrLvl2 implements Screen, InputProcessor {
         nLevelHeight = props.get("height", Integer.class);
 
         ecPlayer = new EntityCreation(world, "PLAYER", fX - 300, fY - 215, fW, fH, batch, 9.2f, 0, 0,
-                0, 4, 6, "PTBsprite.png", 1,
-                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
-                scrLvl1.ecPlayer.nHealth);
+                0, 4, 6, "PTBsprite.png", 1, Constants.BIT_PLAYER,
+                (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
+                scrLvl1.ecPlayer.fHealth);
         createText();
         pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0), font, generator, parameter);
     }
@@ -106,6 +106,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
+        tLvl2 = new Text(generator, parameter, font, "Peety The Beefy Meets a Dreamy Sweetie", 26, Gdx.graphics.getWidth()/2,
+                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
     }
 
     @Override
@@ -208,8 +210,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
     }
 
     public void createText(){
-        tLvl2 = new Text(generator, parameter, font, "Peety The Beefy Meets a Dreamy Sweetie", 26, Gdx.graphics.getWidth()/2,
-                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
     }
 
     public void createEnemy() {

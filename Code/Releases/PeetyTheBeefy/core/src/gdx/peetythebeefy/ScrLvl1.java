@@ -254,7 +254,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     if (isDialogueStart) {
                         nDialogue++;
                     }
-                    if (nDialogue == 5 || nDialogue == 14 || nDialogue == 17) {
+                    if (nDialogue == 5 || nDialogue == 15 || nDialogue == 18) {
                         System.out.println("here");
                         isDialogueDone = true;
                         isDialogueStart = false;
@@ -376,6 +376,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 System.out.println("move to main menu ");
                 game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
                 game.fMouseY = Constants.SCREENHEIGHT;
+                Constants.isGameStart = false;
                 Constants.isShowing = false;
                 ScrMainMenu.fAlpha = 0;
                 ScrStageSelect.fAlpha = 0;
@@ -427,7 +428,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         if (Constants.isFadeOut[0] && fAlpha > 0) {
             fAlpha -= 0.02f;
         }
-        if (fAlpha < 0 && !Constants.isFadeIn[1]) {
+        if (fAlpha < 0 && !Constants.isFadeIn[1] && !isBack) {
             Constants.isFadeOut[0] = false;
             Constants.isGameStart = true;
         }
@@ -476,6 +477,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: ......................... Your Beefiness Level, BLV, is what determines your muscle thickness. " +
                 "The higher you BLV the thicker your muscles.", 26, 30, 200, fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Also, the more levels you gain the more damage output. If you die then your muscles shrink lowering your BLV.",
+                26, 30, 200, fixedBatch, 2, 15, "Matty"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: Wow that sounds painful!", 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: Yea the doctor said it was terminal.", 26, 30, 200, fixedBatch, 2, 15, "Matty"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: Wait its Termin...... Well whatever enough of this small talk!", 26, 30, 200, fixedBatch, 2, 15, "Peety"));

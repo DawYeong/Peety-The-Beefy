@@ -28,7 +28,7 @@ public class Constants {
     public static final short BIT_ENEMY = 16;
     public static final short BIT_ENEMYBULLET = 32;
     public static int nHealth = 4, nBulletCount = 4, nCurrentScreen = 3, nBeefinessLevel = 1;
-    public static float fBeefyProgression = 0, fLevelUp = 2;
+    public static float fBeefyProgression = 0, fLevelUp = 2, fPlayerDamage = 0.5f;
 
 
     public static boolean isPlayerDead = false, isShowing, isGameStart, isLoadingIn, isMainMenuOut;

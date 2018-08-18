@@ -104,7 +104,8 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     public void playerLvl() {
         if(Constants.fBeefyProgression >= Constants.fLevelUp) {
             Constants.nBeefinessLevel++;
-            Constants.fLevelUp++;
+            Constants.fLevelUp += 2;
+            Constants.fPlayerDamage += 0.5f;
             Constants.fBeefyProgression = 0;
         }
     }

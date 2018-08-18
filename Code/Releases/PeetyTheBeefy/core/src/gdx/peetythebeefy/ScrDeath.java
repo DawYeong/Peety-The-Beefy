@@ -40,8 +40,7 @@ public class ScrDeath implements Screen, InputProcessor{
             Constants.isPlayerDead = false;
             game.isReset = true;
             if(Constants.nCurrentScreen == 3) {
-                Constants.nBeefinessLevel = 1;
-                Constants.fBeefyProgression = 0;
+                Constants.nBeefinessLevel --;
             }
             game.updateScreen(Constants.nCurrentScreen);
         }

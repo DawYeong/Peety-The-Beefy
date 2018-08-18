@@ -26,18 +26,20 @@ public class ContactListener1 implements ContactListener {
         if(isBulletHit(fixA, fixB)) {
             EntityCreation bulletBody = (EntityCreation) fixB.getUserData();
             EntityCreation enemyBody = (EntityCreation) fixA.getUserData();
-            if(!bulletBody.isStuck || !enemyBody.isStuck) {
-                if(bulletBody.sId == "Bullet" && enemyBody.sId == "ENEMY") {
-                    enemyBody.nHealth--;
+            if((!bulletBody.isStuck || !enemyBody.isStuck) && (bulletBody.canDamage || enemyBody.canDamage)) {
+                if(bulletBody.sId.contentEquals("Bullet") && enemyBody.sId.contentEquals("ENEMY")) {
+                    enemyBody.fHealth-= Constants.fPlayerDamage;
                     System.out.println("hit");
-                } else if(enemyBody.sId == "Bullet" && bulletBody.sId == "ENEMY") {
-                    bulletBody.nHealth--;
+                    bulletBody.canDamage = false;
+                } else if(enemyBody.sId.contentEquals("Bullet") && bulletBody.sId.contentEquals("ENEMY")) {
+                    bulletBody.fHealth-= Constants.fPlayerDamage;
                     System.out.println("Boom");
+                    enemyBody.canDamage = false;
                 }
-                if(bulletBody.sId == "EnemyBullet" && enemyBody.sId == "PLAYER") {
+                if(bulletBody.sId.contentEquals("EnemyBullet") && enemyBody.sId.contentEquals("PLAYER")) {
                     Constants.nHealth--;
                     bulletBody.isStuck = true;
-                } else if(enemyBody.sId == "EnemyBullet" && bulletBody.sId == "PLAYER") {
+                } else if(enemyBody.sId.contentEquals("EnemyBullet") && bulletBody.sId.contentEquals("PLAYER")) {
                     Constants.nHealth--;
                     enemyBody.isStuck = true;
                 }
@@ -47,7 +49,7 @@ public class ContactListener1 implements ContactListener {
             EntityCreation playerBody = (EntityCreation) fixA.getUserData();
             EntityCreation enemyBody = (EntityCreation) fixB.getUserData();
             if(playerBody.body.getPosition().y + playerBody.body.getMass()/2 <=
-                    enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId == "PLAYER" && enemyBody.sId == "ENEMY") {
+                    enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId.contentEquals("PLAYER") && enemyBody.sId.contentEquals("ENEMY")) {
                 Constants.nHealth --;
             }
         }
