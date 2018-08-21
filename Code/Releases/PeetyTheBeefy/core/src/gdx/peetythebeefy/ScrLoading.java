@@ -10,9 +10,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import gdx.peetythebeefy.cookiecutters.Constants;
-
-import java.awt.*;
-
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 public class ScrLoading implements Screen {
@@ -51,6 +48,7 @@ public class ScrLoading implements Screen {
             game.scrLvl1 = new ScrLvl1(game);
             game.scrControls = new ScrControls(game);
             game.scrLvl2 = new ScrLvl2(game);
+            game.scrLvl3 = new ScrLvl3(game);
             game.scrDeath = new ScrDeath(game);
             Constants.isLoadingIn = true;
         }

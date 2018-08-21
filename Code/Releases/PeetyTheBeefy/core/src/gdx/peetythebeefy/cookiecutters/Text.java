@@ -44,19 +44,19 @@ public class Text {
         parameter.spaceY = _LineSpacing;
         font = generator.generateFont(parameter);
         layout = new GlyphLayout(font, sText);
-        for(int i = 0; i < arcText.length; i++) {
+        for (int i = 0; i < arcText.length; i++) {
             sTemp[i] = "";
         }
-        for(int i = 0; i < arcText.length; i++) {
+        for (int i = 0; i < arcText.length; i++) {
             sTemp[i] += arcText[i];
             argTextLength[i] = new GlyphLayout(font, sTemp[i]);
         }
     }
 
     public void Update() {
-        if(nType == 1) {
+        if (nType == 1) {
             levelText();
-        } else if(nType == 2) {
+        } else if (nType == 2) {
             characterText();
         }
         drawText();
@@ -65,9 +65,9 @@ public class Text {
     public void drawText() {
         batch.begin();
         font.setColor(1, 1, 1, fOpacity);
-        if(nType == 1) {
-            font.draw(batch, sbDisplay, fX -(layout.width/2), fY + 150);
-        } else if(nType == 2) {
+        if (nType == 1) {
+            font.draw(batch, sbDisplay, fX - (layout.width / 2), fY + 150);
+        } else if (nType == 2) {
             font.draw(batch, sbDisplay, fX, fY, Gdx.graphics.getWidth() - fX * 2, Align.left, true);
         }
         batch.end();
@@ -103,20 +103,18 @@ public class Text {
     }
 
     public void characterText() {
-        if (!Constants.isShowing) {
-            if (nCount < arcText.length) {
-                nDelay++;
-                if (nDelay >= 3) {
-                    if (isForward) {
-                        sbDisplay.append(arcText[nCount]);
-                        nCount++;
-                    }
-                    nDelay = 0;
+        if (nCount < arcText.length) {
+            nDelay++;
+            if (nDelay >= 3) {
+                if (isForward) {
+                    sbDisplay.append(arcText[nCount]);
+                    nCount++;
                 }
+                nDelay = 0;
             }
-            if (nCount == arcText.length && !isFinished) {
-                isFinished = true;
-            }
+        }
+        if (nCount == arcText.length && !isFinished) {
+            isFinished = true;
         }
     }
 }

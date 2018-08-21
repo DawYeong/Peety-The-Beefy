@@ -20,15 +20,14 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.peetythebeefy.cookiecutters.*;
 import java.util.ArrayList;
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
-import static gdx.peetythebeefy.cookiecutters.Constants.isShowing;
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
+import static gdx.peetythebeefy.cookiecutters.Constants.isPlayerDead;
 
 /**
  * @author tn200
@@ -60,6 +59,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alEnemyBullet = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
+    boolean isDialogueStart, isDialogueDone;
     static float fTransitWidth, fTransitHeight;
 
     public ScrLvl2(PeetyTheBeefy game) {
@@ -241,7 +241,6 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     fEY = Gdx.graphics.getHeight()/2 + 273;
                     break;
             }
-            System.out.println(nSpawnLocation);
             nEnemies++;
             alEnemy.add(new EntityCreation(world, "ENEMY", fEX, fEY, fW - 10, fH, batch, 9.2f,
                     0, 0, 0, 4, 1, "MTMsprite.png", 2,
@@ -253,6 +252,10 @@ public class ScrLvl2 implements Screen, InputProcessor {
             nWaveCount++;
             nMaxEnemies++;
             nEnemies = 0;
+        }
+        if(nWaveCount == 3  && (ecPlayer.body.getPosition().x * PPM > 367  && ecPlayer.body.getPosition().x * PPM < 400) &&
+                (ecPlayer.body.getPosition().y * PPM > 289 && ecPlayer.body.getPosition().y * PPM < 338)) {
+            game.updateScreen(5);
         }
         nSpawnRate++;
     }
@@ -298,6 +301,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 alEnemy.get(i).isInRange = false;
             }
             if (alEnemy.get(i).isDeath) {
+                Constants.fBeefyProgression ++;
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 alEnemy.remove(i);
             }
