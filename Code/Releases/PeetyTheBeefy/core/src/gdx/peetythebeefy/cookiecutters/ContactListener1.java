@@ -10,7 +10,7 @@ import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 public class ContactListener1 implements ContactListener {
 
-    Sound sHit = assetManager.get("sound/Hit.mp3", Sound.class);
+    private Sound sHit = assetManager.get("sound/Hit.mp3", Sound.class);
     @Override
     public void beginContact(Contact contact) {
         Fixture fixA = contact.getFixtureA();

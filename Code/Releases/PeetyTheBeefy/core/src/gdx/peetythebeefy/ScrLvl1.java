@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -62,6 +63,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     boolean isDialogueStart, isDialogueDone, isLevelDialogue = true, isBack;
     static boolean isChangedToLvl2 = false;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
+    Sound sPew;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -82,6 +84,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         fH = 32;
         txBackground = assetManager.get("level1Background.png");
         txSky = assetManager.get("sky.png");
+        sPew = assetManager.get("sound/Pew.mp3", Sound.class);
 
 
         createButtons();
@@ -399,6 +402,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                         0, 4, 6, "bulletTexture.png", 3,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
                         vDir, 0));
+                sPew.play(0.3f);
                 Constants.nBulletCount--;
             }
         }

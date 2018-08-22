@@ -118,6 +118,9 @@ public class ScrLoading implements Screen {
         assetManager.load("Watergun.png", Texture.class);
         assetManager.load("sound/Morning.mp3", Music.class);
         assetManager.load("sound/Hit.mp3", Sound.class);
+        assetManager.load("sound/PeetyTalk.mp3", Sound.class);
+        assetManager.load("sound/MattyTalk.mp3", Sound.class);
+        assetManager.load("sound/Pew.mp3",Sound.class);
     }
 
     @Override
