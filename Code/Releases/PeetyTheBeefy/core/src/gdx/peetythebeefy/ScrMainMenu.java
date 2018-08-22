@@ -65,6 +65,9 @@ public class ScrMainMenu implements Screen, InputProcessor {
         Gdx.gl.glClearColor(1, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
+        game.mBackground.setLooping(true);
+        game.mBackground.setVolume(0.1f);
+        game.mBackground.play();
         batch.begin();
 
         batch.draw(texMenu, 250, 200);

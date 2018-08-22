@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -26,6 +27,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrLvl3 scrLvl3;
     ScrDeath scrDeath;
     OrthographicCamera camera;
+    Music mBackground;
     float fMouseX, fMouseY;
     boolean isReset, isReady = true;
     public static final AssetManager assetManager = new AssetManager();

@@ -2,6 +2,8 @@ package gdx.peetythebeefy;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -50,6 +52,7 @@ public class ScrLoading implements Screen {
             game.scrLvl2 = new ScrLvl2(game);
             game.scrLvl3 = new ScrLvl3(game);
             game.scrDeath = new ScrDeath(game);
+            game.mBackground = assetManager.get("sound/Morning.mp3", Music.class);
             Constants.isLoadingIn = true;
         }
 
@@ -113,7 +116,8 @@ public class ScrLoading implements Screen {
         assetManager.load("TextBoxPeety.png", Texture.class);
         assetManager.load("Tiled map Assets.png", Texture.class);
         assetManager.load("Watergun.png", Texture.class);
-
+        assetManager.load("sound/Morning.mp3", Music.class);
+        assetManager.load("sound/Hit.mp3", Sound.class);
     }
 
     @Override

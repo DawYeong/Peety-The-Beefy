@@ -1,13 +1,16 @@
 package gdx.peetythebeefy.cookiecutters;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 public class ContactListener1 implements ContactListener {
 
+    Sound sHit = assetManager.get("sound/Hit.mp3", Sound.class);
     @Override
     public void beginContact(Contact contact) {
         Fixture fixA = contact.getFixtureA();
@@ -24,13 +27,19 @@ public class ContactListener1 implements ContactListener {
         if(isBulletHit(fixA, fixB)) {
             EntityCreation bulletBody = (EntityCreation) fixB.getUserData();
             EntityCreation enemyBody = (EntityCreation) fixA.getUserData();
-            if((!bulletBody.isStuck || !enemyBody.isStuck) && (bulletBody.canDamage || enemyBody.canDamage)) {
+            if((!bulletBody.isStuck || !enemyBody.isStuck)) {
                 if(bulletBody.sId.contentEquals("Bullet") && enemyBody.sId.contentEquals("ENEMY")) {
-                    enemyBody.fHealth-= Constants.fPlayerDamage;
+                    if(bulletBody.canDamage) {
+                        enemyBody.fHealth -= Constants.fPlayerDamage;
+                    }
+                    sHit.play();
                     System.out.println("hit");
                     bulletBody.canDamage = false;
                 } else if(enemyBody.sId.contentEquals("Bullet") && bulletBody.sId.contentEquals("ENEMY")) {
-                    bulletBody.fHealth-= Constants.fPlayerDamage;
+                    if(enemyBody.canDamage) {
+                        bulletBody.fHealth -= Constants.fPlayerDamage;
+                    }
+                    sHit.play();
                     System.out.println("Boom");
                     enemyBody.canDamage = false;
                 }
