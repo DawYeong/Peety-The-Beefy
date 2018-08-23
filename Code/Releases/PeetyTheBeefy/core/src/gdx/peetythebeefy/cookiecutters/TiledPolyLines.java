@@ -13,7 +13,7 @@ public class TiledPolyLines {
         this.parseTiledObjectLayer(_World, _Objects, cBits, mBits, gIndex);
     }
 
-    public void parseTiledObjectLayer(World world, MapObjects objects, short cBits, short mBits, short gIndex) {
+    private void parseTiledObjectLayer(World world, MapObjects objects, short cBits, short mBits, short gIndex) {
         for (MapObject object : objects) {
             Shape shape;
             if (object instanceof PolylineMapObject) {

@@ -37,6 +37,7 @@ public class ScrDeath implements Screen, InputProcessor{
         bfDeath.draw(fixedBatch, "You Died (Press R)", Constants.SCREENWIDTH/2 - 50,Constants.SCREENHEIGHT/2 + 50);
         fixedBatch.end();
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            Constants.nHealth = 4;
             Constants.isPlayerDead = false;
             game.isReset = true;
             if(Constants.nCurrentScreen == 3) {

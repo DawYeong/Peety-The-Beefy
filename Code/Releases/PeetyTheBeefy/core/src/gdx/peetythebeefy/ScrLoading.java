@@ -61,7 +61,7 @@ public class ScrLoading implements Screen {
         transitionBlock();
     }
 
-    public void loadingBar() {
+    private void loadingBar() {
         SR.begin(ShapeType.Line);
         SR.setColor(0, 0, 0, 1);
         SR.rect(Constants.SCREENWIDTH/4, Constants.SCREENHEIGHT/2 - 20, Constants.SCREENWIDTH/2, 40);
@@ -75,7 +75,7 @@ public class ScrLoading implements Screen {
         SR.end();
     }
 
-    public void transitionBlock() {
+    private void transitionBlock() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         SR.begin(ShapeType.Filled);
@@ -85,7 +85,7 @@ public class ScrLoading implements Screen {
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
-    public void screenTransition() {
+    private void screenTransition() {
         if(Constants.isLoadingIn && fOpacity < 1) {
             fOpacity += 0.02f;
         }
@@ -98,7 +98,7 @@ public class ScrLoading implements Screen {
 
     }
 
-    public void queueAssets() {
+    private void queueAssets() {
         assetManager.load("bulletTexture.png", Texture.class);
         assetManager.load("buttons.png", Texture.class);
         assetManager.load("buttons.txt", TextureAtlas.class);

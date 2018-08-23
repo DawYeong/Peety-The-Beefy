@@ -70,7 +70,7 @@ public class Text {
         drawText();
     }
 
-    public void drawText() {
+    private void drawText() {
         batch.begin();
         font.setColor(1, 1, 1, fOpacity);
         if (nType == 1) {
@@ -81,7 +81,7 @@ public class Text {
         batch.end();
     }
 
-    public void levelText() {
+    private void levelText() {
         if (!Constants.isShowing) {
             if (nCount < arcText.length) {
                 nDelay++;
@@ -110,14 +110,14 @@ public class Text {
         }
     }
 
-    public void characterText() {
+    private void characterText() {
         if (nCount < arcText.length) {
             nDelay++;
             if (nDelay >= 3) {
                 if (isForward) {
                     sbDisplay.append(arcText[nCount]);
-                    if((arcText[nCount] != ' ' || arcText[nCount] != '.' || arcText[nCount] != ':' || arcText[nCount] != ','
-                            || arcText[nCount] != '?' || arcText[nCount] != '!' )&& nCount >= sId.length()) {
+                    if((arcText[nCount] != '.' && arcText[nCount] != ':' && arcText[nCount] != ',')
+                            && nCount >= sId.length()) {
                         sCharSpeak.play(0.1f);
                     }
                     nCount++;

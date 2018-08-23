@@ -53,6 +53,9 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     public void render() {
         super.render();
         playerLvl();
+        if(Constants.nHealth == 0) {
+            Constants.isPlayerDead = true;
+        }
     }
 
     public void updateScreen(int nScreen) {

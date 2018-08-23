@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
@@ -54,8 +55,9 @@ public class ScrMainMenu implements Screen, InputProcessor {
         sPlay = assetManager.get("sound/Play.mp3", Sound.class);
         Constants.isLevelUnlocked[0] = true;
         Constants.isLevelUnlocked[1] = true;
+        Constants.isLevelUnlocked[2] = true;
         createButtons();
-        for (int i = 2; i < 12; i++) {
+        for (int i = 3; i < 12; i++) {
             Constants.isLevelUnlocked[i] = false;
         }
     }
@@ -89,13 +91,13 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     }
 
-    public void createButtons() {
+    private void createButtons() {
         alButtons.add(new Buttons("playButton", batch, -8, Constants.SCREENHEIGHT / 2, 192, 64));
         alButtons.add(new Buttons("controlsButton", batch, -8, Constants.SCREENHEIGHT / 2 - 128, 192, 64));
         alButtons.add(new Buttons("stagesButton", batch, -8, Constants.SCREENHEIGHT / 2 - 256, 192, 64));
     }
 
-    public void drawButtons() {
+    private void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
@@ -140,16 +142,19 @@ public class ScrMainMenu implements Screen, InputProcessor {
         }
     }
 
-    public void screenTransition() {
+    private void screenTransition() {
         if (Constants.isFadeIn[0] && fAlpha < 1) {
             fAlpha += 0.005f;
-            fAudio -= 0.0001f;
+            fAudio -= 0.0002f;
         }
         if (fAlpha > 1) {
             game.mBackground.stop();
             game.updateScreen(Constants.nCurrentScreen);
             Constants.isFadeIn[0] = false;
             Constants.isFadeOut[Constants.nCurrentScreen - 3] = true;
+            game.mGame.setLooping(true);
+            game.mGame.setVolume(0.1f);
+            game.mGame.play();
         }
         if (Constants.isMainMenuOut && fAlpha > 0) {
             fAlpha -= 0.02f;
@@ -160,7 +165,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
         }
     }
 
-    public void transitionBlock() {
+    private void transitionBlock() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         SR.begin(ShapeType.Filled);

@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
@@ -47,6 +48,7 @@ public class ScrStageSelect implements Screen {
     public void show() {
         fMainX = 0;
         fNewX = 768;
+        resetButtons();
     }
 
     @Override
@@ -62,7 +64,7 @@ public class ScrStageSelect implements Screen {
         transitionBlock();
     }
 
-    public void createButtons() {
+    private void createButtons() {
         //all of the level buttons (only 1 and 2 are operational now)
         alButtons.add(new Buttons("b1", batch, 64, fY, 64, 64));
         alButtons.add(new Buttons("b2", batch, 256, fY, 64, 64));
@@ -79,7 +81,7 @@ public class ScrStageSelect implements Screen {
         alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
 
-    public void drawButtons() {
+    private void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
@@ -97,10 +99,14 @@ public class ScrStageSelect implements Screen {
                     nextScreen = 4;
                     nextTransition = 1;
                     Constants.isFadeIn[12] = true;
+                } else if(i == 2 && Constants.isLevelUnlocked[2]) {
+                    System.out.println("moves to lvl 3");
+                    nextScreen = 5;
+                    nextTransition = 2;
+                    Constants.isFadeIn[12] = true;
                 }
                 else if (i == 12) {
                     System.out.println("moves to main menu");
-                    resetButtons();
                     game.updateScreen(0);
                 }
                 //resets the y position of each level button
@@ -123,7 +129,7 @@ public class ScrStageSelect implements Screen {
             }
         }
     }
-    public void resetButtons() {
+    private void resetButtons() {
         alButtons.get(0).fY = Constants.SCREENHEIGHT;
         alButtons.get(1).fY = Constants.SCREENHEIGHT;
         alButtons.get(2).fY = Constants.SCREENHEIGHT;
@@ -138,7 +144,7 @@ public class ScrStageSelect implements Screen {
         alButtons.get(11).fY = Constants.SCREENHEIGHT;
     }
 
-    public void transitionBlock() {
+    private void transitionBlock() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         SR.begin(ShapeRenderer.ShapeType.Filled);
@@ -148,12 +154,16 @@ public class ScrStageSelect implements Screen {
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
-    public void screenTransition2() {
+    private void screenTransition2() {
         if(Constants.isFadeIn[12] && fAlpha < 1) {
             fAlpha += 0.01f;
         }
         if(fAlpha > 1) {
+            game.mBackground.stop();
             game.updateScreen(nextScreen);
+            game.mGame.setLooping(true);
+            game.mGame.setVolume(0.1f);
+            game.mGame.play();
             resetButtons();
             Constants.isFadeIn[12] = false;
             Constants.isFadeOut[nextTransition] = true;

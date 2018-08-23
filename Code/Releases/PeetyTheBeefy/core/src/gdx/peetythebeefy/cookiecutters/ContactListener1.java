@@ -33,14 +33,12 @@ public class ContactListener1 implements ContactListener {
                         enemyBody.fHealth -= Constants.fPlayerDamage;
                     }
                     sHit.play();
-                    System.out.println("hit");
                     bulletBody.canDamage = false;
                 } else if(enemyBody.sId.contentEquals("Bullet") && bulletBody.sId.contentEquals("ENEMY")) {
                     if(enemyBody.canDamage) {
                         bulletBody.fHealth -= Constants.fPlayerDamage;
                     }
                     sHit.play();
-                    System.out.println("Boom");
                     enemyBody.canDamage = false;
                 }
                 if(bulletBody.sId.contentEquals("EnemyBullet") && enemyBody.sId.contentEquals("PLAYER")) {

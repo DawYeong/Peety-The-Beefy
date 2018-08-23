@@ -90,8 +90,5 @@ public class PlayerGUI {
         }
         font.draw(fixedBatch, "BLV: " + Constants.nBeefinessLevel, 0, layout.height);
         fixedBatch.end();
-        if(Constants.nHealth == 0) {
-            Constants.isPlayerDead = true;
-        }
     }
 }

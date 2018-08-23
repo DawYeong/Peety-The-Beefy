@@ -119,9 +119,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        game.mGame.setLooping(true);
-        game.mGame.setVolume(0.1f);
-        game.mGame.play();
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
@@ -169,7 +166,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                             ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass() * 2) &&
                             ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass() * 2) &&
                             ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)
-                            || Constants.isPlayerDead) {
+                            || isPlayerDead) {
                         alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                         Constants.nBulletCount++;
                         alBullet.remove(i);
@@ -225,15 +222,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     }
 
-    public void lvl1Reset() {
+    private void lvl1Reset() {
         if (game.isReset) {
             ecPlayer.body.setTransform(Gdx.graphics.getWidth() / 2 / PPM, Gdx.graphics.getHeight() / 2 / PPM, 0);
             Constants.isFadeOut[0] = true;
             fAlpha = 1;
             Constants.isGameStart = false;
-            tLvl1 = new Text(generator, parameter, font, "Peety The Beefy Takes It Easy", 32, Gdx.graphics.getWidth() / 2,
-                    Gdx.graphics.getHeight() / 2, fixedBatch, 1, 1, "Level");
-            Constants.nHealth = 4;
             nEnemies = 0;
             nMaxEnemies = 3;
             nWaveCount = 1;
@@ -242,7 +236,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void dialogueLogic() {
+    private void dialogueLogic() {
         tbCharacter.isTransition = isDialogueStart;
         if (alDialogue.size() != 0) {
             tbCharacter.tText = alDialogue.get(0);
@@ -277,7 +271,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void createEnemy() { //Makes the enemies in entity creation, based on spawn locations and when they spawn
+    private void createEnemy() { //Makes the enemies in entity creation, based on spawn locations and when they spawn
         if (nSpawnrate > 200 && nEnemies < nMaxEnemies && nWaveCount != 3) {
             int nSpawnLocation = (int) (Math.random() * 3 + 1);
             if (nSpawnLocation == 1) {
@@ -321,7 +315,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         nSpawnrate++;
     }
 
-    public void moveEnemy() {
+    private void moveEnemy() {
         for (int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
             if (Constants.isShowing || !Constants.isGameStart || isDialogueStart) {
@@ -345,7 +339,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if (alEnemy.get(i).isDeath || Constants.isPlayerDead) {
+            if (alEnemy.get(i).isDeath || isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 Constants.fBeefyProgression++;
                 nCount--;
@@ -355,7 +349,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void cameraUpdate() {
+    private void cameraUpdate() {
         //CameraStyles.java explains camera movement
         CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;
@@ -365,12 +359,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
         camera.update();
     }
 
-    public void createButtons() {
+    private void createButtons() {
         alButtons.add(new Buttons("backButton", fixedBatch, -8, 0, 96, 32));
     }
 
-    public void drawButtons() {
-        for (int i = 0; i < alButtons.size(); i++) {
+    private void drawButtons() {
+        for(int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH) {
@@ -388,8 +382,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
     }
 
 
-    public void playerDeath() {
-        if (Constants.isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
+    private void playerDeath() {
+        if (isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
             Constants.nCurrentScreen = 3;
             game.updateScreen(15);
         }
@@ -411,7 +405,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void transitionBlock() {
+    private void transitionBlock() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         SR.begin(ShapeRenderer.ShapeType.Filled);
@@ -426,7 +420,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         SR.end();
     }
 
-    public void screenTransition() {
+    private void screenTransition() {
         if (Constants.isFadeOut[0] && fAlpha > 0) {
             fAlpha -= 0.02f;
         }
@@ -438,9 +432,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
             if (fAlpha < 1) {
                 fAlpha += 0.02;
             } else if (fAlpha >= 1) {
+                game.mGame.stop();
                 game.updateScreen(0);
+                game.mBackground.setLooping(true);
+                game.mBackground.setVolume(0.1f);
+                game.mBackground.play();
                 isBack = false;
-                System.out.println("here");
             }
         }
         if (Constants.isFadeIn[1] && fTransitWidth <= Gdx.graphics.getWidth()) {
@@ -456,7 +453,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void createText() {
+    private void createText() {
         alDialogue.add(new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
                 "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: LMAO!!! Yo you hear this mans? Absolute buffoonery! Bro trust, I'm gon sit you down boi.",
@@ -479,7 +476,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: ......................... Your Beefiness Level, BLV, is what determines your muscle thickness. " +
                 "The higher you BLV the thicker your muscles.", 26, 30, 200, fixedBatch, 2, 15, "Matty"));
-        alDialogue.add(new Text(generator, parameter, font, "Matty: Also, the more levels you gain the more damage output. If you die then your muscles shrink lowering your BLV.",
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Also, the more levels you gain the more damage you deal. If you die then your muscles shrink, lowering your BLV.",
                 26, 30, 200, fixedBatch, 2, 15, "Matty"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: Wow that sounds painful!", 26, 30, 200, fixedBatch, 2, 15, "Peety"));
         alDialogue.add(new Text(generator, parameter, font, "Matty: Yea the doctor said it was terminal.", 26, 30, 200, fixedBatch, 2, 15, "Matty"));
@@ -492,7 +489,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
     }
 
-    public void changeBox() {
+    private void changeBox() {
         if (alDialogue.size() != 0) {
             if (alDialogue.get(0).sId.contentEquals("Peety")) {
                 tbCharacter.nType = 1;

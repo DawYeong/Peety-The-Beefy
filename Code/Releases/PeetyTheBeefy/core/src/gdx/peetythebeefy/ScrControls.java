@@ -54,11 +54,11 @@ public class ScrControls implements Screen {
         drawButtons();
     }
 
-    public void createButtons() {
+    private void createButtons() {
         alButtons.add(new Buttons("backButton", batch, -8, 0, 96, 32));
     }
 
-    public void drawButtons() {
+    private void drawButtons() {
         for (int i = 0; i < alButtons.size(); i++) {
             alButtons.get(i).Update();
             if (game.fMouseX > alButtons.get(i).fX && game.fMouseX < alButtons.get(i).fX + alButtons.get(i).fW
@@ -91,7 +91,7 @@ public class ScrControls implements Screen {
     public void dispose() {
     }
 
-    public void screenTransition() {
+    private void screenTransition() {
         /*
         Starts off by, when you click the controls button on main menu, changes screens instantly
         but the screen starts off with the background of the main menu screen.

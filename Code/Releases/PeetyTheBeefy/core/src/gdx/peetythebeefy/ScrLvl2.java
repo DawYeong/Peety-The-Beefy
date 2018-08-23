@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -38,7 +39,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
     SpriteBatch batch;
     BitmapFont font;
     FreeTypeFontGenerator generator;
-    FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+    FreeTypeFontParameter parameter;
     Text tLvl2;
     ShapeRenderer SR;
     Buttons BackButton;
@@ -101,6 +102,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 scrLvl1.ecPlayer.fHealth);
         createText();
         pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0), font, generator, parameter);
+        Constants.nBulletCount = 4;
     }
 
     @Override
@@ -119,6 +121,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
+
+        lvl2Reset();
 
         scrLvl1.fixedBatch.begin();
         scrLvl1.fixedBatch.draw(txSky, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
@@ -142,6 +146,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
             scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
 
+            playerDeath();
+
             for (int i = 0; i < alBullet.size(); i++) {
                 alBullet.get(i).Update();
                 if (Constants.isShowing) {
@@ -153,7 +159,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() * 2) &&
                             ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass() * 2) &&
                             ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass() * 2) &&
-                            ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)) {
+                            ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)
+                            || isPlayerDead) {
                         alBullet.get(i).world.destroyBody(alBullet.get(i).body);
                         Constants.nBulletCount++;
                         alBullet.remove(i);
@@ -170,12 +177,12 @@ public class ScrLvl2 implements Screen, InputProcessor {
         pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
         pGUI.Update();
 
-        if (!Constants.isGameStart) {
+        if (!Constants.isGameStart || isPlayerDead) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
         } else {
             if (Constants.isShowing) {
-                backButtonFunctionality();
+                drawButtons();
                 ecPlayer.body.setAwake(false);
                 ecPlayer.isMoving = false;
             } else {
@@ -190,7 +197,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         transitionBlock();
     }
 
-    public void backButtonFunctionality() {
+    private void drawButtons() {
         BackButton.Update();
         if (game.fMouseX > BackButton.fX && game.fMouseX < BackButton.fX + BackButton.fW
                 && game.fMouseY > BackButton.fY && game.fMouseY < BackButton.fY + BackButton.fH) {
@@ -206,13 +213,33 @@ public class ScrLvl2 implements Screen, InputProcessor {
             Constants.nCurrentScreen = 4;
             ScrLvl1.isChangedToLvl2 = true;
             game.updateScreen(0);
+            game.mGame.stop();
+            game.mBackground.setLooping(true);
+            game.mBackground.setVolume(0.1f);
+            game.mBackground.play();
         }
     }
 
-    public void createText(){
+    private void lvl2Reset() {
+        if (game.isReset) {
+            ecPlayer.body.setTransform((fX - 300) /PPM, (fY - 215) / PPM, 0);
+            Constants.isFadeOut[1] = true;
+            fTransitHeight = Gdx.graphics.getHeight() * (float) 1.5;
+            fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
+            Constants.isGameStart = false;
+            nEnemies = 0;
+            nMaxEnemies = 3;
+            nWaveCount = 1;
+            nSpawnRate = 0;
+            game.isReset = false;
+        }
     }
 
-    public void createEnemy() {
+
+    private void createText(){
+    }
+
+    private void createEnemy() {
         if(nSpawnRate > 200 && nEnemies < nMaxEnemies && nWaveCount != 3) {
             nSpawnLocation = (int) (Math.random() * 6 + 1);
             switch (nSpawnLocation) {
@@ -260,7 +287,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         nSpawnRate++;
     }
 
-    public void moveEnemy() {
+    private void moveEnemy() {
         for (int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
             if (Constants.isShowing || !Constants.isGameStart) {
@@ -300,7 +327,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             } else {
                 alEnemy.get(i).isInRange = false;
             }
-            if (alEnemy.get(i).isDeath) {
+            if (alEnemy.get(i).isDeath || isPlayerDead) {
                 Constants.fBeefyProgression ++;
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 alEnemy.remove(i);
@@ -308,8 +335,14 @@ public class ScrLvl2 implements Screen, InputProcessor {
         }
         moveEnemyBullet();
     }
+    private void playerDeath() {
+        if (isPlayerDead && alEnemy.size() == 0 && alBullet.size() == 0) {
+            Constants.nCurrentScreen = 4;
+            game.updateScreen(15);
+        }
+    }
 
-    public void moveEnemyBullet() {
+    private void moveEnemyBullet() {
         for (int i = 0; i < alEnemyBullet.size(); i++) {
             alEnemyBullet.get(i).Update();
             if (alEnemyBullet.get(i).isStuck) {
@@ -319,7 +352,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         }
     }
 
-    public void cameraUpdate() {
+    private void cameraUpdate() {
         CameraStyles.lerpAverageBetweenTargets(camera, scrLvl1.v2Target, ecPlayer.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
@@ -328,14 +361,14 @@ public class ScrLvl2 implements Screen, InputProcessor {
         camera.update();
     }
 
-    public void transitionBlock() {
+    private void transitionBlock() {
         SR.begin(ShapeRenderer.ShapeType.Filled);
         SR.setColor(0, 0, 0, 1);
         SR.rect(Gdx.graphics.getWidth() / 2 - (fTransitWidth / 2), Gdx.graphics.getHeight() / 2 - (fTransitHeight / 2), fTransitWidth, fTransitHeight);
         SR.end();
     }
 
-    public void screenTransition() {
+    private void screenTransition() {
         if (Constants.isFadeOut[1] && fTransitWidth >= 0) {
             fTransitHeight -= 16;
             fTransitWidth -= 16;
