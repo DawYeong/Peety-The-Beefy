@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import gdx.peetythebeefy.cookiecutters.Buttons;
+import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 import java.util.ArrayList;
 
@@ -35,6 +37,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
     OrthographicCamera camera;
     ArrayList<Buttons> alButtons = new ArrayList<Buttons>();
     Vector2 v2MousePosition;
+    Sound sHover, sPlay;
+    float fAudio;
     boolean isStart;
     static float fAlpha = 0;
 
@@ -44,7 +48,10 @@ public class ScrMainMenu implements Screen, InputProcessor {
         this.batch = game.batch;
         this.camera = game.camera;
         this.SR = game.SR;
-        texMenu = PeetyTheBeefy.assetManager.get("mainMenu.png");
+        fAudio = 0.1f;
+        texMenu = assetManager.get("mainMenu.png");
+        sHover = assetManager.get("sound/Hover.mp3", Sound.class);
+        sPlay = assetManager.get("sound/Play.mp3", Sound.class);
         Constants.isLevelUnlocked[0] = true;
         Constants.isLevelUnlocked[1] = true;
         createButtons();
@@ -66,7 +73,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         game.mBackground.setLooping(true);
-        game.mBackground.setVolume(0.1f);
+        game.mBackground.setVolume(fAudio);
         game.mBackground.play();
         batch.begin();
 
@@ -95,6 +102,7 @@ public class ScrMainMenu implements Screen, InputProcessor {
                     && game.fMouseY > alButtons.get(i).fY && game.fMouseY < alButtons.get(i).fY + alButtons.get(i).fH && isStart) {
                 if (i == 0) {
                     System.out.println("moves to Lvl 1 screen");
+                    sPlay.play();
                     Constants.isShowing = false;
                     Constants.isPlayerDead = false;
                     Constants.isFadeIn[0] = true;
@@ -115,12 +123,18 @@ public class ScrMainMenu implements Screen, InputProcessor {
                         && v2MousePosition.y > alButtons.get(i).fY && v2MousePosition.y < alButtons.get(i).fY + alButtons.get(i).fH) {
                     // alButtons.get(i).sprButton.setAlpha(250);
                     alButtons.get(i).sprButton.setColor(1, 1, 1, 1);
+                    alButtons.get(i).nCount ++;
                     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                         alButtons.get(i).sprButton.setColor(Color.GRAY);
                         alButtons.get(i).sprButton.setAlpha(10);
+                    } else {
+                        if(alButtons.get(i).nCount <=1 ) {
+                            sHover.play(0.2f);
+                        }
                     }
                 } else {
                     alButtons.get(i).sprButton.setColor(0.8f, 0.8f, 0.8f, 0.8f);
+                    alButtons.get(i).nCount = 0;
                 }
             }
         }
@@ -128,9 +142,11 @@ public class ScrMainMenu implements Screen, InputProcessor {
 
     public void screenTransition() {
         if (Constants.isFadeIn[0] && fAlpha < 1) {
-            fAlpha += 0.01f;
+            fAlpha += 0.005f;
+            fAudio -= 0.0001f;
         }
         if (fAlpha > 1) {
+            game.mBackground.stop();
             game.updateScreen(Constants.nCurrentScreen);
             Constants.isFadeIn[0] = false;
             Constants.isFadeOut[Constants.nCurrentScreen - 3] = true;

@@ -24,6 +24,7 @@ public class Buttons {
     public TextureAtlas buttonAtlas;
     public Sprite sprButton;
     public float fX, fY, fW, fH;
+    public int nCount = 0;
     public Buttons(String Image, SpriteBatch batch, float X, float Y, float Width, float Height) {
         this.batch = batch;
         buttonAtlas = assetManager.get("buttons.txt", TextureAtlas.class);

@@ -119,6 +119,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
     public void render(float f) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        game.mGame.setLooping(true);
+        game.mGame.setVolume(0.1f);
+        game.mGame.play();
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);

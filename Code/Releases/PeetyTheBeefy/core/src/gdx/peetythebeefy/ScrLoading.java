@@ -53,6 +53,7 @@ public class ScrLoading implements Screen {
             game.scrLvl3 = new ScrLvl3(game);
             game.scrDeath = new ScrDeath(game);
             game.mBackground = assetManager.get("sound/Morning.mp3", Music.class);
+            game.mGame = assetManager.get("sound/PlaceholderTheme.mp3", Music.class);
             Constants.isLoadingIn = true;
         }
 
@@ -66,7 +67,7 @@ public class ScrLoading implements Screen {
         SR.rect(Constants.SCREENWIDTH/4, Constants.SCREENHEIGHT/2 - 20, Constants.SCREENWIDTH/2, 40);
         SR.end();
 
-       fLoadingBarProgress = assetManager.getProgress() * Constants.SCREENWIDTH/2;
+        fLoadingBarProgress = assetManager.getProgress() * Constants.SCREENWIDTH/2;
 
         SR.begin(ShapeType.Filled);
         SR.setColor(0, 0, 0, 1);
@@ -116,11 +117,14 @@ public class ScrLoading implements Screen {
         assetManager.load("TextBoxPeety.png", Texture.class);
         assetManager.load("Tiled map Assets.png", Texture.class);
         assetManager.load("Watergun.png", Texture.class);
+        assetManager.load("sound/PlaceholderTheme.mp3", Music.class);
         assetManager.load("sound/Morning.mp3", Music.class);
         assetManager.load("sound/Hit.mp3", Sound.class);
         assetManager.load("sound/PeetyTalk.mp3", Sound.class);
         assetManager.load("sound/MattyTalk.mp3", Sound.class);
         assetManager.load("sound/Pew.mp3",Sound.class);
+        assetManager.load("sound/Hover.mp3", Sound.class);
+        assetManager.load("sound/Play.mp3", Sound.class);
     }
 
     @Override

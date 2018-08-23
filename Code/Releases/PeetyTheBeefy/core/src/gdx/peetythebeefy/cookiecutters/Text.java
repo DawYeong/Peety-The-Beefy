@@ -116,8 +116,8 @@ public class Text {
             if (nDelay >= 3) {
                 if (isForward) {
                     sbDisplay.append(arcText[nCount]);
-                    if(arcText[nCount] != ' ' || arcText[nCount] != '.' || arcText[nCount] != ':' || arcText[nCount] != ','
-                            || arcText[nCount] != '?' || arcText[nCount] != '!') {
+                    if((arcText[nCount] != ' ' || arcText[nCount] != '.' || arcText[nCount] != ':' || arcText[nCount] != ','
+                            || arcText[nCount] != '?' || arcText[nCount] != '!' )&& nCount >= sId.length()) {
                         sCharSpeak.play(0.1f);
                     }
                     nCount++;

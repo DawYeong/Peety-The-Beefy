@@ -27,7 +27,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     ScrLvl3 scrLvl3;
     ScrDeath scrDeath;
     OrthographicCamera camera;
-    Music mBackground;
+    Music mBackground, mGame;
     float fMouseX, fMouseY;
     boolean isReset, isReady = true;
     public static final AssetManager assetManager = new AssetManager();
@@ -44,6 +44,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
 
         scrLoading = new ScrLoading(this);
         setScreen(scrLoading); //Starting screen
+
 
         Gdx.input.setInputProcessor(this);
     }
