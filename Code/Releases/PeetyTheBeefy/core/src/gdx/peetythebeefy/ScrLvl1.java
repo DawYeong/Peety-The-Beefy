@@ -102,10 +102,12 @@ public class ScrLvl1 implements Screen, InputProcessor {
         //Entity Creation handles all creation of objects
         ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", 1,
-                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0, 0), 4);
+                Constants.BIT_PLAYER, (short) (Constants.BIT_WALL | Constants.BIT_ENEMY), (short) 0, new Vector2(0, 0), 4,
+                nLevelWidth, nLevelHeight);
         v2Target = new Vector2(nLevelWidth * PPM / 2, nLevelHeight * PPM / 2);
         tbCharacter = new TextBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
         pGUI = new PlayerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0, 0), font, generator, parameter);
+        System.out.println(nLevelWidth*PPM + " " + nLevelHeight *PPM);
     }
 
     @Override
@@ -190,7 +192,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
 
-            dialogueLogic();
+//            dialogueLogic();
         }
 
 
@@ -288,7 +290,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
             alEnemy.add(new EntityCreation(world, "ENEMY", fX, fY, fW - 10, fH, batch, 9.2f,
                     0, 0, 0, 4, 1, "MTMsprite.png", 2,
                     Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                    new Vector2(0, 0), 2));
+                    new Vector2(0, 0), 2, nLevelWidth, nLevelHeight));
             nCount++;
             nSpawnrate = 0;
         }
@@ -355,7 +357,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
-        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
+        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * PPM, nLevelHeight * PPM);
         camera.update();
     }
 
@@ -398,7 +400,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
                         0, 4, 6, "bulletTexture.png", 3,
                         Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                        vDir, 0));
+                        vDir, 0, nLevelWidth, nLevelHeight));
                 sPew.play(0.3f);
                 Constants.nBulletCount--;
             }

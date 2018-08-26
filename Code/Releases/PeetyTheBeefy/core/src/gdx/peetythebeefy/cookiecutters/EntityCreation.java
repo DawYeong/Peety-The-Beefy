@@ -40,11 +40,12 @@ public class EntityCreation {
     TextureRegion trTemp;
     Vector2 vDir;
     public World world;
+    float nLevelWidth, nLevelHeight;
 
 
     public EntityCreation(World world, String sId, float fX, float fY, float fWidth, float fHeight, SpriteBatch batch, float fAniSpeed,
                           int nPos, int nFrame, int nSpriteDir, int nRows, int nColumns, String sTexture, int nType, short cBits, short mBits,
-                          short gIndex, Vector2 vDir, float fHealth) {
+                          short gIndex, Vector2 vDir, float fHealth, float _nLevelWidth, float _nLevelHeight) {
 
         txSheet = assetManager.get(sTexture);
         araniCharacter = new Animation[nRows * nColumns];
@@ -61,6 +62,8 @@ public class EntityCreation {
         this.vDir = vDir;
         this.world = world;
         this.fHealth = fHealth;
+        this.nLevelWidth = _nLevelWidth;
+        this.nLevelHeight = _nLevelHeight;
         if(sId.contentEquals("EnemyBullet")) {
             vDir.setLength(0.4f);
         } else {
@@ -85,13 +88,13 @@ public class EntityCreation {
             drawTexture();
         }
         if (body.getPosition().y < 0) {
-            body.setTransform(body.getPosition().x, Gdx.graphics.getHeight() / 32, 0);
-        } else if (body.getPosition().y > Gdx.graphics.getHeight() / 32) {
+            body.setTransform(body.getPosition().x, nLevelHeight, 0);
+        } else if (body.getPosition().y > nLevelHeight) {
             body.setTransform(body.getPosition().x, 0, 0);
         }
         if (body.getPosition().x < 0) {
-            body.setTransform(Gdx.graphics.getWidth() / 32, body.getPosition().y, 0);
-        } else if (body.getPosition().x > Gdx.graphics.getWidth() / 32) {
+            body.setTransform(nLevelWidth, body.getPosition().y, 0);
+        } else if (body.getPosition().x > nLevelWidth) {
             body.setTransform(0, body.getPosition().y, 0);
         }
     }
@@ -117,7 +120,6 @@ public class EntityCreation {
             shape.setAsBox(fWidth / 32.0f / 8.0f, fHeight / 32.0f / 8.0f);
             fixtureDef.friction = 10f;
             fixtureDef.restitution = 0.1f;
-            //bdef.fixedRotation = false;
             bdef.bullet = true;
         }
         fixtureDef.filter.categoryBits = cBits;

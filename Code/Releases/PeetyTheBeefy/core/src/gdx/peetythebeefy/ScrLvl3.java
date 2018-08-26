@@ -10,13 +10,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.peetythebeefy.cookiecutters.Buttons;
-import gdx.peetythebeefy.cookiecutters.Constants;
-import gdx.peetythebeefy.cookiecutters.ContactListener1;
-import gdx.peetythebeefy.cookiecutters.EntityCreation;
+import gdx.peetythebeefy.cookiecutters.*;
+
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
 
 
@@ -34,6 +36,11 @@ public class ScrLvl3 implements Screen, InputProcessor {
     EntityCreation ecPlayer;
     float fX, fY, fW, fH;
     Box2DDebugRenderer b2dr;
+    OrthogonalTiledMapRenderer otmr;
+    TiledMap tMapLvl3;
+    TiledPolyLines tplLvl3;
+    Vector2 v2Target;
+    int nLevelWidth, nLevelHeight;
 
 
     public ScrLvl3(PeetyTheBeefy game) {
@@ -45,22 +52,35 @@ public class ScrLvl3 implements Screen, InputProcessor {
         this.parameter = game.parameter;
         scrLvl1 = new ScrLvl1(game);
 
+        world = new World(new Vector2(0f, -18f), false);
+        world.setContactListener(new ContactListener1());
+
         b2dr = new Box2DDebugRenderer();
 
-        fX = Constants.SCREENWIDTH / 2;
-        fY = Constants.SCREENHEIGHT / 2;
+        tMapLvl3 = new TmxMapLoader().load("PeetytheBeefy3.tmx");
+        tplLvl3 = new TiledPolyLines(world, tMapLvl3.getLayers().get("collision-layer").getObjects(),Constants.BIT_WALL,
+                (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
+        otmr = new OrthogonalTiledMapRenderer(tMapLvl3);
+
+        MapProperties props = tMapLvl3.getProperties();
+        nLevelWidth = props.get("width", Integer.class);
+        nLevelHeight = props.get("height", Integer.class);
+
+        fX = nLevelWidth * PPM/ 2;
+        fY = nLevelHeight * PPM/ 2;
         fW = 32;
         fH = 32;
 
-        world = new World(new Vector2(0f, 0f), false);
-        world.setContactListener(new ContactListener1());
 
         backButton = new Buttons("backButton", scrLvl1.fixedBatch, -8, 0, 96, 32);
 
         ecPlayer = new EntityCreation(world, "PLAYER", fX, fY, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", 1, Constants.BIT_PLAYER,
                 (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
-                scrLvl1.ecPlayer.fHealth);
+                scrLvl1.ecPlayer.fHealth, nLevelWidth, nLevelHeight);
+        v2Target = new Vector2(nLevelWidth * PPM / 2, nLevelHeight * PPM / 2);
+        System.out.println(nLevelWidth*PPM + " " + nLevelHeight *PPM);
+
     }
 
     @Override
@@ -70,18 +90,21 @@ public class ScrLvl3 implements Screen, InputProcessor {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 0, 1, 0);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         world.step(1 / 60f, 6, 2);
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
 
+        otmr.setView(camera);
+        otmr.render();
+
         b2dr.render(world, camera.combined.scl(PPM));
 
 
         ecPlayer.Update();
-        
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
             game.fMouseY = Constants.SCREENHEIGHT;
@@ -89,6 +112,11 @@ public class ScrLvl3 implements Screen, InputProcessor {
         }
         if (Constants.isShowing) {
             drawButtons();
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.D) && v2Target.x < 1738) {
+            v2Target.x += 2;
+        } else if(Gdx.input.isKeyPressed(Input.Keys.A) && v2Target.x > 566) {
+            v2Target.x -= 2;
         }
     }
 
@@ -109,6 +137,11 @@ public class ScrLvl3 implements Screen, InputProcessor {
     }
 
     private void cameraUpdate() {
+        CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM));
+        float fStartX = camera.viewportWidth / 2;
+        float fStartY = camera.viewportHeight / 2;
+        camera.zoom = 0.8f;
+        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth *PPM, nLevelHeight *PPM);
         camera.update();
     }
 
@@ -135,7 +168,9 @@ public class ScrLvl3 implements Screen, InputProcessor {
     @Override
     public void dispose() {
         b2dr.dispose();
-
+        tMapLvl3.dispose();
+        otmr.dispose();
+        scrLvl1.dispose();
     }
 
     @Override

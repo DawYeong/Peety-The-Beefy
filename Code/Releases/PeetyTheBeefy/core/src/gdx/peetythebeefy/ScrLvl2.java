@@ -56,7 +56,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
     int nLevelWidth, nLevelHeight;
     int nSpawnRate = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nSpawnLocation;
     Texture txBackground, txSky;
-    Vector2 vMousePosition, vEnemyShootDir, vEBulletPos, vTargetPos;
+    Vector2 vMousePosition, vEnemyShootDir, vEBulletPos, vTargetPos, v2Target;
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alEnemyBullet = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
@@ -99,7 +99,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
         ecPlayer = new EntityCreation(world, "PLAYER", fX - 300, fY - 215, fW, fH, batch, 9.2f, 0, 0,
                 0, 4, 6, "PTBsprite.png", 1, Constants.BIT_PLAYER,
                 (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
-                scrLvl1.ecPlayer.fHealth);
+                scrLvl1.ecPlayer.fHealth, nLevelWidth, nLevelHeight);
+        v2Target = new Vector2(nLevelWidth * PPM / 2, nLevelHeight * PPM / 2);
         createText();
         pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0), font, generator, parameter);
         Constants.nBulletCount = 4;
@@ -272,7 +273,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             alEnemy.add(new EntityCreation(world, "ENEMY", fEX, fEY, fW - 10, fH, batch, 9.2f,
                     0, 0, 0, 4, 1, "MTMsprite.png", 2,
                     Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                    new Vector2(0, 0), 2));
+                    new Vector2(0, 0), 2, nLevelWidth, nLevelHeight));
             nSpawnRate = 0;
         }
         if (alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
@@ -306,7 +307,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                                 fW, fH, batch, 9.2f, 0, 0, 0, 4, 6,
                                 "Heart-Full.png", 3, Constants.BIT_ENEMYBULLET, (short)
                                 (Constants.BIT_WALL | Constants.BIT_ENEMYBULLET | Constants.BIT_PLAYER), (short) 0,
-                                vEnemyShootDir, 0));
+                                vEnemyShootDir, 0, nLevelWidth, nLevelHeight));
                         System.out.println("here");
                         alEnemy.get(i).nShootCount = 0;
                     }
@@ -353,11 +354,11 @@ public class ScrLvl2 implements Screen, InputProcessor {
     }
 
     private void cameraUpdate() {
-        CameraStyles.lerpAverageBetweenTargets(camera, scrLvl1.v2Target, ecPlayer.body.getPosition().scl(PPM));
+        CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM));
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
-        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * 32 - fStartX * 2, nLevelHeight * 32 - fStartY * 2);
+        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * PPM, nLevelHeight * PPM);
         camera.update();
     }
 
