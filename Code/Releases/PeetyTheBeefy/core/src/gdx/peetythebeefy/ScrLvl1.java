@@ -25,6 +25,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
@@ -125,6 +126,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
         lvl1Reset();
+
         fixedBatch.begin();
         fixedBatch.draw(txSky, 0, 0, Constants.SCREENWIDTH, Constants.SCREENHEIGHT);
         fixedBatch.end();
@@ -192,7 +194,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
 
-//            dialogueLogic();
+            dialogueLogic();
         }
 
 
@@ -353,11 +355,11 @@ public class ScrLvl1 implements Screen, InputProcessor {
 
     private void cameraUpdate() {
         //CameraStyles.java explains camera movement
-        CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM));
+        CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM), false);
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
-        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * PPM, nLevelHeight * PPM);
+        CameraStyles.boundary(camera, fStartX, fStartY, Constants.SCREENWIDTH * (float) 0.4, Constants.SCREENWIDTH * (float) 0.6, nLevelHeight * PPM);
         camera.update();
     }
 

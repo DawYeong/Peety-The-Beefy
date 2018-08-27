@@ -354,11 +354,11 @@ public class ScrLvl2 implements Screen, InputProcessor {
     }
 
     private void cameraUpdate() {
-        CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM));
+        CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM), false);
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
-        CameraStyles.boundary(camera, fStartX, fStartY, nLevelWidth * PPM, nLevelHeight * PPM);
+        CameraStyles.boundary(camera, fStartX, fStartY, Constants.SCREENWIDTH * (float) 0.4, Constants.SCREENWIDTH * (float) 0.6, nLevelHeight * PPM);
         camera.update();
     }
 

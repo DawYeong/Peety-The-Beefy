@@ -20,26 +20,29 @@ public class CameraStyles {
     public static void lockAverageBetweenTargets(Camera camera, Vector2 v2TargetA, Vector2 v2TargetB) {
         //Locks the position between the average of the targets
         Vector3 position = camera.position;
-        position.x = (v2TargetA.x + v2TargetB.x) /2;
-        position.y = (v2TargetA.y + v2TargetB.y) /2;
+        position.x = (v2TargetA.x + v2TargetB.x) / 2;
+        position.y = (v2TargetA.y + v2TargetB.y) / 2;
         camera.position.set(position);
         camera.update();
     }
-    public static void lerpAverageBetweenTargets(Camera camera, Vector2 v2TargetA, Vector2 v2TargetB) {
+
+    public static void lerpAverageBetweenTargets(Camera camera, Vector2 v2TargetA, Vector2 v2TargetB, boolean isLocked) {
         //Averages between the camera position (center) and the position of the player
-        float fAvgX = (v2TargetA.x + v2TargetB.x) /2;
-        float fAvgY = (v2TargetA.y + v2TargetB.y) /2;
-//        System.out.println(fAvgX);
+
+        float fAvgX = (v2TargetA.x + v2TargetB.x) / 2;
+        float fAvgY = (v2TargetA.y + v2TargetB.y) / 2;
+
         Vector3 position = camera.position;
         position.x = camera.position.x + (fAvgX - camera.position.x) * .1f;
         position.y = camera.position.y + (fAvgY - camera.position.y) * .1f;
         camera.position.set(position);
         camera.update();
     }
-    public static void boundary(Camera camera, float nStartX, float nStartY, float nWidth, float nHeight) {
+
+    public static void boundary(Camera camera, float nStartX, float nStartY, float fminWidth, float fmaxWidth, float fHeight) {
         //Doesn't allow the value to go beyond these values (edge of map)
-        camera.position.x = MathUtils.clamp(camera.position.x, (float)(Constants.SCREENWIDTH* 0.4), nWidth - (float) (Constants.SCREENWIDTH * 0.4));
-        camera.position.y = MathUtils.clamp(camera.position.y, (float)(nHeight * 0.4), (float) (nHeight * 0.6));
+        camera.position.x = MathUtils.clamp(camera.position.x, fminWidth, fmaxWidth);
+        camera.position.y = MathUtils.clamp(camera.position.y, (float) (fHeight * 0.4), (float) (fHeight * 0.6));
 
 //        Vector3 position = camera.position;
 //        if (position.x < nStartX) {

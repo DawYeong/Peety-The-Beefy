@@ -79,7 +79,6 @@ public class ScrMainMenu implements Screen, InputProcessor {
         game.mBackground.play();
         batch.begin();
 
-        batch.draw(texMenu, 250, 200);
         batch.draw(texMenu, 0, 0);
 
         batch.end();
