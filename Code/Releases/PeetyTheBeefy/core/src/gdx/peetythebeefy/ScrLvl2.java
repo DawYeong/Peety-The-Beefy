@@ -145,7 +145,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
             }
 
-            scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
+            scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world, nLevelWidth, nLevelHeight);
 
             playerDeath();
 

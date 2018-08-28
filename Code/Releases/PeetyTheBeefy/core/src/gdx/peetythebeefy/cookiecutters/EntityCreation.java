@@ -194,7 +194,7 @@ public class EntityCreation {
 
     private void bulletMove() {
         if (nCount < 2) {
-            body.applyLinearImpulse(vDir, body.getWorldCenter(), false);
+            body.applyLinearImpulse(vDir, body.getPosition(), false);
         }
         if (nCount >= 90) {
             canCollect = true;

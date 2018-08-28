@@ -103,6 +103,7 @@ public class ScrStageSelect implements Screen {
                     System.out.println("moves to lvl 3");
                     nextScreen = 5;
                     nextTransition = 2;
+                    Constants.isGameStart = true;
                     Constants.isFadeIn[12] = true;
                 }
                 else if (i == 12) {

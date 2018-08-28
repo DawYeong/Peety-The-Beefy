@@ -64,7 +64,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
     boolean isDialogueStart, isDialogueDone, isLevelDialogue = true, isBack;
     static boolean isChangedToLvl2 = false;
     static float fAlpha = 1, fTransitWidth = 0, fTransitHeight = 0;
-    Sound sPew;
+    Sound sPew, sNoammo;
 
     public ScrLvl1(PeetyTheBeefy game) {
         this.game = game;
@@ -86,7 +86,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
         txBackground = assetManager.get("level1Background.png");
         txSky = assetManager.get("sky.png");
         sPew = assetManager.get("sound/Pew.mp3", Sound.class);
-
+        sNoammo = assetManager.get("sound/No ammo.mp3", Sound.class);
 
         createButtons();
         createText();
@@ -108,7 +108,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
         v2Target = new Vector2(nLevelWidth * PPM / 2, nLevelHeight * PPM / 2);
         tbCharacter = new TextBox(fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
         pGUI = new PlayerGUI(fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0, 0), font, generator, parameter);
-        System.out.println(nLevelWidth*PPM + " " + nLevelHeight *PPM);
     }
 
     @Override
@@ -153,14 +152,14 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
             }
             if (!isDialogueStart) {
-                playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world);
+                playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world, nLevelWidth, nLevelHeight);
             }
             playerDeath();
 
             //Bullet Collection
             for (int i = 0; i < alBullet.size(); i++) {
                 alBullet.get(i).Update();
-                if (Constants.isShowing) {
+                if (Constants.isShowing && isDialogueStart) {
                     alBullet.get(i).body.setAwake(false);
                 } else if (!Constants.isShowing && !alBullet.get(i).isStuck) {
                     alBullet.get(i).body.setAwake(true);
@@ -393,18 +392,22 @@ public class ScrLvl1 implements Screen, InputProcessor {
         }
     }
 
-    public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList<EntityCreation> Bullets, World world) {
+    public void playerShoot(Vector2 playerPosition, Vector2 mousePosition, ArrayList<EntityCreation> Bullets, World world, int nLevelWidth, int nLevelHeight) {
         //moved mouse position vector to draw because we need it for other things
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched()) {
-            if (Constants.nBulletCount > 0 && !Constants.isShowing) {
-                Vector2 vbulletPosition = new Vector2(playerPosition.x * 32, playerPosition.y * 32);
-                Vector2 vDir = mousePosition.sub(vbulletPosition);
-                Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
-                        0, 4, 6, "bulletTexture.png", 3,
-                        Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                        vDir, 0, nLevelWidth, nLevelHeight));
-                sPew.play(0.3f);
-                Constants.nBulletCount--;
+            if(!Constants.isShowing) {
+                if (Constants.nBulletCount > 0) {
+                    Vector2 vbulletPosition = new Vector2(playerPosition.x * PPM, playerPosition.y * PPM);
+                    Vector2 vDir = mousePosition.sub(vbulletPosition);
+                    Bullets.add(new EntityCreation(world, "Bullet", vbulletPosition.x, vbulletPosition.y, fW, fH, batch, 9.2f, 0, 0,
+                            0, 4, 6, "bulletTexture.png", 3,
+                            Constants.BIT_BULLET, (short) (Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
+                            vDir, 0, nLevelWidth, nLevelHeight));
+                    sPew.play(0.3f);
+                    Constants.nBulletCount--;
+                } else if (Constants.nBulletCount <= 0) {
+                    sNoammo.play();
+                }
             }
         }
     }

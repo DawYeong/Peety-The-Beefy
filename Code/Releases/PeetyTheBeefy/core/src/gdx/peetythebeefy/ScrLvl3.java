@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
@@ -21,9 +22,13 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
+
+import java.util.ArrayList;
+
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 import static gdx.peetythebeefy.cookiecutters.Constants.PPM;
+import static gdx.peetythebeefy.cookiecutters.Constants.isPlayerDead;
 
 
 public class ScrLvl3 implements Screen, InputProcessor {
@@ -36,19 +41,21 @@ public class ScrLvl3 implements Screen, InputProcessor {
     ShapeRenderer SR;
     BitmapFont font;
     FreeTypeFontParameter parameter;
+    FreeTypeFontGenerator generator;
     World world;
     EntityCreation ecPlayer;
-    float fX, fY, fW, fH;
+    float fX, fY, fW, fH, fminWidth, fMaxWidth, fSectionAdd = 0;
     Box2DDebugRenderer b2dr;
     OrthogonalTiledMapRenderer otmr;
     TiledMap tMapLvl3;
     TiledPolyLines tplLvl3;
-    Vector2 v2Target;
-    int nLevelWidth, nLevelHeight, nCameraType;
+    Vector2 v2Target, vMousePosition;
+    int nLevelWidth, nLevelHeight, nCameraType, nSection;
     boolean isLocked;
-    float fminWidth, fMaxWidth;
     Texture txBack1, txBack2;
     boolean bCameraTransition;
+    PlayerGUI pGUI;
+    ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
 
 
     public ScrLvl3(PeetyTheBeefy game) {
@@ -63,14 +70,15 @@ public class ScrLvl3 implements Screen, InputProcessor {
         txBack1 = assetManager.get("sky.png");
         txBack2 = assetManager.get("skyDay.png");
 
-        bCameraTransition =false;
+        bCameraTransition = false;
         world = new World(new Vector2(0f, -18f), false);
         world.setContactListener(new ContactListener1());
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
 
         b2dr = new Box2DDebugRenderer();
 
         tMapLvl3 = new TmxMapLoader().load("PeetytheBeefy3.tmx");
-        tplLvl3 = new TiledPolyLines(world, tMapLvl3.getLayers().get("collision-layer").getObjects(),Constants.BIT_WALL,
+        tplLvl3 = new TiledPolyLines(world, tMapLvl3.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
                 (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
         otmr = new OrthogonalTiledMapRenderer(tMapLvl3);
 
@@ -78,12 +86,13 @@ public class ScrLvl3 implements Screen, InputProcessor {
         nLevelWidth = props.get("width", Integer.class);
         nLevelHeight = props.get("height", Integer.class);
 
-        fX = nLevelWidth * PPM/ 2;
-        fY = nLevelHeight * PPM/ 2;
+        fX = nLevelWidth * PPM / 2;
+        fY = nLevelHeight * PPM / 2;
         fW = 32;
         fH = 32;
-                fminWidth = Constants.SCREENWIDTH * (float) 0.4;
-                fMaxWidth = Constants.SCREENWIDTH * (float) 0.6;
+        fminWidth = Constants.SCREENWIDTH * (float) 0.4;
+        fMaxWidth = Constants.SCREENWIDTH * (float) 0.6;
+        nSection = 0;
 
 
         backButton = new Buttons("backButton", scrLvl1.fixedBatch, -8, 0, 96, 32);
@@ -92,9 +101,9 @@ public class ScrLvl3 implements Screen, InputProcessor {
                 0, 4, 6, "PTBsprite.png", 1, Constants.BIT_PLAYER,
                 (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
                 scrLvl1.ecPlayer.fHealth, nLevelWidth, nLevelHeight);
+        pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0, 0), font, generator, parameter);
         v2Target = new Vector2(nLevelWidth * PPM / 6, nLevelHeight * PPM / 2);
-        System.out.println(nLevelWidth*PPM + " " + nLevelHeight *PPM);
-
+        Constants.nBulletCount = 4;
     }
 
     @Override
@@ -123,6 +132,32 @@ public class ScrLvl3 implements Screen, InputProcessor {
 
         ecPlayer.Update();
 
+        scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world, nLevelWidth, nLevelHeight);
+
+        for (int i = 0; i < alBullet.size(); i++) {
+            alBullet.get(i).Update();
+            if (Constants.isShowing) {
+                alBullet.get(i).body.setAwake(false);
+            } else if (!Constants.isShowing && !alBullet.get(i).isStuck) {
+                alBullet.get(i).body.setAwake(true);
+            }
+            if (alBullet.get(i).canCollect) {
+                if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() * 2) &&
+                        ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass() * 2) &&
+                        ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass() * 2) &&
+                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)
+                        || isPlayerDead) {
+                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                    Constants.nBulletCount++;
+                    alBullet.remove(i);
+                }
+            }
+        }
+        vMousePosition = new Vector2(Gdx.input.getX() + fSectionAdd, Gdx.graphics.getHeight() - Gdx.input.getY());
+        pGUI.vMousePosition = vMousePosition;
+        pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
+        pGUI.Update();
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
             game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
             game.fMouseY = Constants.SCREENHEIGHT;
@@ -137,14 +172,14 @@ public class ScrLvl3 implements Screen, InputProcessor {
         } else {
             ecPlayer.isMoving = true;
         }
-        if(bCameraTransition) {
+        if (bCameraTransition) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
         } else {
             ecPlayer.isMoving = true;
         }
 
-        if(!bCameraTransition) {
+        if (!bCameraTransition) {
             if (ecPlayer.body.getPosition().x * PPM >= nLevelWidth * PPM / 3 && nCameraType == 0) {
                 nCameraType = 1;
                 bCameraTransition = true;
@@ -154,26 +189,27 @@ public class ScrLvl3 implements Screen, InputProcessor {
             }
         }
         cameraTransition();
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            System.out.println(ecPlayer.body.getPosition().x *PPM);
-        }
     }
 
     private void cameraTransition() {
-        if(bCameraTransition) {
-            if(nCameraType == 1) {
-                if(camera.position.x >= Constants.SCREENWIDTH * (float) 1.4) {
+        if (bCameraTransition) {
+            if (nCameraType == 1) {
+                if (camera.position.x >= Constants.SCREENWIDTH * (float) 1.4) {
                     v2Target.x = nLevelWidth * PPM / 2;
                     fminWidth = Constants.SCREENWIDTH * (float) 1.4;
                     fMaxWidth = Constants.SCREENWIDTH * (float) 1.6;
+                    nSection = 1;
+                    fSectionAdd = Constants.SCREENWIDTH;
                     bCameraTransition = false;
                 }
                 camera.position.x += 4;
-            } else if(nCameraType == 2) {
-                if(camera.position.x >= Constants.SCREENWIDTH * (float) 2.4) {
-                    v2Target.x = nLevelWidth *PPM - (nLevelWidth * PPM / 6);
+            } else if (nCameraType == 2) {
+                if (camera.position.x >= Constants.SCREENWIDTH * (float) 2.4) {
+                    v2Target.x = nLevelWidth * PPM - (nLevelWidth * PPM / 6);
                     fminWidth = Constants.SCREENWIDTH * (float) 2.4;
                     fMaxWidth = Constants.SCREENWIDTH * (float) 2.6;
+                    nSection = 2;
+                    fSectionAdd = Constants.SCREENWIDTH * 2;
                     bCameraTransition = false;
                 }
                 camera.position.x += 4;
@@ -201,7 +237,7 @@ public class ScrLvl3 implements Screen, InputProcessor {
         float fStartX = camera.viewportWidth / 2;
         float fStartY = camera.viewportHeight / 2;
         camera.zoom = 0.8f;
-        if(!bCameraTransition) {
+        if (!bCameraTransition) {
             CameraStyles.lerpAverageBetweenTargets(camera, v2Target, ecPlayer.body.getPosition().scl(PPM), isLocked);
             CameraStyles.boundary(camera, fStartX, fStartY, fminWidth, fMaxWidth, nLevelHeight * PPM);
         }
@@ -233,6 +269,7 @@ public class ScrLvl3 implements Screen, InputProcessor {
         b2dr.dispose();
         tMapLvl3.dispose();
         otmr.dispose();
+        generator.dispose();
         scrLvl1.dispose();
     }
 
