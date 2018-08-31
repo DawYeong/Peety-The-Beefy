@@ -58,6 +58,13 @@ public class ContactListener1 implements ContactListener {
                 Constants.nHealth --;
             }
         }
+        if(isPlayerhitBarrier(fixA, fixB)) {
+            InvisibleWalls iwBarrier = (InvisibleWalls) fixA.getUserData();
+            EntityCreation playerBody = (EntityCreation) fixB.getUserData();
+            if(playerBody.sId.contains("PLAYER")) {
+                iwBarrier.bPlayerInteract = true;
+            }
+        }
     }
 
     @Override
@@ -94,5 +101,10 @@ public class ContactListener1 implements ContactListener {
             return true;
         }
         return false;
+    }
+
+    private boolean isPlayerhitBarrier(Fixture fixA, Fixture fixB) {
+        if(fixA.getUserData() instanceof InvisibleWalls && fixB.getUserData() instanceof EntityCreation);
+        return true;
     }
 }

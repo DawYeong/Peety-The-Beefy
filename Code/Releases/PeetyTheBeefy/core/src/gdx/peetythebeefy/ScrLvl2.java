@@ -53,15 +53,17 @@ public class ScrLvl2 implements Screen, InputProcessor {
     ScrLvl1 scrLvl1;
     EntityCreation ecPlayer;
     float fX, fY, fW, fH, fEX, fEY;
-    int nLevelWidth, nLevelHeight;
+    int nLevelWidth, nLevelHeight, nCharacter, nDialogue = 0;
     int nSpawnRate = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nSpawnLocation;
     Texture txBackground, txSky;
     Vector2 vMousePosition, vEnemyShootDir, vEBulletPos, vTargetPos, v2Target;
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alEnemyBullet = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
+    ArrayList<Text> alDialogue = new ArrayList<Text>();
     boolean isDialogueStart, isDialogueDone;
     static float fTransitWidth, fTransitHeight;
+    TextBox tbCharacter;
 
     public ScrLvl2(PeetyTheBeefy game) {
         this.game = game;
@@ -103,6 +105,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
         v2Target = new Vector2(nLevelWidth * PPM / 2, nLevelHeight * PPM / 2);
         createText();
         pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0,0), font, generator, parameter);
+        tbCharacter = new TextBox(scrLvl1.fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
         Constants.nBulletCount = 4;
     }
 
@@ -151,7 +154,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
 
             for (int i = 0; i < alBullet.size(); i++) {
                 alBullet.get(i).Update();
-                if (Constants.isShowing) {
+                if (Constants.isShowing && isDialogueStart) {
                     alBullet.get(i).body.setAwake(false);
                 } else if (!Constants.isShowing && !alBullet.get(i).isStuck) {
                     alBullet.get(i).body.setAwake(true);
@@ -169,18 +172,33 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 }
             }
             tLvl2.Update();
+
+            changeBox();
+
+            vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            pGUI.vMousePosition = vMousePosition;
+            pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
+            if(!isDialogueStart) {
+                pGUI.Update();
+            } else {
+                if(alDialogue.size() != 0) {
+                    tbCharacter.Update();
+                }
+            }
+
+            dialogueLogic();
         }
 
         //Un-comment this if you want to see the Box2D debug renderer
 //        b2dr.render(world, camera.combined.scl(PPM));
-        vMousePosition = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        pGUI.vMousePosition = vMousePosition;
-        pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
-        pGUI.Update();
 
-        if (!Constants.isGameStart || isPlayerDead) {
+
+        if (!Constants.isGameStart || isPlayerDead || isDialogueStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
+            if(Constants.isShowing && !isDialogueStart) {
+                drawButtons();
+            }
         } else {
             if (Constants.isShowing) {
                 drawButtons();
@@ -189,7 +207,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             } else {
                 ecPlayer.body.setAwake(true);
                 ecPlayer.isMoving = true;
-                if(tLvl2.isFinished) {
+                if(tLvl2.isFinished && !isDialogueStart) {
                     createEnemy();
                 }
             }
@@ -236,8 +254,45 @@ public class ScrLvl2 implements Screen, InputProcessor {
         }
     }
 
+    private void changeBox() {
+        if(alDialogue.size() != 0) {
+            if(alDialogue.get(0).sId.contains("Peety")) {
+                tbCharacter.nType = 1;
+            } else if(alDialogue.get(0).sId.contains("Matty")) {
+                tbCharacter.nType = 2;
+            }
+        }
+    }
+
+    private void dialogueLogic() {
+        tbCharacter.isTransition = isDialogueStart;
+        if(alDialogue.size() != 0) {
+            tbCharacter.tText = alDialogue.get(0);
+            if(tLvl2.isFinished && !isDialogueDone) {
+                alDialogue.get(0).Update();
+                isDialogueStart = true;
+            }
+            if(alDialogue.get(0).isFinished && tbCharacter.fOpacity2 >= 1) {
+                if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                    if(isDialogueStart) {
+                        nDialogue++;
+                    }
+                    if(nDialogue == 1) {
+                        isDialogueDone = true;
+                        isDialogueStart = false;
+                    }
+                    tbCharacter.fOpacity2 = 0;
+                    alDialogue.get(0).sbDisplay.delete(0, alDialogue.get(0).sbDisplay.length());
+                    alDialogue.remove(0);
+                }
+
+            }
+        }
+    }
 
     private void createText(){
+        alDialogue.add(new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
+                "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Peety"));
     }
 
     private void createEnemy() {
@@ -245,28 +300,28 @@ public class ScrLvl2 implements Screen, InputProcessor {
             nSpawnLocation = (int) (Math.random() * 6 + 1);
             switch (nSpawnLocation) {
                 case 1:
-                    fEX = Gdx.graphics.getWidth()/2;
-                    fEY = Gdx.graphics.getHeight()/2 + 81;
+                    fEX = (float) Gdx.graphics.getWidth()/2;
+                    fEY = (float) Gdx.graphics.getHeight()/2 + 81;
                     break;
                 case 2:
-                    fEX = Gdx.graphics.getWidth()/2 - 337;
-                    fEY = Gdx.graphics.getHeight()/2 + 17;
+                    fEX = (float) Gdx.graphics.getWidth()/2 - 337;
+                    fEY = (float) Gdx.graphics.getHeight()/2 + 17;
                     break;
                 case 3:
-                    fEX = Gdx.graphics.getWidth()/2 + 336;
-                    fEY = Gdx.graphics.getHeight()/2 + 17;
+                    fEX = (float) Gdx.graphics.getWidth()/2 + 336;
+                    fEY = (float) Gdx.graphics.getHeight()/2 + 17;
                     break;
                 case 4:
-                    fEX = Gdx.graphics.getWidth()/2 + 303;
-                    fEY = Gdx.graphics.getHeight()/2 - 239;
+                    fEX = (float) Gdx.graphics.getWidth()/2 + 303;
+                    fEY = (float) Gdx.graphics.getHeight()/2 - 239;
                     break;
                 case 5:
-                    fEX = Gdx.graphics.getWidth()/2 - 226;
-                    fEY = Gdx.graphics.getHeight()/2 + 273;
+                    fEX = (float) Gdx.graphics.getWidth()/2 - 226;
+                    fEY = (float) Gdx.graphics.getHeight()/2 + 273;
                     break;
                 case 6:
-                    fEX = Gdx.graphics.getWidth()/2 + (float) 224.5;
-                    fEY = Gdx.graphics.getHeight()/2 + 273;
+                    fEX = (float) Gdx.graphics.getWidth()/2 + (float) 224.5;
+                    fEY = (float) Gdx.graphics.getHeight()/2 + 273;
                     break;
             }
             nEnemies++;
@@ -291,7 +346,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
     private void moveEnemy() {
         for (int i = 0; i < alEnemy.size(); i++) {
             alEnemy.get(i).Update();
-            if (Constants.isShowing || !Constants.isGameStart) {
+            if (Constants.isShowing || !Constants.isGameStart || isDialogueStart) {
                 alEnemy.get(i).body.setAwake(false);
                 alEnemy.get(i).isMoving = false;
             } else {

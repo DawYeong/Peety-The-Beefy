@@ -53,8 +53,10 @@ public class ScrLvl3 implements Screen, InputProcessor {
     int nLevelWidth, nLevelHeight, nCameraType, nSection;
     boolean isLocked;
     Texture txBack1, txBack2;
-    boolean bCameraTransition;
+    boolean bCameraTransition, bWallCreated;
     PlayerGUI pGUI;
+    InvisibleWalls iwSection1, iwSection2;
+    Text tLvl3;
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
 
 
@@ -86,8 +88,8 @@ public class ScrLvl3 implements Screen, InputProcessor {
         nLevelWidth = props.get("width", Integer.class);
         nLevelHeight = props.get("height", Integer.class);
 
-        fX = nLevelWidth * PPM / 2;
-        fY = nLevelHeight * PPM / 2;
+        fX = (float) nLevelWidth * PPM / 2;
+        fY = (float) nLevelHeight * PPM / 2;
         fW = 32;
         fH = 32;
         fminWidth = Constants.SCREENWIDTH * (float) 0.4;
@@ -102,13 +104,17 @@ public class ScrLvl3 implements Screen, InputProcessor {
                 (short) (Constants.BIT_WALL | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0, new Vector2(0, 0),
                 scrLvl1.ecPlayer.fHealth, nLevelWidth, nLevelHeight);
         pGUI = new PlayerGUI(scrLvl1.fixedBatch, batch, ecPlayer.body.getPosition(), new Vector2(0, 0), font, generator, parameter);
-        v2Target = new Vector2(nLevelWidth * PPM / 6, nLevelHeight * PPM / 2);
+        v2Target = new Vector2((float) nLevelWidth * PPM / 6, (float) nLevelHeight * PPM / 2);
+        iwSection1 = new InvisibleWalls(world, (float) Constants.SCREENWIDTH + 32, 368, 32, 96, Constants.BIT_WALL,
+                (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
         Constants.nBulletCount = 4;
     }
 
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
+        tLvl3 = new Text(generator, parameter, font, "Peety The Beefy Fights the Freaky Beasty", 26, Gdx.graphics.getWidth()/2,
+                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
     }
 
     @Override
@@ -153,6 +159,10 @@ public class ScrLvl3 implements Screen, InputProcessor {
                 }
             }
         }
+
+        tLvl3.Update();
+
+        sectionBlockage();
         vMousePosition = new Vector2(Gdx.input.getX() + fSectionAdd, Gdx.graphics.getHeight() - Gdx.input.getY());
         pGUI.vMousePosition = vMousePosition;
         pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
@@ -189,28 +199,51 @@ public class ScrLvl3 implements Screen, InputProcessor {
             }
         }
         cameraTransition();
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            System.out.println(ecPlayer.body.getPosition().x * PPM);
+        }
+    }
+
+    private void sectionBlockage() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.J)) {
+            if(iwSection1.body.isActive() && nSection == 0) {
+                world.destroyBody(iwSection1.body);
+            }
+            if(bWallCreated) {
+                if (iwSection2.body.isActive() && nSection == 1) {
+                    world.destroyBody(iwSection2.body);
+                    bWallCreated = false;
+                }
+            }
+        }
     }
 
     private void cameraTransition() {
         if (bCameraTransition) {
             if (nCameraType == 1) {
                 if (camera.position.x >= Constants.SCREENWIDTH * (float) 1.4) {
-                    v2Target.x = nLevelWidth * PPM / 2;
+                    v2Target.x = (float) nLevelWidth * PPM / 2;
                     fminWidth = Constants.SCREENWIDTH * (float) 1.4;
                     fMaxWidth = Constants.SCREENWIDTH * (float) 1.6;
-                    nSection = 1;
                     fSectionAdd = Constants.SCREENWIDTH;
+                    iwSection1 = new InvisibleWalls(world, (float) Constants.SCREENWIDTH - 32, 368, 32, 96, Constants.BIT_WALL,
+                            (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
+                    iwSection2 = new InvisibleWalls(world, (float) Constants.SCREENWIDTH * 2 + 32, 368, 32, 96, Constants.BIT_WALL,
+                            (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
+                    bWallCreated = true;
                     bCameraTransition = false;
+                    nSection = 1;
                 }
                 camera.position.x += 4;
             } else if (nCameraType == 2) {
                 if (camera.position.x >= Constants.SCREENWIDTH * (float) 2.4) {
-                    v2Target.x = nLevelWidth * PPM - (nLevelWidth * PPM / 6);
+                    v2Target.x = nLevelWidth * PPM - ((float)nLevelWidth * PPM / 6);
                     fminWidth = Constants.SCREENWIDTH * (float) 2.4;
                     fMaxWidth = Constants.SCREENWIDTH * (float) 2.6;
-                    nSection = 2;
                     fSectionAdd = Constants.SCREENWIDTH * 2;
+                    iwSection1.body.setTransform((float) (Constants.SCREENWIDTH * 2 - 32) / PPM, iwSection1.body.getPosition().y, 0);
                     bCameraTransition = false;
+                    nSection = 2;
                 }
                 camera.position.x += 4;
             }
