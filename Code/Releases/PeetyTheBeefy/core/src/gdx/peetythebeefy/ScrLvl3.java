@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,9 +17,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import java.util.ArrayList;
@@ -45,19 +42,21 @@ public class ScrLvl3 implements Screen, InputProcessor {
     World world;
     EntityCreation ecPlayer;
     float fX, fY, fW, fH, fminWidth, fMaxWidth, fSectionAdd = 0;
-    Box2DDebugRenderer b2dr;
     OrthogonalTiledMapRenderer otmr;
     TiledMap tMapLvl3;
     TiledPolyLines tplLvl3;
     Vector2 v2Target, vMousePosition;
-    int nLevelWidth, nLevelHeight, nCameraType, nSection;
+    int nLevelWidth, nLevelHeight, nCameraType, nSection, nCharacter, nDialogue = 0;
     boolean isLocked;
     Texture txBack1, txBack2;
-    boolean bCameraTransition, bWallCreated;
+    boolean bCameraTransition, bWallCreated, isDialogueStart, isDialogueDone, isBack;
     PlayerGUI pGUI;
     InvisibleWalls iwSection1, iwSection2;
     Text tLvl3;
+    TextBox tbCharacter;
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
+    ArrayList<Text> alDialogue = new ArrayList<Text>();
+    public static float fTransitWidth, fTransitHeight;
 
 
     public ScrLvl3(PeetyTheBeefy game) {
@@ -77,7 +76,9 @@ public class ScrLvl3 implements Screen, InputProcessor {
         world.setContactListener(new ContactListener1());
         generator = new FreeTypeFontGenerator(Gdx.files.internal("slkscr.ttf"));
 
-        b2dr = new Box2DDebugRenderer();
+        fTransitHeight = Gdx.graphics.getHeight() * (float) 1.5;
+        fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
+
 
         tMapLvl3 = new TmxMapLoader().load("PeetytheBeefy3.tmx");
         tplLvl3 = new TiledPolyLines(world, tMapLvl3.getLayers().get("collision-layer").getObjects(), Constants.BIT_WALL,
@@ -107,14 +108,16 @@ public class ScrLvl3 implements Screen, InputProcessor {
         v2Target = new Vector2((float) nLevelWidth * PPM / 6, (float) nLevelHeight * PPM / 2);
         iwSection1 = new InvisibleWalls(world, (float) Constants.SCREENWIDTH + 32, 368, 32, 96, Constants.BIT_WALL,
                 (short) (Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_ENEMYBULLET), (short) 0);
+        createText();
+        tbCharacter = new TextBox(scrLvl1.fixedBatch, nCharacter, isDialogueStart, font, generator, parameter, alDialogue.get(0));
         Constants.nBulletCount = 4;
     }
 
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
-        tLvl3 = new Text(generator, parameter, font, "Peety The Beefy Fights the Freaky Beasty", 26, Gdx.graphics.getWidth()/2,
-                Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
+        tLvl3 = new Text(generator, parameter, font, "Peety The Beefy Fights the Freaky Beasty", 26, Gdx.graphics.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2, scrLvl1.fixedBatch, 1, 1, "Level");
     }
 
     @Override
@@ -134,59 +137,80 @@ public class ScrLvl3 implements Screen, InputProcessor {
         otmr.setView(camera);
         otmr.render();
 
-        b2dr.render(world, camera.combined.scl(PPM));
 
         ecPlayer.Update();
+        if (Constants.isGameStart) {
+            scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world, nLevelWidth, nLevelHeight);
 
-        scrLvl1.playerShoot(ecPlayer.body.getPosition(), vMousePosition, alBullet, world, nLevelWidth, nLevelHeight);
-
-        for (int i = 0; i < alBullet.size(); i++) {
-            alBullet.get(i).Update();
-            if (Constants.isShowing) {
-                alBullet.get(i).body.setAwake(false);
-            } else if (!Constants.isShowing && !alBullet.get(i).isStuck) {
-                alBullet.get(i).body.setAwake(true);
-            }
-            if (alBullet.get(i).canCollect) {
-                if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() * 2) &&
-                        ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass() * 2) &&
-                        ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass() * 2) &&
-                        ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)
-                        || isPlayerDead) {
-                    alBullet.get(i).world.destroyBody(alBullet.get(i).body);
-                    Constants.nBulletCount++;
-                    alBullet.remove(i);
+            for (int i = 0; i < alBullet.size(); i++) {
+                alBullet.get(i).Update();
+                if (Constants.isShowing) {
+                    alBullet.get(i).body.setAwake(false);
+                } else if (!Constants.isShowing && !alBullet.get(i).isStuck) {
+                    alBullet.get(i).body.setAwake(true);
+                }
+                if (alBullet.get(i).canCollect) {
+                    if (ecPlayer.body.getPosition().x - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().x + (alBullet.get(i).body.getMass() * 2) &&
+                            ecPlayer.body.getPosition().x + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().x - (alBullet.get(i).body.getMass() * 2) &&
+                            ecPlayer.body.getPosition().y - (ecPlayer.body.getMass() / 2) <= alBullet.get(i).body.getPosition().y + (alBullet.get(i).body.getMass() * 2) &&
+                            ecPlayer.body.getPosition().y + (ecPlayer.body.getMass() / 2) >= alBullet.get(i).body.getPosition().y - (alBullet.get(i).body.getMass() * 2)
+                            || isPlayerDead) {
+                        alBullet.get(i).world.destroyBody(alBullet.get(i).body);
+                        Constants.nBulletCount++;
+                        alBullet.remove(i);
+                    }
                 }
             }
-        }
 
-        tLvl3.Update();
+            tLvl3.Update();
 
-        sectionBlockage();
-        vMousePosition = new Vector2(Gdx.input.getX() + fSectionAdd, Gdx.graphics.getHeight() - Gdx.input.getY());
-        pGUI.vMousePosition = vMousePosition;
-        pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
-        pGUI.Update();
+            changeBox();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
-            game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
-            game.fMouseY = Constants.SCREENHEIGHT;
-            Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
+            sectionBlockage();
+            vMousePosition = new Vector2(Gdx.input.getX() + fSectionAdd, Gdx.graphics.getHeight() - Gdx.input.getY());
+            pGUI.vMousePosition = vMousePosition;
+            pGUI.v2PlayerPosition = ecPlayer.body.getPosition();
+            if (!isDialogueStart) {
+                pGUI.Update();
+            } else {
+                if (alDialogue.size() != 0) {
+                    tbCharacter.Update();
+                }
+            }
+
+            dialogueLogic();
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { //button is currently being drawn behind the tiled map
+                game.fMouseX = Constants.SCREENWIDTH; // just moves mouse away from button
+                game.fMouseY = Constants.SCREENHEIGHT;
+                Constants.isShowing = !Constants.isShowing; //its like a pop up menu, if you want to go back press p to bring up back button
+            }
         }
 
         //will clean up this code
-        if (Constants.isShowing) {
-            drawButtons();
+        if (!Constants.isGameStart || isPlayerDead || isDialogueStart) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
+            if (Constants.isShowing && !isDialogueStart) {
+                drawButtons();
+            }
         } else {
-            ecPlayer.isMoving = true;
+            if (Constants.isShowing) {
+                drawButtons();
+                ecPlayer.body.setAwake(false);
+                ecPlayer.isMoving = false;
+            } else {
+                ecPlayer.body.setAwake(true);
+                ecPlayer.isMoving = true;
+            }
         }
         if (bCameraTransition) {
             ecPlayer.body.setAwake(false);
             ecPlayer.isMoving = false;
         } else {
-            ecPlayer.isMoving = true;
+            if(!Constants.isShowing) {
+                ecPlayer.isMoving = true;
+            }
         }
 
         if (!bCameraTransition) {
@@ -199,17 +223,57 @@ public class ScrLvl3 implements Screen, InputProcessor {
             }
         }
         cameraTransition();
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            System.out.println(ecPlayer.body.getPosition().x * PPM);
+
+        screenTransition();
+        transitionBlock();
+
+    }
+
+    private void dialogueLogic() {
+        tbCharacter.isTransition = isDialogueStart;
+        if (alDialogue.size() != 0) {
+            tbCharacter.tText = alDialogue.get(0);
+            if (tLvl3.isFinished && !isDialogueDone) {
+                alDialogue.get(0).Update();
+                isDialogueStart = true;
+            }
+            if (alDialogue.get(0).isFinished && tbCharacter.fOpacity2 >= 1) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                    if (isDialogueStart) {
+                        nDialogue++;
+                    }
+                    if (nDialogue == 5) {
+                        isDialogueDone = true;
+                        isDialogueStart = false;
+                    }
+                    tbCharacter.fOpacity2 = 0;
+                    alDialogue.get(0).sbDisplay.delete(0, alDialogue.get(0).sbDisplay.length());
+                    alDialogue.remove(0);
+                }
+
+            }
         }
     }
 
+    private void createText() {
+        alDialogue.add(new Text(generator, parameter, font, "This level is clearly not complete.", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "TextBox"));
+        alDialogue.add(new Text(generator, parameter, font, "This level is broken up into 3 parts.", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "TextBox"));
+        alDialogue.add(new Text(generator, parameter, font, "The 3 parts blocked off by a barrier. Just press 'j' to destroy the barrier", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "TextBox"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: Wow, an empty level? Damn the Devs really gave up huh.", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "You know what Peety, you can shut up.", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "TextBox"));
+    }
+
     private void sectionBlockage() {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.J)) {
-            if(iwSection1.body.isActive() && nSection == 0) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
+            if (iwSection1.body.isActive() && nSection == 0) {
                 world.destroyBody(iwSection1.body);
             }
-            if(bWallCreated) {
+            if (bWallCreated) {
                 if (iwSection2.body.isActive() && nSection == 1) {
                     world.destroyBody(iwSection2.body);
                     bWallCreated = false;
@@ -237,7 +301,7 @@ public class ScrLvl3 implements Screen, InputProcessor {
                 camera.position.x += 4;
             } else if (nCameraType == 2) {
                 if (camera.position.x >= Constants.SCREENWIDTH * (float) 2.4) {
-                    v2Target.x = nLevelWidth * PPM - ((float)nLevelWidth * PPM / 6);
+                    v2Target.x = nLevelWidth * PPM - ((float) nLevelWidth * PPM / 6);
                     fminWidth = Constants.SCREENWIDTH * (float) 2.4;
                     fMaxWidth = Constants.SCREENWIDTH * (float) 2.6;
                     fSectionAdd = Constants.SCREENWIDTH * 2;
@@ -258,11 +322,8 @@ public class ScrLvl3 implements Screen, InputProcessor {
             Constants.isFadeIn[1] = false;
             ScrMainMenu.fAlpha = 0;
             ScrStageSelect.fAlpha = 0;
-            game.updateScreen(0);
-            game.mGame.stop();
-            game.mBackground.setLooping(true);
-            game.mBackground.setVolume(0.1f);
-            game.mBackground.play();
+            Constants.isGameStart = false;
+            isBack = true;
         }
     }
 
@@ -275,6 +336,49 @@ public class ScrLvl3 implements Screen, InputProcessor {
             CameraStyles.boundary(camera, fStartX, fStartY, fminWidth, fMaxWidth, nLevelHeight * PPM);
         }
         camera.update();
+    }
+
+    private void transitionBlock() {
+        SR.begin(ShapeRenderer.ShapeType.Filled);
+        SR.setColor(0, 0, 0, 1);
+        SR.rect(Gdx.graphics.getWidth() / 2 - (fTransitWidth / 2), Gdx.graphics.getHeight() / 2 - (fTransitHeight / 2), fTransitWidth, fTransitHeight);
+        SR.end();
+    }
+
+    private void screenTransition() {
+        if (Constants.isFadeOut[2] && fTransitWidth >= 0) {
+            fTransitHeight -= 16;
+            fTransitWidth -= 16;
+        }
+        if (fTransitWidth <= 0 && !isBack) {
+            Constants.isGameStart = true;
+            Constants.isFadeOut[2] = false;
+        }
+        if (isBack) {
+            if (fTransitWidth <= Gdx.graphics.getWidth() * 1.5) {
+                fTransitWidth += 16;
+                fTransitHeight += 16;
+            } else if (fTransitWidth >= Gdx.graphics.getWidth() * 1.5) {
+                game.mGame.stop();
+                game.updateScreen(0);
+                game.mBackground.setLooping(true);
+                game.mBackground.setVolume(0.1f);
+                game.mBackground.play();
+                isBack = false;
+            }
+        }
+    }
+
+    private void changeBox() {
+        if (alDialogue.size() != 0) {
+            if (alDialogue.get(0).sId.contains("Peety")) {
+                tbCharacter.nType = 1;
+            } else if (alDialogue.get(0).sId.contains("Matty")) {
+                tbCharacter.nType = 2;
+            } else if (alDialogue.get(0).sId.contains("TextBox")) {
+                tbCharacter.nType = 3;
+            }
+        }
     }
 
     @Override
@@ -299,7 +403,6 @@ public class ScrLvl3 implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
-        b2dr.dispose();
         tMapLvl3.dispose();
         otmr.dispose();
         generator.dispose();

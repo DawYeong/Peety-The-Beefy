@@ -51,6 +51,8 @@ public class Text {
             sCharSpeak = assetManager.get("sound/PeetyTalk.mp3", Sound.class);
         } else if(sId.contentEquals("Matty")) {
             sCharSpeak = assetManager.get("sound/MattyTalk.mp3", Sound.class);
+        } else if(sId.contentEquals("TextBox")) {
+            sCharSpeak = assetManager.get("sound/TextBoxTalk.mp3", Sound.class);
         }
         for (int i = 0; i < arcText.length; i++) {
             sTemp[i] = "";
@@ -116,9 +118,14 @@ public class Text {
             if (nDelay >= 3) {
                 if (isForward) {
                     sbDisplay.append(arcText[nCount]);
-                    if((arcText[nCount] != '.' && arcText[nCount] != ':' && arcText[nCount] != ',')
-                            && nCount >= sId.length()) {
-                        sCharSpeak.play(0.1f);
+                    if((arcText[nCount] != '.' && arcText[nCount] != ':' && arcText[nCount] != ',')) {
+                       if(sId.contentEquals("TextBox")) {
+                           sCharSpeak.play(0.1f);
+                       } else {
+                           if(nCount >= sId.length()) {
+                               sCharSpeak.play(0.1f);
+                           }
+                       }
                     }
                     nCount++;
                 }

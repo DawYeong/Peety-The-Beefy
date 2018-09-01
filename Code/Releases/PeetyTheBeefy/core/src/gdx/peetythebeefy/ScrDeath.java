@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.peetythebeefy.cookiecutters.Constants;
 
@@ -14,15 +15,19 @@ public class ScrDeath implements Screen, InputProcessor{
     PeetyTheBeefy game;
     SpriteBatch fixedBatch;
     BitmapFont bfDeath = new BitmapFont();
-    float fOpacity = 0;
+    float fOpacity;
+    GlyphLayout layout1, layout2;
 
     public ScrDeath(PeetyTheBeefy game) {
         this.game = game;
         fixedBatch = new SpriteBatch();
+        layout1 = new GlyphLayout(bfDeath, "You Died (Press R)");
+        layout2 = new GlyphLayout(bfDeath, "Remember to avoid the Matties from jumping on your Head!");
     }
     @Override
     public void show() {
         Gdx.input.setInputProcessor(this);
+        fOpacity = 0;
     }
 
     @Override
@@ -34,15 +39,16 @@ public class ScrDeath implements Screen, InputProcessor{
         }
         fixedBatch.begin();
         bfDeath.setColor(1, 1, 1, fOpacity);
-        bfDeath.draw(fixedBatch, "You Died (Press R)", Constants.SCREENWIDTH/2 - 50,Constants.SCREENHEIGHT/2 + 50);
+        bfDeath.draw(fixedBatch, "You Died (Press R)", Constants.SCREENWIDTH/2 - layout1.width/2,Constants.SCREENHEIGHT/2 + 100);
+        bfDeath.draw(fixedBatch, "Remember to avoid the Matties from jumping on your Head!", Constants.SCREENWIDTH/2 -layout2.width/2,
+                Constants.SCREENHEIGHT/2 + 50);
         fixedBatch.end();
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             Constants.nHealth = 4;
             Constants.isPlayerDead = false;
             game.isReset = true;
-            if(Constants.nCurrentScreen == 3) {
-                Constants.nBeefinessLevel --;
-            }
+            Constants.fPlayerDamage /= 2;
+            Constants.nBeefinessLevel--;
             game.updateScreen(Constants.nCurrentScreen);
         }
     }
@@ -69,7 +75,7 @@ public class ScrDeath implements Screen, InputProcessor{
 
     @Override
     public void dispose() {
-
+        bfDeath.dispose();
     }
 
     @Override

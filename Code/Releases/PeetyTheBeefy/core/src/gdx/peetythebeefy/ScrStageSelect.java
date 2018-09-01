@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import java.util.ArrayList;
 import gdx.peetythebeefy.cookiecutters.Constants;
@@ -123,7 +122,7 @@ public class ScrStageSelect implements Screen {
 //                    alButtons.get(i).sprButton.setColor(Color.DARK_GRAY);
 //                    alButtons.get(i).sprButton.setAlpha(10);
 //                }
-                else if(Constants.isLevelUnlocked[i] && !Constants.isLevelFinished[i]) {
+                else {
                     alButtons.get(i).sprButton.setColor(Color.WHITE);
                     alButtons.get(i).sprButton.setAlpha(1);
                 }

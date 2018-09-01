@@ -18,7 +18,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.Buttons;
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
@@ -54,10 +53,8 @@ public class ScrMainMenu implements Screen, InputProcessor {
         sHover = assetManager.get("sound/Hover.mp3", Sound.class);
         sPlay = assetManager.get("sound/Play.mp3", Sound.class);
         Constants.isLevelUnlocked[0] = true;
-        Constants.isLevelUnlocked[1] = true;
-        Constants.isLevelUnlocked[2] = true;
         createButtons();
-        for (int i = 3; i < 12; i++) {
+        for (int i = 1; i < 12; i++) {
             Constants.isLevelUnlocked[i] = false;
         }
     }

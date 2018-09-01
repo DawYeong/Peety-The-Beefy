@@ -10,7 +10,8 @@ import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
 
 public class ContactListener1 implements ContactListener {
 
-    private Sound sHit = assetManager.get("sound/Hit.mp3", Sound.class);
+    private Sound sHit = assetManager.get("sound/Hit.mp3", Sound.class),
+            sPeetyHit = assetManager.get("sound/PeetyHit.mp3", Sound.class);
     @Override
     public void beginContact(Contact contact) {
         Fixture fixA = contact.getFixtureA();
@@ -30,21 +31,23 @@ public class ContactListener1 implements ContactListener {
             if((!bulletBody.isStuck || !enemyBody.isStuck)) {
                 if(bulletBody.sId.contentEquals("Bullet") && enemyBody.sId.contentEquals("ENEMY")) {
                     if(bulletBody.canDamage) {
+                        sHit.play();
                         enemyBody.fHealth -= Constants.fPlayerDamage;
                     }
-                    sHit.play();
                     bulletBody.canDamage = false;
                 } else if(enemyBody.sId.contentEquals("Bullet") && bulletBody.sId.contentEquals("ENEMY")) {
                     if(enemyBody.canDamage) {
+                        sHit.play();
                         bulletBody.fHealth -= Constants.fPlayerDamage;
                     }
-                    sHit.play();
                     enemyBody.canDamage = false;
                 }
                 if(bulletBody.sId.contentEquals("EnemyBullet") && enemyBody.sId.contentEquals("PLAYER")) {
+                    sPeetyHit.play();
                     Constants.nHealth--;
                     bulletBody.isStuck = true;
                 } else if(enemyBody.sId.contentEquals("EnemyBullet") && bulletBody.sId.contentEquals("PLAYER")) {
+                    sPeetyHit.play();
                     Constants.nHealth--;
                     enemyBody.isStuck = true;
                 }
@@ -55,6 +58,7 @@ public class ContactListener1 implements ContactListener {
             EntityCreation enemyBody = (EntityCreation) fixB.getUserData();
             if(playerBody.body.getPosition().y + playerBody.body.getMass()/2 <=
                     enemyBody.body.getPosition().y + enemyBody.body.getMass()/2 && playerBody.sId.contentEquals("PLAYER") && enemyBody.sId.contentEquals("ENEMY")) {
+                sPeetyHit.play();
                 Constants.nHealth --;
             }
         }
@@ -104,7 +108,9 @@ public class ContactListener1 implements ContactListener {
     }
 
     private boolean isPlayerhitBarrier(Fixture fixA, Fixture fixB) {
-        if(fixA.getUserData() instanceof InvisibleWalls && fixB.getUserData() instanceof EntityCreation);
-        return true;
+        if(fixA.getUserData() instanceof InvisibleWalls && fixB.getUserData() instanceof EntityCreation) {
+            return true;
+        }
+        return false;
     }
 }

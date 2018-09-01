@@ -29,7 +29,7 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
     OrthographicCamera camera;
     Music mBackground, mGame;
     float fMouseX, fMouseY;
-    boolean isReset, isReady = true;
+    boolean isReset, isLeveledup;
     public static final AssetManager assetManager = new AssetManager();
 
     @Override
@@ -98,8 +98,10 @@ public class PeetyTheBeefy extends Game implements InputProcessor {
         if(Constants.fBeefyProgression >= Constants.fLevelUp) {
             Constants.nBeefinessLevel++;
             Constants.fLevelUp += 2;
-            Constants.fPlayerDamage += 0.5f;
+            Constants.fPlayerDamage *= 2;
             Constants.fBeefyProgression = 0;
+            isLeveledup = true;
+            System.out.println("Level UP !");
         }
     }
 

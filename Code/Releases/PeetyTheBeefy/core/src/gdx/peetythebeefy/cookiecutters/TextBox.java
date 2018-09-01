@@ -18,7 +18,7 @@ public class TextBox {
     BitmapFont font;
     public Text tText;
     SpriteBatch fixedBatch;
-    Sprite sprPeety, sprMatty;
+    Sprite sprPeety, sprMatty, sprText;
     public int nType;
     public boolean isTransition;
     public float fOpacity = 0, fOpacity2 = 0;
@@ -34,6 +34,7 @@ public class TextBox {
         this.fixedBatch = _fixedBatch;
         sprPeety = new Sprite(assetManager.get("TextBoxPeety.png", Texture.class));
         sprMatty = new Sprite(assetManager.get("TextBoxMatty.png", Texture.class));
+        sprText = new Sprite(assetManager.get("TextBox.png", Texture.class));
         parameter.size = 15;
         font = generator.generateFont(parameter);
         layout = new GlyphLayout(font, "Press space");
@@ -52,6 +53,8 @@ public class TextBox {
             sprPeety.draw(fixedBatch);
         } else if (nType == 2) {
             sprMatty.draw(fixedBatch);
+        } else if(nType == 3) {
+            sprText.draw(fixedBatch);
         }
         font.setColor(1, 1, 1, fOpacity2);
         font.draw(fixedBatch, "Press space", Gdx.graphics.getWidth() - (layout.width * (float) 1.25), 30);

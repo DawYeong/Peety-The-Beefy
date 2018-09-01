@@ -25,7 +25,6 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gdx.peetythebeefy.cookiecutters.*;
 
 import static gdx.peetythebeefy.PeetyTheBeefy.assetManager;
@@ -216,9 +215,6 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 }
             }
         }
-        fixedBatch.begin();
-        font.draw(fixedBatch, Integer.toString(Gdx.graphics.getFramesPerSecond()), 10, Gdx.graphics.getHeight() - 20);
-        fixedBatch.end();
 
         screenTransition();
         transitionBlock();
@@ -252,7 +248,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     if (isDialogueStart) {
                         nDialogue++;
                     }
-                    if (nDialogue == 5 || nDialogue == 15 || nDialogue == 18) {
+                    if (nDialogue == 5 || nDialogue == 15 || nDialogue == 19) {
                         System.out.println("here");
                         isDialogueDone = true;
                         isDialogueStart = false;
@@ -262,7 +258,7 @@ public class ScrLvl1 implements Screen, InputProcessor {
                     alDialogue.remove(0);
                 }
             }
-            if (Constants.nBeefinessLevel == 2 && isLevelDialogue && nDialogue < 14) {
+            if (game.isLeveledup && isLevelDialogue && nDialogue < 14) {
                 nDialogueDelay++;
                 if (nDialogueDelay >= 75) {
                     tbCharacter.fOpacity = 0;
@@ -344,7 +340,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
             }
             if (alEnemy.get(i).isDeath || isPlayerDead) {
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
-                Constants.fBeefyProgression++;
+                if(!isPlayerDead) {
+                    Constants.fBeefyProgression++;
+                }
                 nCount--;
                 alEnemy.remove(i);
             }
@@ -494,6 +492,9 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 , 26, 30, 200, fixedBatch, 2, 15, "Matty"));
         alDialogue.add(new Text(generator, parameter, font, "Peety: Pffftttt... Alright Matty I'll see about that."
                 , 26, 30, 200, fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "To proceed to the next level just run into the doors. " +
+                "Yes I sincerely apologize for the terrible level design (will be the same for all levels)", 26,
+                30, 200, fixedBatch, 2, 15, "TextBox"));
     }
 
     private void changeBox() {
@@ -502,6 +503,8 @@ public class ScrLvl1 implements Screen, InputProcessor {
                 tbCharacter.nType = 1;
             } else if (alDialogue.get(0).sId.contentEquals("Matty")) {
                 tbCharacter.nType = 2;
+            } else if (alDialogue.get(0).sId.contentEquals("TextBox")) {
+                tbCharacter.nType = 3;
             }
         }
     }

@@ -53,15 +53,15 @@ public class ScrLvl2 implements Screen, InputProcessor {
     ScrLvl1 scrLvl1;
     EntityCreation ecPlayer;
     float fX, fY, fW, fH, fEX, fEY;
-    int nLevelWidth, nLevelHeight, nCharacter, nDialogue = 0;
-    int nSpawnRate = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nSpawnLocation;
+    int nLevelWidth, nLevelHeight, nCharacter, nDialogue = 0, nSpawnRate = 0, nEnemies = 0, nMaxEnemies = 2, nWaveCount = 1, nSpawnLocation,
+    nDialogueDelay = 0;
     Texture txBackground, txSky;
     Vector2 vMousePosition, vEnemyShootDir, vEBulletPos, vTargetPos, v2Target;
     ArrayList<EntityCreation> alEnemy = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alEnemyBullet = new ArrayList<EntityCreation>();
     ArrayList<EntityCreation> alBullet = new ArrayList<EntityCreation>();
     ArrayList<Text> alDialogue = new ArrayList<Text>();
-    boolean isDialogueStart, isDialogueDone;
+    boolean isDialogueStart, isDialogueDone, isLevelDone, isBack;
     static float fTransitWidth, fTransitHeight;
     TextBox tbCharacter;
 
@@ -114,6 +114,9 @@ public class ScrLvl2 implements Screen, InputProcessor {
         Gdx.input.setInputProcessor(this);
         tLvl2 = new Text(generator, parameter, font, "Peety The Beefy Meets a Dreamy Sweetie", 26, Gdx.graphics.getWidth()/2,
                 Gdx.graphics.getHeight()/2, scrLvl1.fixedBatch, 1, 1, "Level");
+        if(isLevelDone) {
+            ecPlayer.body.setTransform((fX - 300)/ PPM, (fY - 215)/ PPM, 0);
+        }
     }
 
     @Override
@@ -223,19 +226,14 @@ public class ScrLvl2 implements Screen, InputProcessor {
             System.out.println("moves to the main menu");
             Constants.isShowing = false;
             Constants.isFadeIn[1] = false;
+            Constants.isGameStart = false;
             ScrLvl1.fTransitWidth = 0;
             ScrLvl1.fTransitHeight = 0;
             ScrMainMenu.fAlpha = 0;
             ScrStageSelect.fAlpha = 0;
-            fTransitHeight = Gdx.graphics.getHeight() * (float) 1.5;
-            fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
             Constants.nCurrentScreen = 4;
             ScrLvl1.isChangedToLvl2 = true;
-            game.updateScreen(0);
-            game.mGame.stop();
-            game.mBackground.setLooping(true);
-            game.mBackground.setVolume(0.1f);
-            game.mBackground.play();
+            isBack = true;
         }
     }
 
@@ -260,6 +258,8 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 tbCharacter.nType = 1;
             } else if(alDialogue.get(0).sId.contains("Matty")) {
                 tbCharacter.nType = 2;
+            } else if(alDialogue.get(0).sId.contains("TextBox")) {
+                tbCharacter.nType = 3;
             }
         }
     }
@@ -277,7 +277,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
                     if(isDialogueStart) {
                         nDialogue++;
                     }
-                    if(nDialogue == 1) {
+                    if(nDialogue == 4 || nDialogue == 8) {
                         isDialogueDone = true;
                         isDialogueStart = false;
                     }
@@ -291,8 +291,23 @@ public class ScrLvl2 implements Screen, InputProcessor {
     }
 
     private void createText(){
-        alDialogue.add(new Text(generator, parameter, font, "Peety: Wow I am an utter GOD! I can't believe how great I am. " +
-                "I know for a fact that I am not delusional, don't get me twisted.", 26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: YO, where y'all at?", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: I'm here B  R  U  H.", 26, 30,
+                200, scrLvl1.fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Dude with my new upgrade, you'll be seeing that ghetto death screen over and over again.",
+                26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: B R O, r  e  l  a  x. We'll see about that.",
+                26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: LMAOOOOOOO! Yo y'all trash at this game. Just ",
+                26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Peety"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Uninstall the game... Yea yea I know the deal.",
+                26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Matty: Yo don't you dare disrespect me! Just so you know my father owns the entirety of the universe, I " +
+                "have acquired over 500  b i l l i o n  dollars in daily earnings. So catch me on level 3.",
+                26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Matty"));
+        alDialogue.add(new Text(generator, parameter, font, "Peety: K",
+                26, 30, 200, scrLvl1.fixedBatch, 2, 15, "Peety"));
     }
 
     private void createEnemy() {
@@ -328,7 +343,7 @@ public class ScrLvl2 implements Screen, InputProcessor {
             alEnemy.add(new EntityCreation(world, "ENEMY", fEX, fEY, fW - 10, fH, batch, 9.2f,
                     0, 0, 0, 4, 1, "MTMsprite.png", 2,
                     Constants.BIT_ENEMY, (short) (Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY), (short) 0,
-                    new Vector2(0, 0), 2, nLevelWidth, nLevelHeight));
+                    new Vector2(0, 0), (float)3.5, nLevelWidth, nLevelHeight));
             nSpawnRate = 0;
         }
         if (alEnemy.size() == 0 && nEnemies == nMaxEnemies) {
@@ -336,9 +351,21 @@ public class ScrLvl2 implements Screen, InputProcessor {
             nMaxEnemies++;
             nEnemies = 0;
         }
+        if (nWaveCount == 3 && alEnemy.size() == 0 && isDialogueDone) {
+            nDialogueDelay++;
+            if (nDialogueDelay >= 75) {
+                tbCharacter.fOpacity = 0;
+                nDialogueDelay = 0;
+                isDialogueDone = false;
+            }
+        }
         if(nWaveCount == 3  && (ecPlayer.body.getPosition().x * PPM > 367  && ecPlayer.body.getPosition().x * PPM < 400) &&
                 (ecPlayer.body.getPosition().y * PPM > 289 && ecPlayer.body.getPosition().y * PPM < 338)) {
-            game.updateScreen(5);
+            Constants.isLevelFinished[1] = true;
+            Constants.isLevelUnlocked[2] = true;
+            Constants.isGameStart = false;
+            Constants.isFadeIn[2] = true;
+//            game.updateScreen(5);
         }
         nSpawnRate++;
     }
@@ -384,7 +411,9 @@ public class ScrLvl2 implements Screen, InputProcessor {
                 alEnemy.get(i).isInRange = false;
             }
             if (alEnemy.get(i).isDeath || isPlayerDead) {
-                Constants.fBeefyProgression ++;
+                if(!isPlayerDead) {
+                    Constants.fBeefyProgression++;
+                }
                 alEnemy.get(i).world.destroyBody(alEnemy.get(i).body);
                 alEnemy.remove(i);
             }
@@ -429,9 +458,33 @@ public class ScrLvl2 implements Screen, InputProcessor {
             fTransitHeight -= 16;
             fTransitWidth -= 16;
         }
-        if (fTransitWidth <= 0) {
+        if (fTransitWidth <= 0 && !isBack) {
             Constants.isGameStart = true;
             Constants.isFadeOut[1] = false;
+        }
+        if (isBack) {
+            if (fTransitWidth <= Gdx.graphics.getWidth() * 1.5) {
+                fTransitWidth += 16;
+                fTransitHeight += 16;
+            } else if (fTransitWidth >= Gdx.graphics.getWidth() * 1.5) {
+                game.mGame.stop();
+                game.updateScreen(0);
+                game.mBackground.setLooping(true);
+                game.mBackground.setVolume(0.1f);
+                game.mBackground.play();
+                isBack = false;
+            }
+        }
+        if (Constants.isFadeIn[2] && fTransitWidth <= Gdx.graphics.getWidth() * 1.5) {
+            fTransitHeight += 16;
+            fTransitWidth += 16;
+        }
+        if (fTransitWidth > Gdx.graphics.getWidth() * 1.5 && Constants.isFadeIn[2]) {
+            Constants.isFadeOut[2] = true;
+            Constants.isFadeIn[2] = false;
+//            ScrLvl2.fTransitWidth = Gdx.graphics.getWidth() * (float) 1.5;
+//            ScrLvl2.fTransitHeight = Gdx.graphics.getHeight() * (float) 1.5;
+            game.updateScreen(5);
         }
     }
 
